@@ -1,0 +1,124 @@
+# SwiftBI metric spec: email campaign performance (Mailchimp, Klaviyo, Brevo style).
+#
+# One file holds every definition a dashboard needs. Claude reads it before it
+# draws a chart; `swiftbi_spec.py lint` proves it; `compute` and `to-sql` make
+# every engine (Python, the browser, your warehouse, Power BI) agree.
+spec_version: 1
+name: Email Campaigns
+description: Send funnel and revenue for email campaigns, by campaign and audience segment.
+
+tables:
+  - name: CampaignSends
+    role: fact
+    grain: One row per campaign send to one segment.
+    source: data/campaignsends.csv
+    columns:
+      - {name: send_id, type: int, key: true}
+      - {name: send_date, type: date, calendar: active, description: Date the campaign went out.}
+      - {name: campaign_id, type: int, references: Campaigns.campaign_id}
+      - {name: segment_id, type: int, references: Segments.segment_id}
+      - {name: sent, type: int, additive: true, description: Emails sent, before bounces.}
+      - {name: delivered, type: int, additive: true, description: Emails accepted by the receiving server.}
+      - {name: unique_opens, type: int, additive: true, description: Recipients who opened at least once.}
+      - {name: unique_clicks, type: int, additive: true, description: Recipients who clicked at least once.}
+      - {name: unsubscribes, type: int, additive: true, description: Recipients who unsubscribed from this send.}
+      - {name: orders, type: int, additive: true, description: Orders the platform attributes to this send.}
+      - {name: revenue, type: number, additive: true, format: "$ #,0.00", description: Revenue the platform attributes to this send.}
+
+  - name: Campaigns
+    role: dimension
+    description: One row per email campaign or automated flow.
+    source: data/campaigns.csv
+    columns:
+      - {name: campaign_id, type: int, key: true}
+      - {name: campaign_name, type: string, description: Campaign name in the email platform.}
+      - {name: campaign_type, type: string, description: "Newsletter, Promotion or Automation."}
+      - {name: offer, type: string, description: Headline offer in the email, or None.}
+      - {name: subject_line, type: string, description: Subject line of the winning variant.}
+
+  - name: Segments
+    role: dimension
+    description: Audience segment a campaign was sent to.
+    source: data/segments.csv
+    columns:
+      - {name: segment_id, type: int, key: true}
+      - {name: segment_name, type: string, description: Segment name in the email platform.}
+      - {name: lifecycle_stage, type: string, description: "Prospect, Active or Lapsed."}
+      - {name: acquisition_source, type: string, description: Where most of the segment signed up.}
+
+metrics:
+  # Base metrics: sums of additive fact columns.
+  - {name: Total Sent, type: sum, column: CampaignSends.sent, format: "#,0", description: Emails sent, before bounces.}
+  - {name: Total Delivered, type: sum, column: CampaignSends.delivered, format: "#,0", description: Emails accepted by the receiving server.}
+  - {name: Total Unique Opens, type: sum, column: CampaignSends.unique_opens, format: "#,0", description: Recipients who opened at least once.}
+  - {name: Total Unique Clicks, type: sum, column: CampaignSends.unique_clicks, format: "#,0", description: Recipients who clicked at least once.}
+  - {name: Total Unsubscribes, type: sum, column: CampaignSends.unsubscribes, format: "#,0", description: Recipients who unsubscribed.}
+  - {name: Total Orders, type: sum, column: CampaignSends.orders, format: "#,0", description: Orders the platform attributes to the sends.}
+  - {name: Total Revenue, type: sum, column: CampaignSends.revenue, format: "$ #,0.00", color: "#1F6F4A", description: Revenue the platform attributes to the sends.}
+  - {name: "Sends #", type: count_distinct, column: CampaignSends.send_id, format: "#,0", description: Number of campaign-to-segment sends.}
+
+  # Rates: always a ratio of two metrics, so they stay right at every grain.
+  - name: Delivery %
+    type: ratio
+    numerator: Total Delivered
+    denominator: Total Sent
+    format: "0.0%"
+    description: Share of sent emails that were delivered.
+  - name: Open %
+    type: ratio
+    numerator: Total Unique Opens
+    denominator: Total Delivered
+    format: "0.0%"
+    color: "#7A8C99"
+    description: Unique opens over delivered. Inflated by privacy-protected (machine) opens; do not optimise on it alone.
+  - name: CTR %
+    type: ratio
+    numerator: Total Unique Clicks
+    denominator: Total Delivered
+    format: "0.0%"
+    color: "#2B6CB0"
+    description: Unique clicks over delivered emails. Not clicks over opens; that is CTOR.
+  - name: CTOR %
+    type: ratio
+    numerator: Total Unique Clicks
+    denominator: Total Unique Opens
+    format: "0.0%"
+    color: "#C05621"
+    description: Unique clicks over unique opens, the pull of the content once opened.
+  - name: Unsubscribe %
+    type: ratio
+    numerator: Total Unsubscribes
+    denominator: Total Delivered
+    format: "0.00%"
+    description: Unsubscribes over delivered emails, an early sign of list erosion.
+  - name: Click to Order %
+    type: ratio
+    numerator: Total Orders
+    denominator: Total Unique Clicks
+    format: "0.0%"
+    description: Orders over unique clicks, the pull of the landing page and offer.
+  - name: Revenue per Recipient
+    type: ratio
+    numerator: Total Revenue
+    denominator: Total Delivered
+    format: "$ #,0.000"
+    description: Revenue per delivered email, the one number that compares campaigns of any size.
+  - name: Promotion Revenue
+    type: filtered
+    metric: Total Revenue
+    filters: [{column: Campaigns.campaign_type, op: "=", value: Promotion}]
+    format: "$ #,0.00"
+    description: Revenue from campaigns of type Promotion only.
+  - name: Promotion Revenue Share %
+    type: ratio
+    numerator: Promotion Revenue
+    denominator: Total Revenue
+    format: "0.0%"
+    description: Share of email revenue that depends on discounts and promotions.
+
+# Assertions the data must satisfy. A funnel that runs uphill is a broken export.
+checks:
+  - {assert: "[Total Delivered] <= [Total Sent]", by: Campaigns.campaign_name}
+  - {assert: "[Total Unique Opens] <= [Total Delivered]", by: Campaigns.campaign_name}
+  - {assert: "[Total Unique Clicks] <= [Total Unique Opens]", by: Segments.segment_name}
+  - {assert: "[Total Orders] <= [Total Unique Clicks]", by: Campaigns.campaign_name}

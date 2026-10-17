@@ -1,0 +1,29 @@
+{
+  "name": "swift-pbi",
+  "version": "0.1.0",
+  "description": "Power BI as code, in conversation. Prototype a semantic model for your own data and hand engineers an openable PBIP spec; lint and fix TMDL; bring a fleet of client models back in line with one template; keep combo charts on one style. Personal project.",
+  "author": {
+    "name": "Christoforos Kapsalis",
+    "url": "https://c-kapsalis.github.io/"
+  },
+  "homepage": "https://github.com/C-Kapsalis/swift-pbi",
+  "repository": "https://github.com/C-Kapsalis/swift-pbi",
+  "license": "MIT",
+  "keywords": ["power-bi", "pbip", "tmdl", "semantic-model", "dax", "data-modeling"],
+  "skills": "./skills/",
+  "hooks": "./hooks/claude-hooks.json",
+  "interface": {
+    "displayName": "swift-pbi",
+    "shortDescription": "Power BI as code, in conversation",
+    "longDescription": "Prototype a Power BI semantic model in conversation and hand engineers an openable PBIP spec; lint and fix TMDL; keep client models in line with one template; keep combo charts on one style. Runs four open-source tools pinned to v1.1.0.",
+    "developerName": "Christoforos Kapsalis",
+    "category": "Development",
+    "capabilities": ["Instructions", "Lifecycle hooks"],
+    "websiteURL": "https://github.com/C-Kapsalis/swift-pbi",
+    "defaultPrompt": [
+      "Help me prototype a data model for our repair bookings.",
+      "Lint this PBIP folder and tell me why it will not open.",
+      "Which client models drifted from the template?"
+    ]
+  }
+}

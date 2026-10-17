@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "swift-pbi",
+  "version": "0.1.0",
+  "description": "Power BI as code, in conversation. Prototype a semantic model for your own data and hand engineers a spec; explain TMDL lint findings; plan how to bring client models in line with one template. Running the four command-line tools needs a local shell; in ChatGPT the skills interview, write specs and read pasted tool output.",
+  "author": {
+    "name": "Christoforos Kapsalis",
+    "url": "https://c-kapsalis.github.io/"
+  },
+  "homepage": "https://github.com/C-Kapsalis/swift-pbi",
+  "repository": "https://github.com/C-Kapsalis/swift-pbi",
+  "license": "MIT",
+  "keywords": ["power-bi", "pbip", "tmdl", "semantic-model", "data-modeling"]
+}

@@ -1,0 +1,377 @@
+{
+  "name": "BikeRepair",
+  "tables": [
+    {
+      "name": "Customers",
+      "description": "One row per workshop customer. Fictional data.",
+      "columns": [
+        {
+          "name": "customer_id",
+          "type": "int64",
+          "key": true
+        },
+        {
+          "name": "customer_name",
+          "type": "string",
+          "description": "Customer display name."
+        },
+        {
+          "name": "customer_type",
+          "type": "string",
+          "description": "Walk-in, Commuter club or Courier fleet."
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "Ana Ruiz",
+          "Walk-in"
+        ],
+        [
+          2,
+          "Ben Okafor",
+          "Commuter club"
+        ],
+        [
+          3,
+          "Cleo Varga",
+          "Walk-in"
+        ],
+        [
+          4,
+          "Swift Couriers",
+          "Courier fleet"
+        ],
+        [
+          5,
+          "Dev Patel",
+          "Commuter club"
+        ]
+      ]
+    },
+    {
+      "name": "Mechanics",
+      "description": "One row per workshop mechanic.",
+      "columns": [
+        {
+          "name": "mechanic_id",
+          "type": "int64",
+          "key": true
+        },
+        {
+          "name": "mechanic_name",
+          "type": "string",
+          "description": "Mechanic display name."
+        },
+        {
+          "name": "seniority",
+          "type": "string",
+          "description": "Junior, Senior or Lead."
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "Mira Holt",
+          "Lead"
+        ],
+        [
+          2,
+          "Sam Ito",
+          "Senior"
+        ],
+        [
+          3,
+          "Lena Fox",
+          "Junior"
+        ]
+      ]
+    },
+    {
+      "name": "Services",
+      "description": "Catalog of repair services the workshop sells.",
+      "columns": [
+        {
+          "name": "service_id",
+          "type": "int64",
+          "key": true
+        },
+        {
+          "name": "service_name",
+          "type": "string",
+          "description": "Service name on the price list."
+        },
+        {
+          "name": "service_group",
+          "type": "string",
+          "description": "Tune-up, Repair or Wheel work."
+        },
+        {
+          "name": "list_price",
+          "type": "double",
+          "format": "$ #,0.00",
+          "description": "Price list amount in USD."
+        }
+      ],
+      "rows": [
+        [
+          1,
+          "Basic tune-up",
+          "Tune-up",
+          60.0
+        ],
+        [
+          2,
+          "Full service",
+          "Tune-up",
+          140.0
+        ],
+        [
+          3,
+          "Brake bleed",
+          "Repair",
+          45.0
+        ],
+        [
+          4,
+          "Wheel true",
+          "Wheel work",
+          30.0
+        ],
+        [
+          5,
+          "Chain and cassette swap",
+          "Repair",
+          95.0
+        ]
+      ]
+    },
+    {
+      "name": "Repairs",
+      "description": "One row per repair job. Core fact table.",
+      "hidden": true,
+      "columns": [
+        {
+          "name": "repair_id",
+          "type": "int64"
+        },
+        {
+          "name": "booked_date",
+          "type": "datetime"
+        },
+        {
+          "name": "customer_id",
+          "type": "int64"
+        },
+        {
+          "name": "mechanic_id",
+          "type": "int64"
+        },
+        {
+          "name": "service_id",
+          "type": "int64"
+        },
+        {
+          "name": "labour_minutes",
+          "type": "int64",
+          "summarizeBy": "sum"
+        },
+        {
+          "name": "amount_billed",
+          "type": "double",
+          "summarizeBy": "sum"
+        },
+        {
+          "name": "is_comeback",
+          "type": "int64",
+          "summarizeBy": "sum"
+        }
+      ],
+      "rows": [
+        [
+          101,
+          "2025-01-08",
+          1,
+          3,
+          1,
+          45,
+          60.0,
+          0
+        ],
+        [
+          102,
+          "2025-01-15",
+          2,
+          2,
+          2,
+          120,
+          140.0,
+          0
+        ],
+        [
+          103,
+          "2025-02-02",
+          4,
+          1,
+          3,
+          30,
+          45.0,
+          0
+        ],
+        [
+          104,
+          "2025-02-20",
+          4,
+          1,
+          5,
+          75,
+          95.0,
+          0
+        ],
+        [
+          105,
+          "2025-03-04",
+          3,
+          3,
+          4,
+          25,
+          30.0,
+          1
+        ],
+        [
+          106,
+          "2025-03-18",
+          5,
+          2,
+          2,
+          110,
+          140.0,
+          0
+        ],
+        [
+          107,
+          "2025-04-01",
+          -1,
+          3,
+          1,
+          50,
+          60.0,
+          0
+        ],
+        [
+          108,
+          "2025-04-22",
+          2,
+          1,
+          3,
+          35,
+          45.0,
+          0
+        ],
+        [
+          109,
+          "2025-05-09",
+          4,
+          2,
+          5,
+          80,
+          95.0,
+          1
+        ],
+        [
+          110,
+          "2025-05-27",
+          1,
+          3,
+          4,
+          20,
+          30.0,
+          0
+        ],
+        [
+          111,
+          "2025-06-10",
+          5,
+          1,
+          2,
+          125,
+          140.0,
+          0
+        ],
+        [
+          112,
+          "2025-06-30",
+          4,
+          2,
+          1,
+          40,
+          60.0,
+          0
+        ]
+      ]
+    }
+  ],
+  "calendar": {
+    "name": "__Calendar"
+  },
+  "measures_table": {
+    "name": "Workshop Measures",
+    "description": "Measure home table: every user-facing measure lives here.",
+    "measures": [
+      {
+        "name": "Repairs #",
+        "expression": "COUNTROWS(Repairs)",
+        "format": "#,0",
+        "description": "Number of repair jobs."
+      },
+      {
+        "name": "Total Billed",
+        "expression": "SUM(Repairs[amount_billed])",
+        "format": "$ #,0.00",
+        "description": "Total amount billed for repair jobs, in USD."
+      },
+      {
+        "name": "Customers #",
+        "expression": "DISTINCTCOUNT(Customers[customer_id])",
+        "format": "#,0",
+        "description": "Distinct customers with a repair job in context."
+      },
+      {
+        "name": "Billed per Customer",
+        "expression": "DIVIDE([Total Billed], [Customers #])",
+        "format": "$ #,0.00",
+        "description": "Total billed divided by distinct customers."
+      },
+      {
+        "name": "Comebacks #",
+        "expression": "SUM(Repairs[is_comeback])",
+        "format": "#,0",
+        "description": ""
+      },
+      {
+        "name": "Comeback %",
+        "expression": "DIVIDE([Comebacks #], [Repairs #])",
+        "format": "0.0%",
+        "description": "Share of repair jobs that came back for the same fault."
+      }
+    ]
+  },
+  "relationships": [
+    {
+      "from": "Repairs.customer_id",
+      "to": "Customers.customer_id"
+    },
+    {
+      "from": "Repairs.mechanic_id",
+      "to": "Mechanics.mechanic_id"
+    },
+    {
+      "from": "Repairs.service_id",
+      "to": "Services.service_id"
+    },
+    {
+      "from": "Repairs.booked_date",
+      "to": "__Calendar.Date"
+    }
+  ]
+}

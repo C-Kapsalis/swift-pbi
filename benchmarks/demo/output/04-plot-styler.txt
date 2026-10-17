@@ -1,0 +1,62 @@
+
+# Tool version
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler --version
+pbi-plot-styler, version 1.1.0
+[exit 0]
+
+# Integrity check (bindings, bookmarks, field parameters, themes)
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler check Roastery.Report
+
+Checked 1 report(s): 0 error(s), 0 warning(s).
+[exit 0]
+
+# Style preview (exit 1 = at least one visual would change): summary only
+[exit 1]
+Model:    $WORK/roastery/Roastery.SemanticModel
+Measures: 6 drive the styling
+diff lines in preview: 254
+
+# Style for real
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler Roastery.Report
+Model:    $WORK/roastery/Roastery.SemanticModel
+Measures: 6 drive the styling
+  styled definition/pages/a1f935c9ad3918c55c49/visuals/5dd25eb672a72da45096/visual.json
+
+Restyled 1/1 visual(s); 0 already styled.
+[exit 0]
+
+# Run again: nothing should change
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler Roastery.Report
+Model:    $WORK/roastery/Roastery.SemanticModel
+Measures: 6 drive the styling
+
+Restyled 0/1 visual(s); 1 already styled.
+[exit 0]
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler Roastery.Report --dry-run
+Model:    $WORK/roastery/Roastery.SemanticModel
+Measures: 6 drive the styling
+
+All 1 visual(s) already styled.
+[exit 0]
+
+# Integrity check after styling
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler check Roastery.Report
+
+Checked 1 report(s): 0 error(s), 0 warning(s).
+[exit 0]
+
+# Break a binding on purpose: rename a measure in the model only
+renamed Revenue -> Net Revenue in Sales Measures.tmdl
+
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler check Roastery.Report
+ERROR    BND001  Roastery.Report/definition/pages/a1f935c9ad3918c55c49/visuals/5dd25eb672a72da45096/visual.json: measure 'Revenue' is not declared on table 'Sales Measures'
+ERROR    BND002  Roastery.Report/definition/pages/a1f935c9ad3918c55c49/visuals/5dd25eb672a72da45096/visual.json: queryRef 'Sales Measures.Revenue' does not resolve
+
+Checked 1 report(s): 2 error(s), 0 warning(s).
+[exit 1]

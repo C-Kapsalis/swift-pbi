@@ -1,0 +1,190 @@
+---
+name: prototype-model
+description: >-
+  Prototype a Power BI semantic model for a business team's own data in
+  conversation, then hand data or BI engineers an openable PBIP spec. Interviews
+  the user about their questions, grain, entities, dates and definitions, writes
+  a pbip-model-forge spec with fictional sample rows, gates it with pbip-forge
+  check and tmdl-preflight, builds the PBIP, and writes the hand-off package
+  (diagram, table, column and measure list, open questions). Use when the user
+  says "prototype a data model", "sketch a semantic model for our data", "spec a
+  Power BI model for the engineers", "mock up a star schema", or describes their
+  data and the questions they want answered.
+---
+
+# prototype-model
+
+A domain expert knows which questions matter and what the numbers mean. The
+data team has a backlog. This skill turns the expert's answers into a model
+the engineers can open, read and build from, so the first meeting starts from
+a concrete spec instead of a blank whiteboard.
+
+The deliverable is a **spec**, not a report: a PBIP whose report is blank on
+purpose, a diagram, a data dictionary, and the questions only the engineers
+can answer.
+
+## 0. Where you are running
+
+The build needs a local shell with `uv` (Claude Code, the Code tab in Claude
+Desktop, Codex or another agent with a terminal). It does not run in
+claude.ai chat.
+
+```
+uvx --version            # any version prints: you can build
+```
+
+No shell, or `uvx` is missing: do steps 1 to 3 (interview, star schema, spec
+file), give the user the spec, and tell them the two commands in step 5 to run
+where they have a terminal. Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+(macOS, Linux) or `winget install astral-sh.uv` (Windows).
+
+Use these two commands throughout:
+
+```
+FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.1.0 pbip-forge"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight"
+```
+
+In PowerShell, type the full `uvx ...` command instead of the variable.
+
+## 1. Interview (at most three questions per turn)
+
+Ask in this order. Stop asking when you can fill the star-schema table in
+step 2; mark anything still unknown as an open question instead of guessing.
+
+| # | Ask | Why |
+|---|---|---|
+| 1 | Which 3 to 5 questions should this model answer? Which decision does each feed? | Every measure must serve one of them |
+| 2 | What is one row of the main thing you count? (one order line, one visit, one ticket) | Sets the fact table's grain |
+| 3 | Who, what and where do you slice by? (customer, product, store, channel) | The dimensions |
+| 4 | Which dates matter? (ordered, shipped, closed) Which one is "the" date? | Calendar relationships, active vs inactive |
+| 5 | Which numbers add up? Which are rates or averages, and what are their top and bottom? | Base measures vs DIVIDE ratios |
+| 6 | Where does each piece live today? (system, export, spreadsheet) | Source notes for the engineers |
+| 7 | Anything that must not appear here? (personal data, client names, salaries) | Keep sample data fictional |
+
+Never put the user's real records, names or account ids into the spec. Sample
+rows are invented and labelled fictional. If the user pastes real rows, use
+their shape, not their values.
+
+## 2. Draw the star schema
+
+Fill this table and show it to the user before writing the spec:
+
+| Table | Role | One row per | Key | Columns | Answers question # |
+|---|---|---|---|---|---|
+
+Rules (the check in step 4 enforces most of them):
+
+- One fact table, hidden, whose description states the grain.
+- 2 to 4 dimensions, each with exactly one `int64` key (`"key": true`).
+- A foreign key has the same name as the key it points to
+  (`Repairs.customer_id -> Customers.customer_id`).
+- No null or orphan foreign keys: add an "Unknown" member (key `-1`).
+- A calendar: `"calendar": {"name": "__Calendar"}`; one active date
+  relationship, any other date `"active": false`.
+- A measures table with a domain name (`Workshop Measures`), never `Measures`.
+- Entity counts come from the fact's foreign key:
+  `DISTINCTCOUNT(Repairs[customer_id])`, not from the dimension.
+- Ratios are `DIVIDE` of two base measures.
+- A one-line description on every table, user-facing column and measure.
+- Measure names: `X #` counts (`#,0`), `X %` rates (`0.0%`), `Total X` sums,
+  `Avg X` averages, `X per Y` ratios.
+
+## 3. Write the spec
+
+Write `<domain>-spec.json` in the user's project folder. The shape is in
+[references/spec-format.md](references/spec-format.md);
+[assets/example-spec.json](assets/example-spec.json) is a complete spec that
+passes both gates (a fictional bike repair workshop). Copy it and edit; do not
+start from memory. 4 to 8 rows per dimension, 8 to 20 fact rows, dates spread
+over a year or two, amounts that reconcile.
+
+## 4. Gate 1: is the model right?
+
+```
+$FORGE check <domain>-spec.json --profile handoff
+```
+
+Done when it prints `0 P0, 0 P1`. Each finding names the object and the fix.
+Common ones: FM005 orphan key (add the Unknown member), FM007 key names differ,
+FM013 DAX typo, FM015 ratio counted from a dimension, FM017 missing
+description. P2 lines are advice: list them for the user, do not hide them.
+`$FORGE rules` prints all 22 rules.
+
+## 5. Build, then gate 2: will the files open?
+
+```
+$FORGE build <domain>-spec.json out/<Domain> --check --profile handoff
+$PREFLIGHT check out/<Domain>
+```
+
+Done when tmdl-preflight prints `0 error(s)`. Never hand-edit the generated
+TMDL; change the spec and rebuild. The build is deterministic, so a rebuild of
+the same spec gives the same files.
+
+## 6. The hand-off package
+
+The build writes `out/<Domain>/handoff/SPEC.md` (Mermaid diagram, data
+dictionary, measures with DAX) and `handoff/manifest.json` (the same,
+machine-readable). Add `out/<Domain>/handoff/HANDOFF.md` from
+[references/handoff-template.md](references/handoff-template.md):
+
+1. Purpose: the questions from step 1, each mapped to the measures that answer it.
+2. The diagram: paste the `erDiagram` block from SPEC.md. Do not draw your own.
+3. Tables, columns, measures: from SPEC.md, with the role of each table.
+4. Source notes: where each table's data lives today, from question 6.
+5. Open questions for the engineers (always include the ones that apply):
+   source of truth per table, refresh frequency, history (does a customer's
+   type change over time?), expected row volumes, late or corrected records,
+   who may see what (row-level security), and every point the user was unsure of.
+6. What was verified: both gate results, copied from the tool output. Then
+   this sentence, verbatim: "The tools validated the files. Opening
+   `<Domain>.pbip` in Power BI Desktop is a manual step that has not been done
+   yet." Desktop runs on Windows only.
+
+Then tell the user what to send: the whole `out/<Domain>/` folder, zipped.
+
+## 7. Iterate
+
+"Add a promotions dimension", "split revenue into gross and net": edit the
+spec, re-run step 4 and step 5, and update HANDOFF.md. Keep the spec file as
+the source of truth across turns.
+
+## Output
+
+```
+## <Domain> model: ready for hand-off
+Questions covered: 4 of 4 (Q3 needs data you do not have yet: see open questions)
+Gate 1: pbip-forge check (handoff): 0 P0, 0 P1, 1 P2  [P2 listed below]
+Gate 2: tmdl-preflight: 0 error(s), 0 warning(s), 0 info(s)
+Files: out/<Domain>/<Domain>.pbip, handoff/SPEC.md, handoff/manifest.json, handoff/HANDOFF.md
+[erDiagram]
+Open questions for the engineers: ...
+Not verified: opening in Power BI Desktop (manual, Windows).
+```
+
+## Adversary pass
+
+Every move above has a challenger. Run the attack, settle it with the check,
+and act on a failure before moving on.
+
+| Move | Adversary asks | Check that settles it | If it fails |
+|---|---|---|---|
+| Interview | "Did I invent a question or a definition the user never gave?" | every measure traces to a question # and a stated definition | ask, or move it to open questions |
+| Grain | "Could two rows describe the same real event?" | the fact description says one row per what, and the user agreed | re-ask question 2 |
+| Measures | "Is this ratio right at every grain?" | numerator and denominator are base measures; entity counts from the fact | rewrite as DIVIDE of base measures |
+| Sample data | "Is any value real: a person, a client, an account id?" | every name and id is invented | replace it |
+| Gates | "Am I quoting a count I did not see?" | gate lines copied from tool output | re-run and copy |
+| Openability | "Am I claiming Desktop opened it?" | the verbatim sentence in HANDOFF.md | fix the wording |
+
+**Score and probe before handing over.** First the gate: every check in the
+table above passed; if one did not, fix it before scoring. Then score the
+draft 0-100 on four dimensions: clarity (an engineer who was not in the
+conversation can build from it), relevance (every table and measure serves a
+stated question), depth (definitions, grain and open questions are explicit)
+and insightfulness (it surfaces a decision or risk the user had not named,
+such as a grain conflict or a missing source). If any score is below 80, write
+the probe question that would raise it, answer it from the conversation or ask
+the user, revise, and score again (two loops at most). The questions and the
+definitions belong to the user: when either is unclear, ask instead of
+assuming.

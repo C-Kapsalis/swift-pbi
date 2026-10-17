@@ -1,0 +1,33 @@
+# fleet.yml for tmdl-drift-doctor v1.1.0. All paths are relative to this file.
+version: 1
+template: template/Product.SemanticModel
+models:
+  client-a: clients/client-a/Product.SemanticModel
+  client-b:                                   # long form
+    path: clients/client-b/Product.SemanticModel
+    gating: advisory                          # findings print, never fail CI
+    overrides:                                # declared, reviewed differences
+      - object: Sales Measures[Net Revenue]
+        kind: expression                      # expression | absent | retain
+        reason: client-b nets out partner rebates by contract
+        owner: bi-team
+        added: 2026-10-01
+
+mapping_tables: []        # lookup tables whose DATATABLE rows are diffed row by row
+
+state_dir: .drift-doctor  # baseline.json, ledger.jsonl, floors.json: commit all three
+
+allowlist:                # empty allowlist = nothing is ever remediated
+  kinds:
+    - measure.missing
+    - measure.expression_drift
+    - measure.property_drift
+    - column.missing
+    - relationship.missing
+    # add after the first reviewed run:
+    # - table.missing
+    # - column.property_drift
+    # - measure.wrong_host
+    # - relationship.modified
+    # - retire.measure     # deletions; still need --sync at run time
+  expressions: []         # ONLY named shared parameters are compared; never connection parameters

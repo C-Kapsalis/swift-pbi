@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "swift-pbi",
+  "description": "swift-pbi: Power BI as code, in conversation.",
+  "owner": {
+    "name": "Christoforos Kapsalis",
+    "url": "https://c-kapsalis.github.io/"
+  },
+  "plugins": [
+    {
+      "name": "swift-pbi",
+      "description": "Prototype a Power BI semantic model in conversation and hand engineers an openable PBIP spec; lint and fix TMDL; keep client models in line with one template; keep combo charts on one style.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

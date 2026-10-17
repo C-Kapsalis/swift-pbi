@@ -1,0 +1,156 @@
+fleet written: template + 4 clients (north-cycles, harbor-bikes, summit-wheels, valley-spokes)
+
+# Tool version
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor --version
+drift-doctor, version 1.1.0
+[exit 0]
+
+# Before: tmdl-preflight errors per client (harbor-bikes lost a measure the Metric Selector uses)
+north-cycles   tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+harbor-bikes   tmdl-preflight: 1 error(s), 0 warning(s), 4 info(s)
+summit-wheels  tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+valley-spokes  tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+
+# Capture the template baseline
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor capture
+baseline written: $WORK/fleet/.drift-doctor/baseline.json
+  tables=6 columns=22 measures=6 relationships=4 mapping_rows=0 expressions=0
+[exit 0]
+
+# Detect (read-only; exit 1 means actionable drift)
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor detect
+
+── north-cycles: 2 finding(s)
+  measure.expression_drift     Sales Measures[Revenue per Store]
+      template: VAR store_count = DISTINCTCOUNT(Sales[store_id]) RETURN DIVIDE([Revenue], store_count)
+      derived:  VAR store_count = DISTINCTCOUNT(Sales[store_id]) RETURN DIVIDE([Revenue], COUNTROWS(Stores))
+  extra.measure                Sales Measures[North Loyalty Revenue]  [advisory]
+
+── harbor-bikes: 2 finding(s)
+  measure.property_drift       Sales Measures[Revenue]
+      template: formatString=$ #,0.00
+      derived:  formatString=#,0
+  measure.missing              Sales Measures[Units Sold]
+
+── summit-wheels: 2 finding(s)
+  column.missing               Products[unit_price]
+  relationship.modified        Sales[store_id] -> Stores[store_id]
+      template: (engine defaults)
+      derived:  crossFilteringBehavior=bothDirections
+
+── valley-spokes: 1 finding(s)
+  measure.wrong_host           Sales Measures[Orders #]
+      template: Sales Measures
+      derived:  Sales
+
+── summary: actionable=6 advisory=1 overridden=0 errors=0
+[exit 1]
+
+# Preview the cascade (writes nothing): summary line
+would-apply lines: 6
+── summary: applied=0 would-apply=6 skipped=1 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+
+# Remediate
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor remediate
+[applied] summit-wheels: column.missing Products[unit_price] — insert column block from template (fresh lineage tag)
+[applied] harbor-bikes: measure.missing Sales Measures[Units Sold] — insert measure block from template (fresh lineage tag)
+[applied] valley-spokes: measure.wrong_host Sales Measures[Orders #] — move measure block verbatim from 'Sales' to the template's host 'Sales Measures' (DAX and lineage tag untouched)
+[applied] north-cycles: measure.expression_drift Sales Measures[Revenue per Store] — overwrite measure block from template (lineage tag preserved)
+[applied] harbor-bikes: measure.property_drift Sales Measures[Revenue] — overwrite measure block from template (lineage tag preserved)
+[applied] summit-wheels: relationship.modified Sales[store_id] -> Stores[store_id] — overwrite relationship properties from template (block name kept)
+[skipped] north-cycles: extra.measure Sales Measures[North Loyalty Revenue] — advisory — this object exists only in the derived model; extensions are reported for review, never auto-remediated. Edit the derived model directly if it is unwanted.
+
+── summary: applied=6 would-apply=0 skipped=1 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+[exit 0]
+
+# Detect again
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor detect
+
+── north-cycles: 1 finding(s)
+  extra.measure                Sales Measures[North Loyalty Revenue]  [advisory]
+
+── summary: actionable=0 advisory=1 overridden=0 errors=0
+[exit 0]
+
+# Remediate again (idempotence)
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor remediate
+[skipped] north-cycles: extra.measure Sales Measures[North Loyalty Revenue] — advisory — this object exists only in the derived model; extensions are reported for review, never auto-remediated. Edit the derived model directly if it is unwanted.
+
+── summary: applied=0 would-apply=0 skipped=1 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+[exit 0]
+
+# After: tmdl-preflight errors per client
+north-cycles   tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+harbor-bikes   tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+summit-wheels  tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+valley-spokes  tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+
+# Act two: retire 'Revenue per Store' from the template
+removed lines 21-28
+
+# Detect on a stale baseline (should refuse)
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor detect
+Error: the template has changed since the last capture — the committed baseline is stale, and findings computed against it can be misclassified (a retired object would look missing and be resurrected). Run `drift-doctor capture` before detecting or remediating; --allow-stale proceeds anyway if you accept that risk.
+[exit 1]
+
+# Recapture: the retirement is recorded in the ledger
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor capture
+baseline written: $WORK/fleet/.drift-doctor/baseline.json
+  tables=6 columns=22 measures=5 relationships=4 mapping_rows=0 expressions=0
+  [ledger] retired measure: Sales Measures[Revenue per Store]
+[exit 0]
+
+# Remediate retirements without --sync (should skip every removal)
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor remediate --kind retire.
+[skipped] north-cycles: retire.measure Sales Measures[Revenue per Store] — retirement removals require --sync (deletions never run in a default pass) — re-run with --sync to apply this removal
+[skipped] harbor-bikes: retire.measure Sales Measures[Revenue per Store] — retirement removals require --sync (deletions never run in a default pass) — re-run with --sync to apply this removal
+[skipped] summit-wheels: retire.measure Sales Measures[Revenue per Store] — retirement removals require --sync (deletions never run in a default pass) — re-run with --sync to apply this removal
+[skipped] valley-spokes: retire.measure Sales Measures[Revenue per Store] — retirement removals require --sync (deletions never run in a default pass) — re-run with --sync to apply this removal
+
+── summary: applied=0 would-apply=0 skipped=4 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+[exit 0]
+
+# valley-spokes keeps the KPI on purpose: record a revival
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor ledger --revive Sales Measures[Revenue per Store] --kind measure --model valley-spokes --note valley-spokes reports this to its owners
+revived measure Sales Measures[Revenue per Store] for model 'valley-spokes' — it will not be re-removed.
+[exit 0]
+
+# Remediate retirements with --sync
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor remediate --kind retire. --sync
+[applied] north-cycles: retire.measure Sales Measures[Revenue per Store] — remove retired measure block
+[applied] harbor-bikes: retire.measure Sales Measures[Revenue per Store] — remove retired measure block
+[applied] summit-wheels: retire.measure Sales Measures[Revenue per Store] — remove retired measure block
+
+── summary: applied=3 would-apply=0 skipped=0 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+[exit 0]
+
+# Final detect and audit
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor detect
+
+── north-cycles: 1 finding(s)
+  extra.measure                Sales Measures[North Loyalty Revenue]  [advisory]
+
+── valley-spokes: 1 finding(s)
+  extra.measure                Sales Measures[Revenue per Store]  [advisory]
+
+── summary: actionable=0 advisory=2 overridden=0 errors=0
+[exit 0]
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor audit
+── audit: checked=6 ok=6 reverted=0 superseded=0 error=0
+[exit 0]
+
+# Ledger size
+ledger lines: 11

@@ -1,0 +1,150 @@
+
+# Tool version
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight --version
+tmdl-preflight 1.1.0
+[exit 0]
+
+# Rule catalog: rules and fixers
+rules: 37
+fixable rules: 10
+fixable ids: M006, M003, M004, M011, M013, F001, F002, F003, B001, B003
+
+# Check the clean copy
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check bike-shop-clean
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:21  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue per Store]]
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+[exit 0]
+
+# Check the broken copy (read-only)
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check bike-shop-broken
+BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl:45  F001 error: stray comma run (1 orphan comma(s)) in calculated partition source [Metric Selector (partition source)] (auto-fixable)
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S001 info: visible measure has no formatString, so it renders with the engine's default formatting. Add a formatString, or run with --ignore S001 if your formatting strategy lives elsewhere. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:20  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue per Store]]
+BikeShop.SemanticModel/definition/tables/Stores.tmdl  M006 error: table 'Stores' is defined in tables/ but has no 'ref table' line in model.tmdl, so it is not part of the model and Power BI will not open the project. Add: ref table Stores [Stores] (auto-fixable)
+BikeShop.SemanticModel/definition/tables/Stores.tmdl:3  M003 error: lineageTag 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' duplicates the one on table Products (Products.tmdl:3) [table Stores] (auto-fixable)
+BikeShop.SemanticModel/definition/tables/__Calendar.tmdl:4  M004 warning: lineageTag 'calendar-tag-TODO' is not a canonical UUID [table __Calendar] (auto-fixable)
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 3 error(s), 1 warning(s), 6 info(s)
+[exit 1]
+summary: errors=3 warnings=1 infos=6 fixes_applied=0
+findings: 10
+  F001  error    1  (auto-fixable)
+  M003  error    1  (auto-fixable)
+  M004  warning  1  (auto-fixable)
+  M006  error    1  (auto-fixable)
+  S001  info     1
+  S002  info     5
+
+# Fix a copy, then the tool re-checks from disk
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight fix bike-shop-fixed
+fixed  M006: model.tmdl: + ref table Stores
+fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' -> 'af0fb374-ca99-4a7b-9fe1-5c6ea1ae5f60'
+fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '5fb432bd-2573-4720-9383-1857b83ab446'
+fixed  F001: Metric Selector.tmdl: removed 1 orphan comma(s) from 'Metric Selector' partition source
+
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S001 info: visible measure has no formatString, so it renders with the engine's default formatting. Add a formatString, or run with --ignore S001 if your formatting strategy lives elsewhere. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:20  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue per Store]]
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s), 4 fix(es) applied
+[exit 0]
+
+# Independent re-check of the fixed copy
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check bike-shop-fixed
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S001 info: visible measure has no formatString, so it renders with the engine's default formatting. Add a formatString, or run with --ignore S001 if your formatting strategy lives elsewhere. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:20  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue per Store]]
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+[exit 0]
+summary: errors=0 warnings=0 infos=6 fixes_applied=0
+findings: 6
+  S001  info     1
+  S002  info     5
+
+# What the fixers changed (unified diff, broken vs fixed)
+diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl
+--- bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl	2026-10-17 21:59:20
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl	2026-10-17 21:59:33
+@@ -19,3 +19,4 @@
+ ref table 'Sales Measures'
+ ref table 'Metric Selector'
+ 
++ref table Stores
+diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-17 21:59:20
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-17 21:59:33
+@@ -43,7 +43,7 @@
+ 				{
+ 				    ( "Revenue", NAMEOF ( [Revenue] ), 0 ),
+ 				    ( "Orders #", NAMEOF ( [Orders #] ), 1 ),
+-				    ,
++				    
+ 				    ( "Units Sold", NAMEOF ( [Units Sold] ), 3 )
+ 				}
+ 
+diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-17 21:59:20
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-17 21:59:33
+@@ -1,6 +1,6 @@
+ /// One row per retail store.
+ table Stores
+-	lineageTag: e689596a-59ea-4b2c-a14d-48596a7b8c9d
++	lineageTag: af0fb374-ca99-4a7b-9fe1-5c6ea1ae5f60
+ 
+ 	column store_id
+ 		dataType: int64
+diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-17 21:59:20
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-17 21:59:33
+@@ -1,7 +1,7 @@
+ /// Central date dimension. Self-contained calculated table so it always
+ /// populates without an external source.
+ table __Calendar
+-	lineageTag: calendar-tag-TODO
++	lineageTag: 5fb432bd-2573-4720-9383-1857b83ab446
+ 	dataCategory: Time
+ 
+ 	column Date
+[diff exit 1]
+
+# Files changed
+4
+
+# Second fix run: should apply nothing
+
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight fix bike-shop-fixed
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S001 info: visible measure has no formatString, so it renders with the engine's default formatting. Add a formatString, or run with --ignore S001 if your formatting strategy lives elsewhere. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:17  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Units Sold]]
+BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:20  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue per Store]]
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+[exit 0]

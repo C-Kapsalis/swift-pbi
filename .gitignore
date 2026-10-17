@@ -1,0 +1,22 @@
+# Release assets, built by scripts/package.sh and attached to GitHub Releases
+dist/
+
+# Power BI Desktop local files (machine-bound settings and caches)
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Tool state from running the skills or demos inside the repo
+.drift-doctor/
+out/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS and editor
+.DS_Store
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/settings.local.json

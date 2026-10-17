@@ -1,0 +1,5 @@
+segment_id,segment_name,lifecycle_stage,acquisition_source
+1,Newsletter subscribers,Prospect,Website pop-up
+2,Active customers,Active,Checkout opt-in
+3,Lapsed 180d+,Lapsed,Checkout opt-in
+4,VIP repeat buyers,Active,Checkout opt-in
