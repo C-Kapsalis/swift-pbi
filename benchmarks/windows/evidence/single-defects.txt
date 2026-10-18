@@ -1,0 +1,40 @@
+
+# only-M006: the 'ref table Stores' line removed from model.tmdl
+$ tmdl-preflight check only-M006
+BikeShop.SemanticModel\definition\tables\Stores.tmdl  M006 error: table 'Stores' is defined in tables/ but has no 'ref table' line in model.tmdl, so it is not part of the model and Power BI will not open the project. Add: ref table Stores [Stores] (auto-fixable)
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 1 error(s), 0 warning(s), 5 info(s)
+[exit 1]
+
+# only-M003: Stores carries the lineage tag of Products
+$ tmdl-preflight check only-M003
+BikeShop.SemanticModel\definition\tables\Stores.tmdl:3  M003 error: lineageTag 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' duplicates the one on table Products (Products.tmdl:3) [table Stores] (auto-fixable)
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 1 error(s), 0 warning(s), 5 info(s)
+[exit 1]
+
+# only-M004: __Calendar has the placeholder lineage tag 'calendar-tag-TODO'
+$ tmdl-preflight check only-M004
+BikeShop.SemanticModel\definition\tables\__Calendar.tmdl:4  M004 warning: lineageTag 'calendar-tag-TODO' is not a canonical UUID [table __Calendar] (auto-fixable)
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 0 error(s), 1 warning(s), 5 info(s)
+[exit 0]
+
+# only-F001: a field-parameter row deleted, its comma left behind
+$ tmdl-preflight check only-F001
+BikeShop.SemanticModel\definition\tables\Metric Selector.tmdl:45  F001 error: stray comma run (1 orphan comma(s)) in calculated partition source [Metric Selector (partition source)] (auto-fixable)
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 1 error(s), 0 warning(s), 5 info(s)
+[exit 1]
+
+# only-S001: control: Units Sold has no format string (info only)
+$ tmdl-preflight check only-S001
+BikeShop.SemanticModel\definition\tables\Sales Measures.tmdl:17  S001 info: visible measure has no formatString, so it renders with the engine's default formatting. Add a formatString, or run with --ignore S001 if your formatting strategy lives elsewhere. [Sales Measures[Units Sold]]
+
+scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX expressions, 1 report
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+[exit 0]

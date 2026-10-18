@@ -1,0 +1,24 @@
+$ cd "$HOME/pbi-test/results"; cat 00-environment.txt; grep -h "tmdl-preflight: \|P0m \|summary: \|Restyled\|restyled\|Checked" 0[1-4]*.txt
+date: 2026-10-18T16:53Z
+os: MINGW64_NT-10.0-26200 3.6.3-086201ea.x86_64
+windows: Microsoft Windows [Version 10.0.26200.9457]
+uv: uv 0.9.24 (0fda1525e 2026-01-09)
+tag: v1.1.0
+power bi desktop: installer version at /c/Program Files/Microsoft Power BI Desktop/bin/PBIDesktop.exe
+tmdl-preflight: 0 error(s), 0 warning(s), 0 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+tmdl-preflight: 1 error(s), 0 warning(s), 4 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+?? summary: actionable=6 advisory=1 overridden=0 errors=0
+?? summary: applied=0 would-apply=6 skipped=1 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+?? summary: applied=6 would-apply=0 skipped=1 blocked=0 auto_skipped_precondition=0 overridden=0 failed=0
+?? summary: actionable=0 advisory=1 overridden=0 errors=0
+tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 5 info(s)
+Checked 1 report(s): 0 error(s), 0 warning(s).
+Restyled 1/1 visual(s); 0 already styled.
+Restyled 0/1 visual(s); 1 already styled.
+Checked 1 report(s): 0 error(s), 0 warning(s).
