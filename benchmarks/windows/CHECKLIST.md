@@ -44,6 +44,44 @@ It takes a few minutes the first time (uv downloads Python and the tools).
 It writes `$Root\results\` with the tool output (`00`–`04*.txt`), a
 `models\` folder and `open-in-desktop.txt`.
 
+### Steps 1 and 2 in Git Bash instead
+
+Same folder, same result. `unset HISTFILE` keeps this session out of
+`~/.bash_history` from the start. uv is a Windows program, so its folders
+are passed as Windows paths (`cygpath -w`), and Windows' own `tar.exe`
+unpacks the zips.
+
+```bash
+unset HISTFILE
+ROOT="$HOME/pbi-test"; mkdir -p "$ROOT"
+export UV_CACHE_DIR="$(cygpath -w "$ROOT/uv-cache")"
+export UV_PYTHON_INSTALL_DIR="$(cygpath -w "$ROOT/uv-python")"
+export UV_TOOL_DIR="$(cygpath -w "$ROOT/uv-tools")"
+UNZIP=/c/Windows/System32/tar.exe
+
+curl -sSL -o "$ROOT/uv.zip" https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-pc-windows-msvc.zip
+mkdir -p "$ROOT/uv" && "$UNZIP" -xf "$ROOT/uv.zip" -C "$ROOT/uv"
+export PATH="$ROOT/uv:$PATH"; uv --version
+
+curl -sSL -o "$ROOT/swift-pbi.zip" https://github.com/C-Kapsalis/swift-pbi/archive/refs/heads/master.zip
+"$UNZIP" -xf "$ROOT/swift-pbi.zip" -C "$ROOT" && cd "$ROOT/swift-pbi-master"
+
+powershell.exe -ExecutionPolicy Bypass -File benchmarks/windows/run-windows.ps1 -Out "$(cygpath -w "$ROOT/results")"
+```
+
+Steps 3 and 4 are the same. For step 5 in Git Bash, close Desktop, then:
+
+```bash
+cd ~ && rm -rf "$HOME/pbi-test"
+find "$HOME/Pictures/Screenshots" -type f -newermt "-1 day" -print -delete 2>/dev/null
+```
+
+and do the "by hand" items below, plus the recent-item shortcuts (the
+PowerShell block's item 3, or delete them in
+`%APPDATA%\Microsoft\Windows\Recent`). Nothing reached `~/.bash_history`
+because of `unset HISTFILE`; if you forgot it, run `history -c` and remove the
+lines from `~/.bash_history` before closing the window.
+
 ## 3. Open each model in Desktop
 
 If Desktop says it cannot read the project format, turn on File > Options >
