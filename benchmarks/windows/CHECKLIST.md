@@ -121,6 +121,29 @@ Save as), not the default folder: Windows 11 also auto-saves snips to
 Write anything that did not match "Expected" word for word in
 `$Root\results\notes.txt`. A failure is as useful as a pass.
 
+### 3b. One defect at a time
+
+`01-bike-shop-broken` has four defects, and Desktop stops at the first one it
+meets. To learn what each defect does on its own:
+
+```bash
+bash benchmarks/windows/single-defects.sh "$HOME/pbi-test/single"
+```
+
+It builds five copies of the clean model, each with exactly one defect, and
+prints tmdl-preflight's verdict for each. Open each one in Desktop:
+
+| Model (under `pbi-test/single/`) | tmdl-preflight says | Opened? | Exact error, if any | Visuals render? | Refresh OK? | Anything odd (e.g. a table missing from Model view) |
+|---|---|---|---|---|---|---|
+| `only-M006` | error: Stores not in the model | | | | | |
+| `only-M003` | error: duplicate lineage tag | | | | | |
+| `only-M004` | warning: placeholder lineage tag | | | | | |
+| `only-F001` | error: stray comma in a field parameter | | | | | |
+| `only-S001` | info only (control) | | | | | |
+
+For `only-M006`, also check Model view: is the Stores table there, and is it
+related to Sales?
+
 ## 4. Take the results off the laptop
 
 ```powershell
