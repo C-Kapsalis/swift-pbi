@@ -7,7 +7,10 @@ benchmarks/windows/CHECKLIST.md.
 
   powershell -ExecutionPolicy Bypass -File benchmarks\windows\run-windows.ps1
 
-Needs git and uv (winget install astral-sh.uv). uv also provides Python.
+Needs only uv (it also provides Python). No git: the tools and the styler
+example are downloaded as release zips from GitHub. To keep every file
+inside one folder, set UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR
+before running (see benchmarks/windows/CHECKLIST.md).
 #>
 param(
     [string]$Tag = "v1.1.0",
@@ -15,12 +18,12 @@ param(
 )
 $ErrorActionPreference = "Continue"
 $Repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$GH = "git+https://github.com/C-Kapsalis"
+$GH = "https://github.com/C-Kapsalis"
 New-Item -ItemType Directory -Force -Path $Out | Out-Null
 $Models = Join-Path $Out "models"
 New-Item -ItemType Directory -Force -Path $Models | Out-Null
 
-function Tool([string]$repo, [string]$cmd) { @("-q", "--from", "$GH/$repo@$Tag", $cmd) }
+function Tool([string]$repo, [string]$cmd) { @("-q", "--from", "$GH/$repo/archive/refs/tags/$Tag.zip", $cmd) }
 $PREFLIGHT = Tool "tmdl-preflight" "tmdl-preflight"
 $FORGE = Tool "pbip-model-forge" "pbip-forge"
 $DRIFT = Tool "tmdl-drift-doctor" "drift-doctor"
@@ -50,7 +53,6 @@ $script:Log = Join-Path $Out "00-environment.txt"
     "os: $((Get-CimInstance Win32_OperatingSystem).Caption) $([Environment]::OSVersion.Version)"
     "powershell: $($PSVersionTable.PSVersion)"
     "uv: $(uv --version)"
-    "git: $(git --version)"
     "tag: $Tag"
 ) | Set-Content $script:Log -Encoding utf8
 $desktop = Get-AppxPackage -Name "Microsoft.MicrosoftPowerBIDesktop" -ErrorAction SilentlyContinue
@@ -101,8 +103,10 @@ Pop-Location
 
 # --- 04 pbi-plot-styler ---------------------------------------------------------
 $script:Log = Join-Path $Out "04-plot-styler.txt"; Set-Content $script:Log "" -Encoding utf8
-$src = Join-Path $Out "styler-src"
-Log (git -c advice.detachedHead=false clone -q --depth 1 --branch $Tag https://github.com/C-Kapsalis/pbi-plot-styler.git $src 2>&1)
+$zip = Join-Path $Out "pbi-plot-styler.zip"
+Invoke-WebRequest -UseBasicParsing -Uri "$GH/pbi-plot-styler/archive/refs/tags/$Tag.zip" -OutFile $zip
+Expand-Archive -Force -Path $zip -DestinationPath (Join-Path $Out "styler-src")
+$src = (Get-ChildItem (Join-Path $Out "styler-src") -Directory | Select-Object -First 1).FullName
 Copy-Item -Recurse -Force (Join-Path $src "examples\coffee-roastery") (Join-Path $Models "04-roastery-before")
 Copy-Item -Recurse -Force (Join-Path $src "examples\coffee-roastery") (Join-Path $Models "04-roastery-styled")
 Push-Location (Join-Path $Models "04-roastery-styled")

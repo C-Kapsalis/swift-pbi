@@ -3,27 +3,58 @@
 The macOS demo proves the files pass the validators. This run proves what
 Power BI Desktop does with them. Only record what you saw.
 
-## 1. Run the script
+Everything lives in one folder, `%USERPROFILE%\pbi-test`. Nothing is
+installed: uv is a portable zip, Python and the tools are downloaded by uv
+into that folder, and no git is needed. Step 5 deletes it all.
+
+## 1. Set up (one PowerShell window, not as administrator)
+
+Keep this one window open until step 5: the `$env:` settings only last
+for this session.
 
 ```powershell
-git clone https://github.com/C-Kapsalis/swift-pbi; cd swift-pbi
-winget install astral-sh.uv          # if uv is missing; reopen the terminal after
-powershell -ExecutionPolicy Bypass -File benchmarks\windows\run-windows.ps1
+$Root = "$HOME\pbi-test"
+New-Item -ItemType Directory -Force $Root | Out-Null
+$env:UV_CACHE_DIR          = "$Root\uv-cache"
+$env:UV_PYTHON_INSTALL_DIR = "$Root\uv-python"
+$env:UV_TOOL_DIR           = "$Root\uv-tools"
+
+# Portable uv (use uv-aarch64-pc-windows-msvc.zip on an ARM laptop)
+Invoke-WebRequest -UseBasicParsing https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-pc-windows-msvc.zip -OutFile "$Root\uv.zip"
+Expand-Archive -Force "$Root\uv.zip" "$Root\uv"
+$env:PATH = "$Root\uv;$env:PATH"
+uv --version
+
+# swift-pbi itself
+Invoke-WebRequest -UseBasicParsing https://github.com/C-Kapsalis/swift-pbi/archive/refs/heads/master.zip -OutFile "$Root\swift-pbi.zip"
+Expand-Archive -Force "$Root\swift-pbi.zip" $Root
+Set-Location "$Root\swift-pbi-master"
 ```
 
-It writes `windows-run-<date>\` with the tool output (`00`–`04*.txt`), a
-`models\` folder and `open-in-desktop.txt`. Copy the whole folder back.
+`$HOME\pbi-test` is used because Desktop and Documents are often synced to
+OneDrive; the profile root is not.
 
-## 2. Open each model in Desktop
+## 2. Run the four tools
+
+```powershell
+powershell -ExecutionPolicy Bypass -File benchmarks\windows\run-windows.ps1 -Out "$Root\results"
+```
+
+It takes a few minutes the first time (uv downloads Python and the tools).
+It writes `$Root\results\` with the tool output (`00`–`04*.txt`), a
+`models\` folder and `open-in-desktop.txt`.
+
+## 3. Open each model in Desktop
 
 If Desktop says it cannot read the project format, turn on File > Options >
 Preview features > "Power BI Project (.pbip) save option" and "Store semantic
 model using TMDL format", restart Desktop, and note that you had to.
 
-For each row: open the `.pbip` (File > Open), wait for it to finish loading,
-then fill in the columns. Paste error text exactly, or screenshot it.
+Open each `.pbip` with File > Open, wait for it to finish loading, and fill in
+the row. **Do not save** any model (close with "Don't save"), so the files
+stay as the tools left them. Paste error text exactly.
 
-| # | Model (under `models\`) | Expected | Opened? | Exact error, if any | Visuals render? | Refresh OK? |
+| # | Model (under `results\models\`) | Expected | Opened? | Exact error, if any | Visuals render? | Refresh OK? |
 |---|---|---|---|---|---|---|
 | 1 | `01-bike-shop-broken` | refuses to open (M006: Stores not in the model) | | | | |
 | 2 | `01-bike-shop-fixed` | opens, after 4 one-line fixes | | | | |
@@ -37,19 +68,77 @@ then fill in the columns. Paste error text exactly, or screenshot it.
 | 10 | `04-roastery-before` | opens, default chart colours | | | | |
 | 11 | `04-roastery-styled` | opens, styled lines and labels | | | | |
 
-Also note: the Power BI Desktop version (Help > About), Windows version.
+Also note the Power BI Desktop version (Help > About) and the Windows version.
 
-## 3. Screenshots for the README and launch
+**Screenshots.** Save every screenshot into `$Root\shots` (Snipping Tool >
+Save as), not the default folder: Windows 11 also auto-saves snips to
+`Pictures\Screenshots`, which step 5 cleans. Worth taking:
 
-1. The error dialog when opening `01-bike-shop-broken`.
-2. `01-bike-shop-fixed` open on its report page.
-3. The terminal output of `fix` on the broken copy (from `01-preflight.txt` is fine).
-4. `04-roastery-before` and `04-roastery-styled`, same page, same size.
-5. Optional: `02-BikeRepair` model view, showing the star schema.
+1. `win-01-broken-error.png`: the error when opening model 1.
+2. `win-02-fixed-open.png`: model 2 open on its report page.
+3. `win-03-fix-output.png`: the `fix` output in the terminal.
+4. `win-04-roastery-before.png` and `win-05-roastery-styled.png`: same page, same size.
+5. Optional `win-06-bikerepair-model.png`: model 4's model view.
 
-Name them `win-01-broken-error.png`, `win-02-fixed-open.png`, and so on.
+Write anything that did not match "Expected" word for word in
+`$Root\results\notes.txt`. A failure is as useful as a pass.
 
-## 4. Anything unexpected
+## 4. Take the results off the laptop
 
-Write down anything that did not match the "Expected" column, word for word.
-A failure is as useful as a pass: it becomes a fix or a documented limit.
+```powershell
+Copy-Item "$Root\swift-pbi-master\benchmarks\windows\CHECKLIST.md" "$Root\results\"   # after filling it in
+Compress-Archive -Force -Path "$Root\results\*.txt", "$Root\results\CHECKLIST.md", "$Root\shots" -DestinationPath "$Root\windows-results.zip"
+```
+
+Move `windows-results.zip` off the laptop the way you prefer (a USB stick
+leaves no trace in cloud folders). The models themselves are not needed: the
+script rebuilds them identically.
+
+## 5. Remove every trace
+
+Close Power BI Desktop first. Then, in the same PowerShell window:
+
+```powershell
+Set-Location $HOME
+
+# 1. The working folder: uv, Python, tools, models, results, screenshots
+Remove-Item -Recurse -Force $Root
+
+# 2. Snips Windows auto-saved
+Get-ChildItem "$HOME\Pictures\Screenshots" -ErrorAction SilentlyContinue |
+  Where-Object LastWriteTime -gt (Get-Date).AddDays(-1) | Remove-Item -Confirm
+
+# 3. Recent-item shortcuts that point into the folder
+Get-ChildItem "$env:APPDATA\Microsoft\Windows\Recent" -Filter *.lnk |
+  Where-Object { (New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath -like "*pbi-test*" } |
+  Remove-Item
+
+# 4. This session's commands in PowerShell history
+$h = (Get-PSReadLineOption).HistorySavePath
+(Get-Content $h) | Where-Object { $_ -notmatch 'pbi-test|swift-pbi|uv-|UV_|C-Kapsalis' } | Set-Content $h
+```
+
+Then by hand:
+
+- **Power BI Desktop's recent files.** On the start screen, remove each
+  `pbi-test` model from the recent list (right-click it; the option's name
+  varies by version). Right-click the Desktop icon in the taskbar and remove
+  the same entries from its jump list.
+- **Desktop's temporary model copies.** Desktop deletes them on a normal
+  close. If it crashed, delete leftover folders under
+  `%LOCALAPPDATA%\Microsoft\Power BI Desktop\AnalysisServicesWorkspaces`
+  (installer version) or
+  `%USERPROFILE%\Microsoft\Power BI Desktop Store App\AnalysisServicesWorkspaces`
+  (Store version).
+- **Close the PowerShell window.** The `$env:` settings disappear with it.
+
+Check that nothing is left:
+
+```powershell
+Test-Path "$HOME\pbi-test"                                    # False
+Select-String -Path (Get-PSReadLineOption).HistorySavePath -Pattern 'pbi-test' -Quiet   # False
+```
+
+What this cannot remove: anything recorded outside the laptop's files, such
+as network proxy logs, endpoint security or device-management logs, and
+Windows' own event logs. Those are not yours to clear.
