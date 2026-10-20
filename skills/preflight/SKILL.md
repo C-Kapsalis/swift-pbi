@@ -3,10 +3,10 @@ name: preflight
 description: >-
   Lint a Power BI model saved as PBIP/TMDL with tmdl-preflight, explain each
   finding in plain words, apply only the mechanical fixes after the user agrees,
-  and re-check from disk. Catches what stops Power BI Desktop from opening a
-  project or a deployment from succeeding: a table with no ref table line,
-  duplicate lineage tags, stray commas in field parameters, DAX pointing at
-  deleted measures, broken relationships, bookmark defects. Use when the user
+  and re-check from disk. Catches duplicate lineage tags (which stop Power BI
+  Desktop opening the project), stray commas in field parameters (the model
+  opens but those visuals fail), tables with no ref table line, DAX pointing at
+  deleted measures, broken relationships and bookmark defects. Use when the user
   says "lint my model", "check this PBIP", "why won't my .pbip open", "is this
   TMDL valid", "preflight", or before committing or deploying a TMDL model.
 ---
@@ -55,9 +55,24 @@ Group the findings and lead with what blocks:
 
 | Severity | Means | Say it like this |
 |---|---|---|
-| error | Desktop will not open the project, or the deployment or DAX fails | "Blocks opening: table Stores is in the folder but not in the model." |
+| error | The tool marks it as a defect to fix before hand-off | "Blocks opening: two tables share lineage tag 3f2a…; Desktop refuses a model like this." |
 | warning | It opens, but something is wrong or fragile | "Opens, but this lineage tag is a placeholder, not a real id." |
 | info | Style and documentation | "Optional: Units Sold has no format string." |
+
+Severity is the tool's; what Desktop does is evidence. On a Windows test
+bench (benchmarks/windows/RESULTS.md), each defect alone gave:
+
+| Rule | Desktop |
+|---|---|
+| M003 duplicate lineage tag | refused to open ("An object with lineage-tag '…' already exists") |
+| F001 stray field-parameter comma | opened, but every visual on that field parameter failed |
+| M006 table file with no `ref table` line | opened, and the table loaded with its relationship |
+| M004 placeholder lineage tag | opened |
+
+So say "blocks opening" only for M003. For M006 say "Desktop still loads it,
+but the model file no longer lists every table, so tools and reviews that read
+model.tmdl miss it", even though the v1.1.0 rule text says otherwise. For any
+other rule, do not claim what Desktop does.
 
 For each error and warning give: file and line, the rule id, one sentence on
 what breaks, and whether `(auto-fixable)` is on the line. Use the rule table
@@ -124,6 +139,8 @@ measure logic, use the `power-bi-definitions` skill's audit reference.
 ## Preflight: <model name>
 Before: 3 errors, 1 warning, 6 infos (10 findings)
 Blocks opening:
+1. M003 Stores.tmdl: lineage tag duplicated from Products (auto-fixable)
+Other errors:
 1. M006 Stores.tmdl: table not referenced in model.tmdl (auto-fixable)
 ...
 Fixed (with your OK): 4 (M006, M003, M004, F001)
