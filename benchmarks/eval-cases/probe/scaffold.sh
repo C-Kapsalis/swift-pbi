@@ -37,7 +37,7 @@ if [ -z "$UV_CACHE_DIR" ]; then
   for candidate in \
     "$GITHUB_ROOT/../.cache/uv" \
     "$EVAL_REAL_HOME/.cache/uv" \
-    "/Users/chkapsalis/.cache/uv"
+    "$HOME/.cache/uv"
   do
     if [ -d "$candidate" ]; then
       UV_CACHE_DIR="$(cd "$candidate" && pwd)"
