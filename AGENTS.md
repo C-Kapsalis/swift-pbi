@@ -16,14 +16,24 @@ STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-
 ```
 
 They need a local shell (a terminal, Claude Code, Codex, an IDE agent). In a
-chat without one: interview, write the spec or read pasted output, and give the
-user the commands to run.
+chat without one: interview, write the spec or read pasted output, and give
+the user the commands to run.
+
+**Version note.** The pins above are the released `v1.1.0` tag. The skills in
+this plugin describe the *final* tools, which are further along than that
+tag: `tmdl-preflight` now carries 114 rules (22 with a fixer), and the other
+three have commands that `v1.1.0` does not have yet. Run the tool's own
+listing to see what the installed version offers, and quote the counts from
+there. The pins switch to the new tag in one commit when the owner cuts it.
 
 ## Rules that always hold
 
 1. Quote counts from tool output. Never estimate a count or a result.
 2. The tools prove that files pass their validators. Never say a model opens
    in Power BI Desktop unless the user opened it (Desktop is Windows only).
+   On the Windows bench, M003 (duplicate lineage tag) is the only defect
+   measured to stop Desktop opening the model; M006 and M004 did not, and
+   F001 opened but broke the field-parameter visuals.
 3. Ask before any command that edits files (`fix`, `build`, `remediate`,
    `style`, `check --fix`). Show a dry run or a diff first. Prefer a git repo
    or a copy so the change can be undone.
@@ -31,6 +41,17 @@ user the commands to run.
    let the fixer do the mechanical repair.
 5. Sample data is fictional. Never copy a user's real records, client names or
    account ids into a spec.
+
+## The skills
+
+| Skill | Use it when |
+|---|---|
+| `prototype-model` | The user describes their data or questions and wants a model, a star schema or a spec for the data team. |
+| `preflight` | The user has a PBIP/TMDL model and wants it linted, checked, fixed or validated, or asks why it will not open. |
+| `fleet-drift` | The user has a template model and client or tenant copies, and wants them kept in line. |
+| `chart-style` | The user asks about combo-chart colors, report styling, the standard canvas, or visuals broken after a rename. |
+| `agency-workflow` | The user wants the whole agency job: one template, many client spinouts, one canvas, governance in CI. |
+| `power-bi-definitions` | The user wants a dashboard or analysis to reuse the measures already defined in a Power BI model, or to audit them. |
 
 ## 1. Prototype a model (business teams)
 
@@ -55,6 +76,13 @@ $FORGE build <domain>-spec.json out/<Domain> --check --profile handoff
 $PREFLIGHT check out/<Domain>                             # need 0 errors
 ```
 
+`pbip-forge rules` prints the 22 spec rules. The report layer is
+`pbip-forge report blank --client out --model <Domain>` (a complete PBIR
+report bound to the model) and `pbip-forge clone-report <template.Report>
+<Name> <target>` (a copy under a new identity). `pbip-forge f-filters` writes
+the `f-<Category>` measures and the `f-All` gates; `pbip-forge i-filters`
+regenerates the `i-Applied Filters` caption. Both are dry runs first.
+
 Hand-off: `out/<Domain>/handoff/SPEC.md` (diagram, dictionary, DAX) and
 `manifest.json`, plus a `HANDOFF.md` with: questions mapped to measures; the
 diagram from SPEC.md; tables with source today; open questions for the
@@ -69,19 +97,33 @@ $PREFLIGHT check <path>            # 0 clean, 1 violations, 2 usage error
 $PREFLIGHT check <path> --json     # count from summary and violations
 $PREFLIGHT fix <path>              # only after a yes; re-checks from disk
 $PREFLIGHT check <path>            # independent re-check
+$PREFLIGHT rules --json            # the catalog: id, severity, fixer, options
 ```
 
-37 rules; 10 have fixers (M003, M004, M006, M011, M013, F001, F002, F003, B001,
-B003). Lead with errors (block opening or deployment), then warnings, then
-infos. Everything not auto-fixable is a human decision: propose the edit and
-why. Offer `baseline`, `--format github|sarif` and the pre-commit hook for CI.
+114 rules; 22 have fixers. Three fixers are unsafe and run only when their
+rule is selected explicitly: D004, R007 and P001. Lead with errors, then
+warnings, then infos. Everything not auto-fixable is a human decision:
+propose the edit and why. The rules that encode a house rule (C001 to C012,
+plus R008, R015, R016, X001, S004, O007 and A001 to A005) are inert until
+configured: each names its own options.
+
+Also available, when the question calls for it: `stats`, `report
+complexity|nameof|relationships`, `baseline`, `--format github|sarif`,
+`refs NAME` (before a rename), `manifest` and `schema-check` (the warehouse
+contract), `grain` (which dimensions can filter a ratio's two sides),
+`info --categories`, `format-resolve` (what format a rename changes),
+`fieldparam retag`, `comment-refs`, and the opt-in `live` check against the
+published dataset, which is the only command that talks to the Power BI
+service and needs an explicit yes.
 
 ## 3. One template, many client models
 
-`fleet.yml`: `template`, `models`, `state_dir`, `allowlist.kinds` (start with
+`fleet.yml`: `version`, `template`, `models`, `state_dir`, `mapping_tables`
+(the encoded lookup tables, diffed row by row), `allowlist.kinds` (start with
 `measure.missing`, `measure.expression_drift`, `measure.property_drift`,
 `column.missing`, `relationship.missing`), `allowlist.expressions` (never a
-connection parameter), optional `overrides` with reason, owner and date.
+connection parameter), `overrides` (each with `reason`, and `owner` and date),
+`source_identity`, `incremental_refresh`, `fieldparam.families`.
 
 ```
 $DRIFT capture                       # after every template change
@@ -90,23 +132,40 @@ $DRIFT remediate --dry-run           # diffs; then remediate after a yes
 $DRIFT detect && $PREFLIGHT check <each client>
 ```
 
-Classify each finding with the user: accident (remediate), intended (override),
-unsure (`review --out REVIEW.md`). `extra.*` findings are client extensions:
-never auto-fixed. Deletions only for objects the ledger proves were retired
-from the template, only when the kind is allowlisted, and only with `--sync`
-after a second yes. A client that keeps a retired object: `ledger --revive`.
+Classify each finding with the user: accident (remediate), intended
+(override), unsure (`review --out REVIEW.md`). `extra.*` findings are client
+extensions: never auto-fixed. Deletions only for objects the ledger proves
+were retired from the template, only when the kind is allowlisted, and only
+with `--sync` after a second yes. A client that keeps a retired object:
+`ledger --revive`.
 
-## 4. Chart style and broken bindings
+The rest of the tool: `rename measure` and the reviewed `renames:` map,
+`retire`, `purge`, `add-branch`, `groups plan|drop|drop-table|annotate`,
+`mapping decode|diff|union`, `fieldparam retag`, `overrides
+check|files|is-exempt`, `fleet check|connection|family`, `audit`, `diff` (the
+blast radius of a change), `freshness`, `enrichment report|rescan`, `ratchet
+check|tighten`.
+
+## 4. Chart style, bindings and the standard canvas
 
 ```
-$STYLER check <X.Report>                         # BND001/BND002 broken references, BMK bookmarks
+$STYLER check <X.Report>                         # the integrity rule
+$STYLER check <X.Report> --rule slicer-gates    # the canvas conventions
 $STYLER style <X.Report> --dry-run [--palette "#hex" ...] [--color "Table.Measure=#hex"]
 $STYLER style <X.Report>                         # after a yes; run twice, second restyles 0
+$STYLER colors sync --report <X.Report>          # the palette, dry run unless --apply
+$STYLER bookmarks build entries.json --report <X.Report>
+$STYLER rename-measure OLD NEW --model <X.SemanticModel>
+$STYLER rename-label <client-dir> --pair OLD NEW
 ```
 
 Styling needs PBIR visual files, field-parameter tables (`x-Plot Specific 1`,
 `x-Plot Specific 2`, `y-Plot Specific`, or `--table`) and combo charts. Ask for
-brand hex codes; never guess them.
+brand hex codes; never guess them. The canvas conventions are the slicer
+gates, the slicer-mode gates, the category filter, the theme, the visual
+positions, the y-combo groups, the filter panel, the format selector, the
+stale placeholders, the answer bookmarks and the bookmark literals; each is a
+`--rule` slug, and each names its own settings.
 
 ## 5. Reuse a model's definitions
 

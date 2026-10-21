@@ -170,11 +170,12 @@ questions mapped to measures, the diagram, every table, column and measure,
 and the open questions only they can answer (source of truth, refresh,
 history, row-level security).
 
-**For practitioners.** 37 lint rules on TMDL, 10 of them with a mechanical
+**For practitioners.** 114 lint rules on TMDL, 22 of them with a mechanical
 fixer, plus `baseline`, GitHub and SARIF output and a pre-commit hook for CI.
-(Those are the counts in the pinned v1.1.0 release the skills run; the four
-tool repos have more rules on their `master` branch, which is not what the
-plugin installs yet.) Spinout models kept in line with one template, with an
+(Those are the counts the final tools print on their `master` branch. The
+pinned v1.1.0 release the skills install still carries the earlier 37 rules
+and 10 fixers; the pins switch to the new tag in one commit when the owner
+cuts it.) Spinout models kept in line with one template, with an
 allowlist of what may be auto-fixed and a ledger of what was retired. Reports
 built on one standardized canvas: a single combo-chart page driven by three
 field parameters (plot axis, legend, measures) and bookmarks that each answer
@@ -275,7 +276,7 @@ welcome.
 | [ALM Toolkit](https://github.com/microsoft/Analysis-Services/tree/master/AlmToolkit) | No | No | No | Compare and merge two models at a time, TMDL included | No | Metadata-only deploys |
 | [PBI Inspector / Fab Inspector](https://github.com/NatVanG/fab-inspector) | Report and Fabric items, declarative JSON rules | No | No | No | Yes, PBIR | No |
 | [fabric-cicd](https://github.com/microsoft/fabric-cicd), [Fabric CLI](https://github.com/microsoft/fabric-cli) | No | No | No | No | No | Yes, git to Fabric workspaces |
-| swift-pbi (four tools) | Yes, 37 rules on TMDL files (v1.1.0) | 10 mechanical fixers | Yes, with sample data and a hand-off pack | Yes: detect, allowlist, ledger, double-gated deletion | Combo-chart bindings, bookmarks, styling | No |
+| swift-pbi (four tools) | Yes, 114 rules on TMDL files (22 with a fixer) | 22 mechanical fixers, 3 of them unsafe | Yes, with sample data and a hand-off pack | Yes: detect, allowlist, ledger, double-gated deletion | Combo-chart bindings, bookmarks, canvas conventions, styling | No |
 
 Where swift-pbi is weaker: Tabular Editor's rule sets are larger and far more
 widely used; ALM Toolkit compares and deploys to live models; Fab Inspector

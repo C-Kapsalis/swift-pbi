@@ -25,7 +25,7 @@ command -v zip >/dev/null 2>&1 || { echo "package.sh: zip not found" >&2; exit 1
 rm -rf "$DIST"
 mkdir -p "$DIST"
 
-SKILLS="prototype-model preflight fleet-drift chart-style power-bi-definitions"
+SKILLS="prototype-model preflight fleet-drift chart-style agency-workflow power-bi-definitions"
 
 # Short descriptions for the standalone skill zips. Claude's skill upload
 # documents a 200-character limit; the plugin keeps the long SKILL.md one.
@@ -35,6 +35,7 @@ short_desc() {
     preflight) echo 'Lint and fix a Power BI PBIP/TMDL model with tmdl-preflight, explain findings, fix with consent, re-check. Use for "lint my model", "why will my .pbip not open".' ;;
     fleet-drift) echo 'Bring client Power BI models back in line with one template using tmdl-drift-doctor: detect, classify, remediate with consent. Use for "which client models drifted".' ;;
     chart-style) echo 'Keep Power BI combo charts on one style and catch broken bindings with pbi-plot-styler. Use for "style the combo charts" or "a visual broke after a rename".' ;;
+    agency-workflow) echo 'Run the agency job end to end: one template, many client spinouts, one standardized canvas, governance in CI. Use for "onboard a new client model" or "set up governance".' ;;
     power-bi-definitions) echo 'Reuse and audit the measures in a Power BI model when a dashboard or analysis must match Power BI. Use for "use our Power BI definitions" or a list of DAX measures.' ;;
   esac
 }

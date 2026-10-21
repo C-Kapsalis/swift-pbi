@@ -37,7 +37,7 @@ A spec is a JSON file (or a Python file with a module-level `SPEC` dict). Only
 
 | Key | Required | Notes |
 |---|---|---|
-| `name` | yes | Never `Measures` (reserved; Desktop refuses the model) |
+| `name` | yes | Never `Measures`: Power BI reserves that name (`tmdl-preflight` M009 says the engine rejects the model with "Unsupported Table name"). Use a domain name: `Workshop Measures`. |
 | `description` | for hand-off | One line; on the fact, state the grain |
 | `role` | no | `fact`, `dimension`, ... inferred when omitted |
 | `hidden` | no | Set `true` on the fact |

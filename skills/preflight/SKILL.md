@@ -3,12 +3,14 @@ name: preflight
 description: >-
   Lint a Power BI model saved as PBIP/TMDL with tmdl-preflight, explain each
   finding in plain words, apply only the mechanical fixes after the user agrees,
-  and re-check from disk. Catches duplicate lineage tags (which stop Power BI
-  Desktop opening the project), stray commas in field parameters (the model
-  opens but those visuals fail), tables with no ref table line, DAX pointing at
-  deleted measures, broken relationships and bookmark defects. Use when the user
-  says "lint my model", "check this PBIP", "why won't my .pbip open", "is this
-  TMDL valid", "preflight", or before committing or deploying a TMDL model.
+  and re-check from disk. Catches duplicate lineage tags (the one defect the
+  Windows bench saw stop Power BI Desktop opening the project), stray commas in
+  field parameters (the model opens but those visuals fail), tables with no ref
+  table line, DAX pointing at deleted measures, broken relationships, bookmark
+  defects, row-level-security leaks, refresh-policy drift and the house contracts
+  you declare. Use when the user says "lint my model", "check this PBIP", "why
+  won't my .pbip open", "is this TMDL valid", "preflight", "review this model
+  before we ship it", or before committing or deploying a TMDL model.
 ---
 
 # preflight
@@ -16,6 +18,10 @@ description: >-
 PBIP and TMDL turned the Power BI model into a folder of text files, so it can
 be tested like code. This skill runs that test, explains what it found, and
 repairs only what can be repaired without a human decision.
+
+The catalog of rules, with severities and fixers, is in
+[references/rules.md](references/rules.md). It is generated from
+`tmdl-preflight rules --json`, so the counts there are the tool's own.
 
 ## 0. Where you are running
 
@@ -49,14 +55,21 @@ $PREFLIGHT check <path> --json > preflight.json     # for counting
 Exit codes: `0` no errors, `1` violations remain, `2` usage or path problem.
 The last line is a `scanned:` summary; if it says 0 tables, the path is wrong.
 
+Run the tool's own listing when you need the catalog in the conversation:
+
+```
+$PREFLIGHT rules                 # the text catalog
+$PREFLIGHT rules --json          # every id, severity, fixer, options
+```
+
 ## 3. Explain
 
 Group the findings and lead with what blocks:
 
 | Severity | Means | Say it like this |
 |---|---|---|
-| error | The tool marks it as a defect to fix before hand-off | "Blocks opening: two tables share lineage tag 3f2a…; Desktop refuses a model like this." |
-| warning | It opens, but something is wrong or fragile | "Opens, but this lineage tag is a placeholder, not a real id." |
+| error | The tool marks it as a defect to fix before hand-off | "Two tables share lineage tag 3f2a…; the deployment target rejects a model like this." |
+| warning | It opens, but something is wrong or fragile | "This lineage tag is a placeholder, not a real id." |
 | info | Style and documentation | "Optional: Units Sold has no format string." |
 
 Severity is the tool's; what Desktop does is evidence. On a Windows test
@@ -69,14 +82,14 @@ bench (benchmarks/windows/RESULTS.md), each defect alone gave:
 | M006 table file with no `ref table` line | opened, and the table loaded with its relationship |
 | M004 placeholder lineage tag | opened |
 
-So say "blocks opening" only for M003. For M006 say "Desktop still loads it,
-but the model file no longer lists every table, so tools and reviews that read
-model.tmdl miss it", even though the v1.1.0 rule text says otherwise. For any
-other rule, do not claim what Desktop does.
+So say "blocks opening" only for M003. For F001 say "the model opens, but
+every visual that uses that field parameter fails". For M006 and M004 say
+"opens, but …". For any other rule, do not claim what Desktop does: the
+rule text is the tool's prediction, not a measurement.
 
 For each error and warning give: file and line, the rule id, one sentence on
-what breaks, and whether `(auto-fixable)` is on the line. Use the rule table
-in [references/rules.md](references/rules.md). Count from the JSON (`summary`
+what breaks, and whether the rule has a fixer. Use the rule table in
+[references/rules.md](references/rules.md). Count from the JSON (`summary`
 and `violations`), never estimate. Infos can be summarized as one line per
 rule with a count.
 
@@ -91,11 +104,16 @@ rule with a count.
 ```
 $PREFLIGHT fix <path>                    # all fixable rules
 $PREFLIGHT fix <path> --select M003,M006 # only these
+$PREFLIGHT fix <path> --dry-run          # the plan, nothing written
+$PREFLIGHT fix <path> --check            # the count of objects that would change
 ```
 
-The fixers cover 10 rules: M003, M004, M006, M011, M013, F001, F002, F003,
-B001, B003. Each one rewrites a single line or JSON value and the tool then
-re-checks from disk. Never edit the files yourself to make a rule pass.
+The catalog holds **22 rules with a fixer**: M003, M004, M006, M011, M013,
+M019, M021, M022, P001, D004, R007, F001, F002, F003, F004, F006, F007,
+F014, A003, B001, B003, O009. Three of them are **unsafe**: D004, R007 and
+P001 run their fixer only when the rule is selected explicitly, never in a
+blanket fix. Each fixer rewrites a single line or JSON value and the tool
+then re-checks from disk. Never edit the files yourself to make a rule pass.
 
 ## 5. Re-check and show the diff
 
@@ -114,24 +132,68 @@ a relationship to a missing column (R001), two active paths (R006), a table
 with no partition (M007). For each, propose the edit (which line, what to
 write) and why, and let the user choose. A rename of a measure needs a
 decision about every visual and bookmark bound to it: suggest the
-`chart-style` skill's `check` for the report side.
+`chart-style` skill's `check` for the report side, and
+`tmdl-drift-doctor rename measure` when a template and client copies are
+involved.
 
-## 7. Keep it clean (offer, do not impose)
+## 7. The other commands (offer, do not impose)
 
-- Existing model with many findings: `$PREFLIGHT baseline <path>`, then
-  `check --baseline <path>/.tmdl-preflight-baseline.json` fails only on new ones.
-- CI: `--format github` annotates pull requests; `--format sarif` for code
-  scanning. Pre-commit: repo `https://github.com/c-kapsalis/tmdl-preflight`,
-  rev `v1.1.0`, hook id `tmdl-preflight`.
-- Project settings: `[tool.tmdl-preflight]` in `pyproject.toml`, or
-  `.tmdl-preflight.json`. Exemptions need a `reason` and can carry an `until` date.
+Only offer these when the user's question calls for them.
+
+| Command | Use it when |
+|---|---|
+| `stats <path>` (`--json`, `--measures`) | The user wants an inventory: tables, columns, measures, relationships, partitions, how the measures are organised. |
+| `report complexity\|nameof\|relationships <path>` | The user asks which measures are longest, what NAMEOF references exist, or what the relationship topology looks like. |
+| `baseline <path>` then `check --baseline <file>` | The model has many known findings; the gate should fail only on new ones. `--update` only ever shrinks it. |
+| `check --format github` / `--format sarif` | CI: GitHub annotations or SARIF for code scanning. |
+| `refs NAME [paths]` | Before a rename or a delete: how many places name this object, model side and report side. |
+| `manifest <Model.SemanticModel> [--check] [--targets FILE]` | The pipeline needs a JSON manifest of the model (tables with their role, columns, measures, the warehouse table each partition reads, relationships). `--check` fails when the committed copy is stale. |
+| `schema-check --manifest M --schema SNAPSHOT` | Compare the model with a warehouse schema snapshot; `--sql-dir DIR --entries FILE` proves from view SQL files that the views expose the columns the model needs. |
+| `grain <path> --cost-fact T --backend-fact T --check` | A ratio is wrong at some grain. The tool works out which dimensions can filter both sides; `--emit-config` prints the lists for the C010 grain-guard contract. |
+| `info --categories <path>` | Decode the category-mapping table: group ids to analysis categories, and fact table to categories. |
+| `format-resolve <path> --name NAME [--compare NAME2]` | A rename would change how a measure is formatted. Resolve the format before the rename ships. |
+| `fieldparam retag <files> --names N1,N2 --from OLD --to NEW` | Move a category across every sibling field-parameter table at once. Writes nothing unless every named row is found under the old category. |
+| `comment-refs <path> [--floors FILE --tighten]` | Count ticket references in model comments and ratchet them down. |
+| `live <Model.SemanticModel> --workspace ID --dataset ID` | The **opt-in** check against the published dataset: do the tables hold rows (a row-limit parameter left at `LIMIT 1` imports one row per table), do the measures evaluate, did the last refresh succeed and is the data fresh, plus a best-practice pass over the published metadata. It signs in as a service principal (`PBI_TENANT_ID`, `PBI_CLIENT_ID`, `PBI_CLIENT_SECRET`) or, with the optional `msal` package, interactively; credentials are never stored. It refuses to run when the dataset name does not match the local model (`--no-coupling-check` overrides). `--record DIR` saves every response and `--replay DIR` answers from such a folder with no network access. `--non-interactive` never opens a sign-in prompt. **This is the only command that talks to the Power BI service: get the user's explicit yes before running it, and never let it run as a side effect of a lint.** |
+
+Project settings live in `[tool.tmdl-preflight]` in `pyproject.toml`, or
+`.tmdl-preflight.toml` / `.tmdl-preflight.json`. Exemptions need a `reason`
+and can carry an `until` date. Unknown keys, unknown rule ids and wrongly
+typed options are errors, never silent no-ops.
+
+### The rules that encode a house rule
+
+The C rules are inert until you configure them, and each one makes a practice
+executable instead of a habit. When the user describes a rule they want
+enforced ("every ratio must be guarded", "the format selector must exist",
+"no helper may name the accounts table"), offer to declare it:
+
+- `C001` required objects (the format selector, the time-intelligence
+  selector, the helper table).
+- `C002` object contracts (a table, column, datatype or DAX token must
+  exist).
+- `C003` relationship contracts (sanctioned axis edges, reach guards).
+- `C004` field-parameter registration contracts (group labels, ordinals, row
+  counts).
+- `C005` measure reference contracts (must / must-not reference, co-reference,
+  must-not-divide).
+- `C006` guarded-ratio wrapper, `C007` typed flag predicates, `C008`
+  arm-scoped filters, `C009` reach-guard helper consistency, `C010` grain-guard
+  coverage, `C011` grain-policy exception, `C012` required calculation groups.
+
+The rules that need configuration to do anything also include R008 (conformed
+dimension join), R015/R016 (cohort and anchor calendars), X001 (multi-row
+keys), S004 (ticket references), O007 (dead fact tables) and A001 to A005
+(the analysis-category mapping). Each one names its own options; the defaults
+are in [references/rules.md](references/rules.md).
 
 ## What it does not prove
 
-A clean check means the files pass 37 structural and DAX-reference rules. It
-does not prove the numbers are right (a ratio at the wrong grain passes) and it
-is not a Desktop open-test. Say both when you report a clean result. For
-measure logic, use the `power-bi-definitions` skill's audit reference.
+A clean check means the files pass the rules the tool ran. It does not prove
+the numbers are right (a ratio at the wrong grain passes) and it is not a
+Desktop open-test. Say both when you report a clean result. For measure
+logic, use the `power-bi-definitions` skill's audit reference and the
+`grain` command.
 
 ## Output
 
@@ -139,9 +201,9 @@ measure logic, use the `power-bi-definitions` skill's audit reference.
 ## Preflight: <model name>
 Before: 3 errors, 1 warning, 6 infos (10 findings)
 Blocks opening:
-1. M003 Stores.tmdl: lineage tag duplicated from Products (auto-fixable)
+1. M003 Stores.tmdl: lineage tag duplicated from Products (has a fixer)
 Other errors:
-1. M006 Stores.tmdl: table not referenced in model.tmdl (auto-fixable)
+1. M006 Stores.tmdl: table not referenced in model.tmdl (has a fixer)
 ...
 Fixed (with your OK): 4 (M006, M003, M004, F001)
 After: 0 errors, 0 warnings, 6 infos
@@ -158,9 +220,12 @@ and act on a failure before moving on.
 |---|---|---|---|
 | Check | "Did the tool actually scan the model?" | `scanned:` line shows tables and measures > 0 | fix the path |
 | Explain | "Is every count copied, not estimated?" | counts match `summary` in the JSON | recount from the JSON |
+| Explain | "Did I claim Desktop refused to open for a rule that does not block?" | only M003 is called a blocker | re-read the evidence table |
 | Fix | "Did the user agree, and is there a way back?" | explicit yes; git or a copy | ask; copy first |
 | Fix | "Did I edit a file by hand to silence a rule?" | the diff shows only fixer edits | revert the hand edit |
+| Fix | "Did a blanket fix run an unsafe fixer?" | only D004, R007 and P001 are unsafe, and only when selected | select them explicitly, one at a time |
 | Re-check | "Is 'clean' coming from the re-check, not from the fixer's own claim?" | a separate `check` run after `fix` | run it |
+| Live | "Did I talk to the Power BI service without being asked?" | an explicit yes for `live` | do not run it |
 | Report | "Did I imply the model opens in Desktop or that numbers are right?" | the "Not proven" line is present | add it |
 
 **Score and probe before handing over.** First the gate: every check in the
