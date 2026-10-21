@@ -1,0 +1,98 @@
+schema_version: "1.0"
+name: broken-report
+description: >-
+  A PBIP report whose combo chart still points at a measure the model was
+  renamed away from. The agent must find the broken bindings with the styler
+  tool, quote the tool's counts exactly, explain what the viewer sees, propose
+  the tool's own repair rather than a hand edit, and never claim the report
+  was opened in Desktop.
+tags: [chart-style, report]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/broken-report` holds a Power BI project for a
+    fictional bike shop: `BikeShop.SemanticModel` and `BikeShop.Report`. The
+    report's chart is not showing what it should.
+
+    Please:
+    1. check the report with the tool this plugin installs and tell me what
+       is broken;
+    2. say what the person looking at the report will see;
+    3. tell me which of the findings have a mechanical repair and which need
+       a decision from me.
+
+    Do not change any files yet.
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-unresolved-measure-binding
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that the combo chart's Y binding names a measure
+      the model no longer declares — the visual still binds "Legacy
+      Revenue" while the model now calls it "Net Revenue" — naming the id
+      BND001 or describing the unresolved measure reference. FAIL if this is
+      not mentioned.
+  - name: found-unresolved-queryref
+    type: llm
+    weight: 2
+    criteria: |
+      The response reports the second half of the same defect: the
+      queryRef / nativeQueryRef string "'Sales Measures'.Legacy Revenue"
+      does not resolve in the model (rule BND002), or the same defect named
+      as the query reference rather than the measure binding. FAIL if the
+      response mentions only one of the two ids AND does not describe the
+      problem as a single defect covering both bindings.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports 2 error(s), 2 warning(s) over 1 report (the two warnings are
+      the missing theme files). The response may give the error count, or
+      the total of four findings, or the errors and warnings separately.
+      FAIL if it states a different count, or gives no count at all, or says
+      "several" / "a few".
+  - name: explained-what-the-viewer-sees
+    type: llm
+    weight: 2
+    criteria: |
+      The response says what the reader sees: the chart renders empty or
+      shows an error where the revenue series used to be, because the
+      visual still points at the old measure name. FAIL if it only says
+      "the binding is broken" with no effect on the report.
+  - name: proposed-the-tools-repair
+    type: llm
+    weight: 3
+    criteria: |
+      The response proposes the tool's own repair — the report-side rename
+      tool (`pbi-plot-styler rename-measure`), or the stale-line rebind
+      (`style --rebind-stale-line`), or renaming the model measure back —
+      and not a hand edit of the visual.json. FAIL if the response
+      describes editing the visual.json by hand as the way to fix it.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify any file in fixtures/broken-report, and it
+      asks the user for permission before any repair is applied. FAIL if the
+      response claims it fixed something, or shows a fix as already done.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 2
+    criteria: |
+      The response does not claim that the report was opened in Power BI
+      Desktop, or that anyone tested it in Desktop in this session. FAIL if
+      it does.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

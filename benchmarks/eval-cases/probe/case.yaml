@@ -1,0 +1,25 @@
+schema_version: "1.0"
+name: probe
+description: >-
+  A self-test of the evaluation harness itself. It asks the agent to read
+  the scaffold's own marker and report what the sandbox allows. If this
+  case ever fails, the harness is broken and every other case's score is
+  meaningless. It is not a measurement of the skills.
+tags: [harness]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+    Run these commands with the Bash tool and report their exact output:
+    1. `pwd`
+    2. `ls -la`
+    3. `ls -la fixtures 2>&1 | head -20`
+    4. `ls -la tools 2>&1 | head -20`
+    5. `source tools/tools.sh && $PREFLIGHT --version 2>&1 | tail -3`
+  max_turns: 12
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: probe-reported
+    type: llm
+    weight: 1
+    criteria: The response contains the literal output of the commands, including the pwd line and the tool's version line.

@@ -9,6 +9,11 @@ dist/
 .drift-doctor/
 out/
 
+# The skill benchmark's own run folders: the HTML reports and the full
+# traces are large and are reproduced by re-running the suite. The
+# summarised results live in benchmarks/results/eval-runs.json.
+benchmarks/eval-cases/results/
+
 # Python
 __pycache__/
 *.pyc

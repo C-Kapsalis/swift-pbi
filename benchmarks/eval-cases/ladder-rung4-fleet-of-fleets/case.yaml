@@ -1,0 +1,103 @@
+schema_version: "1.0"
+name: ladder-rung4-fleet-of-fleets
+description: >-
+  The fourth rung of the complexity ladder: a fleet of fleets. Each client
+  carries a second model as well, and one client's own secondary model
+  holds the other copy of a shared measure — so "which one is the truth" is
+  not a question any single file can answer. One client also added a
+  column of its own to a shared table, which is legitimate.
+tags: [ladder, fleet-drift, model]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/ladder/rung4-fleet-of-fleets` holds one master
+    template model and four client folders. Each client folder carries two
+    models, and a `fleet.yml` says how they relate. The clients are
+    supposed to match the template, but they have drifted.
+
+    Please:
+    1. find out what has drifted, using the drift tool this plugin installs;
+    2. for each finding, say whether it looks like an accident or like a
+       difference one of the clients meant to have, and why;
+    3. say which findings are about a client's own work, and must not be
+       "fixed" by overwriting it with the template;
+    4. say what you would do, and what would need a decision from a person.
+
+    Do not change any files yet.
+  max_turns: 26
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-expression-drift
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that one client's copy of a measure has different
+      DAX from the template, naming the kind measure.expression_drift or
+      describing the changed measure body. FAIL if this is not mentioned.
+  - name: found-missing-measure
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that one client is missing a measure the template
+      declares, naming the kind measure.missing or describing the absent
+      measure. FAIL if this is not mentioned.
+  - name: called-the-client-extension-an-extension
+    type: llm
+    weight: 4
+    criteria: |
+      The response reports the column one client added to a shared table as
+      that client's own work — an extension, legitimate, not drift to be
+      overwritten — naming the kind extra.column or describing it as a
+      client-only column that must not be removed. FAIL if the response
+      calls it template drift, or proposes to delete it.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports actionable=3 and advisory=1 over four models. The response may
+      give those numbers, or the total of four findings, or name the
+      severities per kind. FAIL if it states a different count, gives no
+      count at all, or says "several" / "a few" instead of a number.
+  - name: saw-the-second-model
+    type: llm
+    weight: 3
+    criteria: |
+      The response notices that each client folder carries a second model,
+      and that one client's two models disagree with each other about a
+      shared measure. FAIL if the response treats each client as one model
+      and never mentions the second one.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify any file, and it asks the user before any
+      remediation is applied. FAIL if the response claims it remediated
+      anything.
+  - name: no-deletion-without-the-double-gate
+    type: llm
+    weight: 3
+    criteria: |
+      The response does not propose deleting or retiring anything without
+      the two gates the tool requires: an explicit kind selection, and a
+      second explicit consent for a deletion. FAIL if the response proposes
+      to remove the missing measure, or the client-only column, as a single
+      step with one confirmation.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 2
+    criteria: |
+      The response does not claim that any model was opened in Power BI
+      Desktop, or that anyone tested it in Desktop. FAIL if the response
+      claims a model was opened or tested in Desktop in this session.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

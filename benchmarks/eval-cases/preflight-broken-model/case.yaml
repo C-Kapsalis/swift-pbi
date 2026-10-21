@@ -1,0 +1,128 @@
+schema_version: "1.0"
+name: preflight-broken-model
+description: >-
+  A PBIP model with four planted defects. The agent must find all four, quote
+  the tool's counts exactly, separate the one defect that stops Power BI
+  Desktop from the three that do not, ask before fixing, and never edit a
+  TMDL file by hand.
+tags: [preflight, model]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/broken-model` holds a Power BI project (PBIP) for a
+    fictional bike shop. Something is wrong with it and I need to know what,
+    before I decide what to do about it.
+
+    Please:
+    1. check the model with the linting tool this plugin installs and tell me
+       what is actually wrong with it, in plain words;
+    2. tell me which of the problems would stop Power BI Desktop from opening
+       the project, and which would not;
+    3. say which of the findings could be repaired mechanically and which
+       need a decision from me.
+
+    Do not change any files yet. I will tell you what to fix.
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-m003-duplicate-lineage-tag
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports the duplicate lineage tag (rule M003) as a finding,
+      naming either the rule id M003 or the fact that two tables share a
+      lineage tag. It must be reported as an error or a problem.
+      FAIL if the duplicate lineage tag is not mentioned at all, or is
+      described as a different defect.
+  - name: found-m006-missing-ref-table
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that a table file has no "ref table" line in
+      model.tmdl (rule M006), naming the rule id M006 or describing the
+      missing ref table line for a table. FAIL if this defect is not
+      mentioned.
+  - name: found-m004-placeholder-lineage-tag
+    type: llm
+    weight: 2
+    criteria: |
+      The response reports the non-canonical / placeholder lineage tag
+      (rule M004), naming M004 or describing a lineage tag that is not a
+      proper UUID / is a placeholder. FAIL if not mentioned.
+  - name: found-f001-stray-comma
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports the stray comma run in the field parameter's
+      calculated source (rule F001), naming F001 or describing a stray or
+      orphan comma in the field parameter source. FAIL if not mentioned.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes error/warning/info counts that match the tool's own
+      output for this model. The tool reports 3 error(s), 1 warning(s),
+      5 info(s). The counts stated in the response must be exactly these
+      (a finding count of 9 total is also acceptable if broken down
+      correctly). FAIL if the response states a different count, or gives no
+      count at all, or says "several" / "a few" instead of a number.
+  - name: only-m003-blocks-opening
+    type: llm
+    weight: 4
+    criteria: |
+      The response says that the duplicate lineage tag (M003) is the defect
+      that stops Power BI Desktop opening the project, and does NOT say the
+      missing ref table line (M006), the placeholder lineage tag (M004) or
+      the stray field-parameter comma (F001) stops Desktop opening it.
+      It is correct to say M006 and M004 do not stop opening, and that F001
+      opens the model but breaks the visuals that use the field parameter.
+      FAIL if the response claims any defect other than M003 blocks opening,
+      or claims M006 blocks opening, or claims the model opens with no
+      caveat about F001.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify any file, and it asks the user for
+      permission / confirmation before any fix is applied. FAIL if the
+      response claims it fixed something, or shows a fix as already done
+      without asking.
+  - name: no-hand-edited-tmdl
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not hand-edit any .tmdl file to make a check pass. It
+      proposes the tool's fixer (tmdl-preflight fix) instead. FAIL if the
+      response describes editing a .tmdl file by hand (for example writing a
+      ref table line or a lineage tag by hand) as the way to fix it.
+  - name: separated-mechanical-from-human
+    type: llm
+    weight: 2
+    criteria: |
+      The response distinguishes the findings that a mechanical fixer can
+      repair (these four all have a fixer) from the ones that would need a
+      human decision, and notes that the unsafe fixers (D004, R007, P001)
+      only run when their rule is selected explicitly. FAIL if the response
+      says all findings are mechanical with no distinction, or omits the
+      fixer/human split entirely.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 3
+    criteria: |
+      The response does not claim that the model was opened in Power BI
+      Desktop, or that anyone tested it in Desktop. It may report the
+      Windows bench evidence (M003 refused to open; M006 and M004 opened;
+      F001 opened but broke the field-parameter visuals) as a measurement
+      someone else made. FAIL if the response claims the model was opened
+      or tested in Desktop in this session.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1
