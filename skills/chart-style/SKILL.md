@@ -85,6 +85,50 @@ Explain each error as what the viewer will see ("the chart on page Monthly
 shows an error where Revenue was"). Run `check --fix` only after the user
 agrees; it repairs BMK001 and BMK002 alone and verifies each edit.
 
+### Say it in business terms
+
+| Id family | What the reader sees |
+|---|---|
+| BND001, BND002 | The visual shows an error where the measure used to be: the binding still points at the old name, so the chart renders empty or fails. |
+| BMK001, BMK002 | The whole report is rejected on import: the service refuses the file, so the report does not open at all. |
+| BMK003, BMK004, BMK005 | A menu entry leads nowhere: the bookmark points at a page or a visual that is gone, or at a file that was never written. |
+| FPM001, FPM002 | Two field parameters claim the same slot, so one of them renders nothing: the axis shows a blank well. |
+| THM001, THM002 to THM006 | The report's colours are not the brand's: no theme collection, no custom theme, or a hex literal hard-coded in `report.json` that the theme cannot change. |
+| GAT001, GAT002 | A slicer that should be hidden is on the page, or it disappears when a bookmark is applied: the reader sees a filter they did not ask for, or a filter they did. |
+| GAT003, GAT004, GAT005 | The gate is bound to the wrong table, so it does not fire: the slicer never hides. |
+| CAT001 | A menu entry switches every gate off: applying the bookmark empties the report. |
+| PNL001, PNL002 | The filter panel is not a group: the slicers drift apart as soon as someone moves one. |
+| FMT001 | The format selector is not applied: the measures show engine defaults instead of the chosen format. |
+| PLH001 | A visual binds a placeholder its axis does not offer: the legend shows a blank column. |
+| YCG001, YCG002 | The y-combo group is misnamed or a member is outside it: the report's own tooling cannot find the group. |
+| POS001 | A visual has no position: it lands on top of another. |
+| ABK000 to ABK010, PGW001, PGW002 | An answer bookmark shows the wrong answer: the matrix capture holds another question's fields, the category is not pinned, a picker selects nothing, a row field has no dropdown, a raw measure sits in the parameter well, or the navigator points at a bookmark with no file. |
+| BML001, BML002 | A saved selection names a field the axis does not offer: the bookmark applies a filter that resolves to nothing. |
+
+### Which fixes are mechanical, and which need a person
+
+- **Mechanical:** `check --fix` repairs BMK001 (an unknown bookmark `options`
+  key) and BMK002 (a bookmark number stored as a string). The fixers are
+  surgical text edits: the file is never re-serialized, and each edit is
+  proven by parsing the text before and after and requiring that the only
+  difference is the intended one.
+- **Mechanical, in the convention rules:** five of the twelve slugs have a
+  fixer — `slicer-gates`, `slicer-mode-gates`, `filter-panel`,
+  `format-selector` and `stale-placeholders`. `check --rule SLUG --fix`
+  writes the gate, repoints a stale gate reference, renames the filter-panel
+  master group (and its children's links and the bookmark references) or
+  repoints the stale placeholder.
+- **A person, or a re-capture:** `category-filter` (re-capture the bookmark
+  with the analysis-category filter set), `theme` (a theme file has to exist
+  or be written), `visual-position` (a visual needs a position), `y-combo`
+  (the group naming is the model's convention), `answer-bookmarks` (a
+  bookmark has to be re-captured, or rebuilt with `bookmarks build`) and
+  `bookmark-literals` (a saved selection has to name a registered row).
+
+Fix the page-level findings (`PGW001`, `PGW002`) first: they reproduce in
+every bookmark, so the capture-level findings are only meaningful once the
+page is right.
+
 ## 3. Check the canvas conventions (read-only)
 
 The integrity check proves the report holds together. These rules prove it
@@ -131,9 +175,22 @@ the fix and checks again, so its exit code comes from the re-check. Run it
 only after the user agrees, and use `--fix --dry-run` first to print the
 diff.
 
-Fix the page-level findings (`PGW001`, `PGW002`) first: they reproduce in
-every bookmark, so the capture-level findings are only meaningful once the
-page is right.
+### The field parameters the styler reads
+
+The default trio is `x-Plot Specific 1`, `x-Plot Specific 2` and
+`y-Plot Specific`. With no `--table` and no config list, the tool **detects
+the field parameters from the TMDL**: a calculated table whose column carries
+`extendedProperty ParameterMetadata` and whose rows are `NAMEOF(...)` tuples.
+A detected table whose rows point at columns is a **dimension** parameter; a
+table whose rows point at measures is a **metric** parameter; a mix is
+flagged. The selector and the column-well logic use the **dimension**
+parameters. The tool prints one line naming the detected tables, so you can
+see what it read. An explicit `--table` or a config list restricts the
+expansion to exactly what you named.
+
+The same rule applies to `colors sync`, `colors reset`, `bookmarks build` and
+the checks that take field-parameter tables. Say which tables the tool used
+in the report, so the user can catch a wrong detection.
 
 ## 4. Preview the style
 

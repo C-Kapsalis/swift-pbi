@@ -29,6 +29,12 @@ Read the specialised skill before you run that phase's tool. This skill owns
 the order, the handover between phases, and the naming conventions the whole
 fleet shares.
 
+The tool inventories this skill relies on (read from each tool's own
+listing): `skills/preflight/references/rules.md` (114 rules, 22 fixers),
+`skills/fleet-drift/references/drift-kinds.md` (41 remediable kinds),
+`skills/chart-style/references/canvas-rules.md` (44 check ids) and
+`skills/prototype-model/references/forge-rules.md` (22 spec rules).
+
 ## 0. Where you are running
 
 All four tools need a local shell with `uv`. Check once:
@@ -242,12 +248,12 @@ with dead bindings.
 
 ## 6. Phase 4: the gate in CI
 
-The pipeline is four gates, in this order, and each one is read-only except
-the first fix step:
+The pipeline is five gates, in this order, and every one of them is
+read-only:
 
 ```yaml
 - name: The model still passes its rules
-  run: tmdl-preflight check . --format github
+  run: tmdl-preflight check . --format github --strict
 - name: The client copies are no further out of date
   run: drift-doctor ratchet check --fleet fleet.yml
 - name: The applied fixes stayed applied
@@ -260,7 +266,8 @@ the first fix step:
 
 - `tmdl-preflight check` exits 1 on a violation, 2 on a usage or path
   problem. `--format github` annotates the pull request; `--format sarif` for
-  code scanning.
+  code scanning. A model with known findings uses a baseline, so the gate
+  fails only on what is new.
 - `drift-doctor ratchet check` fails when a model's drift rose above its
   floor, or when any `retire.*` finding exists (a resurrection is a hard
   zero). `ratchet tighten` lowers the floors to today's counts; it never

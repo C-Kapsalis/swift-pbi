@@ -1,4 +1,7 @@
-# fleet.yml for tmdl-drift-doctor v1.1.0. All paths are relative to this file.
+# fleet.yml for tmdl-drift-doctor. All paths are relative to this file.
+# The keys below work in the pinned v1.1.0 tag; the newer ones
+# (source_identity, incremental_refresh, fieldparam.families, purge,
+# renames) need the next tag. See references/drift-kinds.md.
 version: 1
 template: template/Product.SemanticModel
 models:
@@ -31,3 +34,33 @@ allowlist:                # empty allowlist = nothing is ever remediated
     # - relationship.modified
     # - retire.measure     # deletions; still need --sync at run time
   expressions: []         # ONLY named shared parameters are compared; never connection parameters
+
+# --- the keys that need the next tag -----------------------------------------
+
+source_identity:          # how a table's source view is read; without it, source drift is off
+  function: Source
+  db_parameter: Database
+
+incremental_refresh:      # the fact tables that must refresh like the template
+  enabled: true
+  fact_pattern: "^Visits$"
+  exempt: []
+
+fieldparam:
+  families:               # the numbered axis levels and the variant tables
+    - prefixes: ["x-Selector", "x-Plot Specific"]
+      role: metric
+    - prefixes: ["y-Selector", "y-Plot Specific"]
+      role: dimension
+  placeholder_table: "#Report Measures"
+
+purge:                    # the pristine-category purge; off by default
+  enabled: false
+  infrastructure_fraction: 0.5
+
+renames:                  # the reviewed rename map
+  measures: {}
+  columns: {}
+
+overlays:                 # per-model policy, dq and mapping files
+  dir: overlays

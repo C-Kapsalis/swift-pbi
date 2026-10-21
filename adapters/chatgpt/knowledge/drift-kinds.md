@@ -1,17 +1,29 @@
-# tmdl-drift-doctor: kinds, commands and configuration (v1.1.0)
+# tmdl-drift-doctor: kinds, commands, fleet.yml keys and exit codes
 
-Every kind, command and configuration key below was read from the tool's own
-listing at the pinned v1.1.0 release (`drift-doctor --help` and its
-sub-command help, the `REMEDIABLE_KINDS`, `ADVISORY_KINDS`, `SYNC_ONLY_KINDS`,
-`RETIREMENT_FINDING_KINDS`, `ALWAYS_GATING`, `PURGE_KINDS`,
-`RETIREMENT_KINDS` and `BATCH_SAFE_KINDS` tables in the tool's own source,
-and `docs/fleet-yml.md` in the tool's repository).
+**This file is the single source the `fleet-drift` skill routes to.** Every
+kind, command, configuration key and exit code below was read from the tool
+itself: `drift-doctor --help` and each sub-command's help, the
+`REMEDIABLE_KINDS`, `ADVISORY_KINDS`, `SYNC_ONLY_KINDS`,
+`RETIREMENT_FINDING_KINDS`, `ALWAYS_GATING`, `BATCH_SAFE_KINDS` and
+`DESTRUCTIVE_PREFIXES` tables in the tool's own source, and the tool's own
+`docs/fleet-yml.md`.
 
 Never state a count that is not in this file or in a fresh run of the tool.
 
+## Which build is which
+
+| Build | Commands | How it was measured |
+|---|---|---|
+| `master` (this file, and the next tag) | **20** | `drift-doctor --help` on `master` |
+| the pinned `v1.1.0` the plugin installs | **7** | `drift-doctor --help` at the `v1.1.0` tag: `audit`, `capture`, `detect`, `ledger`, `ratchet`, `remediate`, `review` |
+
+The other 13 commands here need the new tag. Say which build you are talking
+about; never mix the two. The plugin's pins stay on `v1.1.0` until the owner
+cuts a new tag.
+
 ## The commands
 
-`drift-doctor --help` lists 21 commands:
+`drift-doctor --help` lists 20 commands:
 
 | Command | What it does |
 |---|---|
@@ -36,12 +48,59 @@ Never state a count that is not in this file or in a fresh run of the tool.
 | `retire` | Retire a superseded measure in the template and every model: bindings move first, the declaration goes last. |
 | `review` | Write a per-model checklist of everything routed to a human. |
 
+### The flags that matter
+
+| Flag | On | What it does |
+|---|---|---|
+| `--fleet FILE` | most | the fleet configuration (default `fleet.yml`) |
+| `--model M` | most | one model (repeatable in some commands) |
+| `--json` | `detect`, `audit`, `ledger`, `groups plan` | machine-readable output (`detect --json` is report schema version 2) |
+| `--csv` | `detect` | one CSV row per model: shape and drift by bucket |
+| `--kind PREFIX` | `detect`, `remediate` | only findings whose kind starts with this prefix; `measure` covers every `measure.*` kind, `measure.miss` matches nothing |
+| `--sync` | `detect`, `remediate` | also report (detect) or offer (remediate) the sync-only channel: the purge items |
+| `--allow-stale` | `detect`, `remediate`, `review`, `ratchet` | proceed on a stale baseline (misclassification risk) |
+| `--dry-run` | `remediate`, `renames apply`, `rename measure`, `groups annotate` | compute every edit and print the diffs; write nothing (not even the ledger) |
+| `--yes` | `remediate`, `renames apply`, `rename measure`, `add-branch` | apply without the confirmation (remediate: only batch-safe kinds, only with at least one `--kind`, and never deletions) |
+| `--interactive` | `remediate` | ask before every fix even where a terminal is not detected |
+| `--confirm-deletions` | `remediate` | with `--sync`: the explicit second confirmation that lets deletions run without a terminal |
+| `--converge` | `remediate` | re-detect and re-apply until a pass changes nothing (at most 4 passes) |
+| `--ref NAME` | `remediate` | push only this template measure (bare name or `Table[Measure]`) to every model where each hosts it |
+| `--add-missing` | `remediate` | with `--ref`: also insert the measure into models that lack it |
+| `--digest-json FILE` | `remediate` | write the run's decision digest (what was retained, what needs a person, what owes a refresh) |
+| `--backup` | `remediate` | copy each file to `<name>.bak_<timestamp>` before its first write |
+| `--output` / `--out FILE` | `review`, `diff`, `groups plan` | where the checklist, the blast-radius report or the JSON plans go |
+| `--base FILE` / `--head FILE` | `diff` | the `detect --json` reports from before and after the change |
+| `--base-ledger FILE` / `--head-ledger FILE` | `freshness` | the ledger at the merge base and at the tip of the main line (default: the fleet's own ledger) |
+| `--body-file FILE` / `--stale-flag-file FILE` | `freshness` | write a Markdown body for a CI comment; write `1` when something is at risk |
+| `--from-json FILE` | `ratchet check`, `ratchet tighten` | use a saved `detect --json` report instead of detecting now |
+| `--total-only` | `ratchet check`, `ratchet tighten` | compare only each model's drift total, with `<state_dir>/drift_totals.json` |
+| `--include-advisory` | `ratchet check` | also fail on `retire.*` findings that no sync can apply |
+| `--allow-new` / `--prune` | `ratchet tighten` | record models that have no floor yet; drop floors of models no longer in the fleet |
+| `--stamps FILE` | `fleet check` | a connection-parameter stamping table to check against the fleet's declarations |
+| `--from OLD` / `--to NEW` / `--display NAME` | `fieldparam retag` | the current category, the new category, the display name of the row to move (repeatable) |
+| `--template FILE` / `--derived FILE` / `--out FILE` | `mapping union` | the template table, the derived table, the target file to write |
+| `--old-label` / `--new-label` / `--format-arm MODEL=FORMAT` | `rename measure` | the picker label to replace, the one to write, a format arm to insert when NEW would show fewer decimals |
+| `--drop GROUP` | `groups plan`, `groups drop` | the group to drop (repeatable) |
+| `--layer LAYER` | `groups drop` | run only these layers: `selector-branches`, `measures`, `selectors`, `annotation`, `gates`, `bookmarks`, `tables`, `mapping` |
+| `--tables TABLE` | `groups drop-table` | the table to drop (repeatable) |
+| `--apply` / `--verify` / `--verify-cmd CMD` | `groups drop`, `groups drop-table` | write the changes; run the verification command per model (default `tmdl-preflight check {model}`) |
+| `--all` | `groups` | every model in fleet.yml |
+| `--path DIR` | `groups` | an explicit `*.SemanticModel` folder |
+| `--new MEASURE` / `--drop` / `--skip-dir DIR` | `retire` | the measure that supersedes the old one; delete the old declaration; leave a top-level folder out |
+| `--measure NAME` | `purge` | a measure to remove (repeatable) |
+| `--kind KIND` | `ledger --revive` | one of `table`, `column`, `measure`, `mapping_row`, `mapping_category`, `relationship` |
+| `--revive REF` / `--note TEXT` | `ledger` | cancel a retirement for REF (e.g. "Visits[Peak Hour Visits]"); the reason recorded |
+| `--registry FILE` / `--format {markdown,json}` | `enrichment` | the registry file (default `<state_dir>/view_enrichment_outstanding.json`); the output format |
+| `--sibling MEASURE` | `add-branch` | the measure whose SWITCH arms are copied |
+
 ## Drift kinds
 
-`REMEDIABLE_KINDS` is the tool's own list of 41 kinds that remediation may
-apply, subject to the allowlist. `ADVISORY_KINDS` (4) only inform, never get
-remediated. `SYNC_ONLY_KINDS` (7) are offered only under `--sync`.
-`ALWAYS_GATING` (2) fail a gate whatever the allowlist says.
+`REMEDIABLE_KINDS` is the tool's own list of **41** kinds that remediation may
+apply, subject to the allowlist. `ADVISORY_KINDS` (**4**) only inform, never
+get remediated. `SYNC_ONLY_KINDS` (**7**) are offered only under `--sync`.
+`RETIREMENT_FINDING_KINDS` (**8**) are the deletions. `ALWAYS_GATING` (**2**)
+fail a gate whatever the allowlist says. `BATCH_SAFE_KINDS` (**24**) are the
+kinds a non-interactive `--yes` run may apply.
 
 ### Remediable, non-destructive (the daily work)
 
@@ -118,8 +177,15 @@ Remove the column; a source-cleanup notice follows.
 |---|---|
 | `model.count_below_template` | The model holds fewer objects than the template. Always gating. |
 | `fieldparam.schema_blocked` | A field-parameter table has its own extra columns, so it is never touched. Report-only. |
+| `fieldparam.category_missing` | A field-parameter table has no category for one of its rows. Report-only. |
 | `category_annotation.orphaned` | An annotation names no category. Report-only. |
 | `refresh_policy.client_only` | The model has a policy the template's table does not. Report-only. |
+
+Two kinds the tool's own code names but does not yet emit: the ratchet's
+`INTRINSIC` list names `ifilter`, `visibility` and `ffilter.coverage_gap`
+(the kinds that never count towards a floor), and the remediation writer list
+names `selector.dangling_branch`. No detection pass produces them yet, so a
+run will not report them. Do not promise a finding the tool cannot produce.
 
 ## Result words in `remediate`
 
@@ -146,7 +212,7 @@ difference matters when you are choosing a command to put in a script.
 | No terminal, `--sync --confirm-deletions` | Deletions run. This is the only way a scheduled job removes anything. |
 | `--interactive` | Ask before every fix, even where a terminal is not detected. |
 
-`BATCH_SAFE_KINDS` is the tool's own list of 24 kinds: `table.missing`,
+`BATCH_SAFE_KINDS` is the tool's own list of **24** kinds: `table.missing`,
 `column.missing`, `column.property_drift`, `measure.missing`,
 `measure.expression_drift`, `measure.property_drift`, `measure.wrong_host`,
 `measure.duplicate_host`, `measure.renamed`, `expression.drift`,
@@ -158,7 +224,15 @@ difference matters when you are choosing a command to put in a script.
 `fieldparam.row_missing`, `retire.source_view`,
 `fieldparam.dangling_selector`.
 
+The destructive prefixes never run in batch mode: `retire.table`,
+`retire.column`, `retire.measure`, `retire.mapping_row`,
+`retire.mapping_category`, `retire.relationship`, `retire.stranded_ref`,
+`retire.fieldparam_entry`, `purge.*`, `column.purge_listed`.
+
 ## Exit codes
+
+The tool's own constants: `USAGE_EXIT = 2`, `PARSE_ERROR_EXIT = 3`,
+`REVERT_EXIT_CODE = 4`, `INTERRUPT_EXIT = 130`.
 
 | Command | Codes |
 |---|---|
@@ -186,6 +260,7 @@ difference matters when you are choosing a command to put in a script.
 | `retire` | 0. |
 | `add-branch` | 0, or 1 when refused. |
 | `groups annotate` | 0, or 1 when no group is found. |
+| `capture` | 0, or 2 when the fleet file is not usable. |
 
 ## fleet.yml keys
 
@@ -222,7 +297,7 @@ that decide behaviour, from that document:
 | `gates` | `{prefix, aggregate}` | `f-`, `f-All` | Per-group gate measures and the aggregate gate the drop edits. |
 | `bookmarks` | `{group_column, exempt_display_names}` | `Analysis Category`, `++new report` | Which bookmark filters pin a group. |
 | `measure_liveness` | `{helper_prefixes, diagnostic_prefixes, always_live}` | `- _ !`, `i-`, `[]` | Which measures of a dropped group's component stay (user-facing, diagnostic, listed, bound in a report). |
-| `column_purge` | `{names, exceptions}` | empty | Model-only columns on shared tables with these names are removed in a sync run, except the listed `Table[column]` pairs. |
+| `column_purge` | `{names, exceptions}` | empty | Model-only columns on shared tables with these names are removed in a sync run (`column.purge_listed`), except the listed `Table[column]` pairs. |
 | `selector_branch.helper_file` | file name | `Helper Measures.tmdl` | The table file `add-branch` edits. |
 | `grouping.descriptions` | mapping `Group_Name` -> text | `{}` | Descriptions `groups annotate` writes for new group annotations. |
 | `renames.measures` | mapping old -> new | `{}` | Reviewed measure renames for `renames apply` / `renames check`. An empty value is a to-do and is skipped. |
@@ -242,7 +317,7 @@ that decide behaviour, from that document:
 | `secondary_models` | list of `{name, path, deviations}` | More semantic models of the same entry. `deviations` is required (`[]` = exact clone). |
 | `connection` | `{project, billing_project, dataset}` | Declared warehouse target. Dataset defaults to `<model id>_db`. |
 | `family` | string | Explicit family membership. |
-| `workspace` | `{name, guid, tenant_id, verified}` | GUIDs are checked; `verified` is a date or `false`; no two entries share a workspace guid. |
+| `workspace` | `{name, guid, tenant_id, verified}` | GUIDs are checked; `verified` is a date or `false`. |
 | `overrides` | list or typed sections | Declared, reviewed divergence. |
 | `rename_profile` | string | The `renames.profiles` entry this model uses. |
 | `source_divergent` | list of table names | Tables declared source-divergent when the view cannot be read. |
@@ -294,22 +369,23 @@ the patterns; `overrides is-exempt` exits 0 or 3 for one path.
   `--prune` drops floors of models no longer in the fleet). `ratchet check`
   fails when a gated model's drift rose above its floor, or when any
   ledger-retired object came back (hard zero, never floored).
-  `--total-only` compares only each model's drift total;
-  `--include-advisory` also fails on `retire.*` findings that no sync can
-  apply.
+  `--total-only` compares only each model's drift total, with
+  `<state_dir>/drift_totals.json`; `--include-advisory` also fails on
+  `retire.*` findings that no sync can apply.
 - **Audit**: re-verifies every applied fix in the ledger (an added object is
   still there, a removed one is still gone). Exit 4 on a revert.
 
 ## The blast radius and the freshness check
 
 - `diff --base B --head H --out FILE.md` compares two `detect --json` reports
-  and writes what the change reaches: the objects it adds to the fleet's
-  drift, the ones it resolves, how far each reaches, and what it means per
-  model. The file is written for a CI comment: a fixed hidden marker line
-  comes first, so a later run edits the same sticky comment in place. Read-only
-  evidence; it writes no model.
-- `freshness --base-ledger FILE` warns that a branch predates retirements the
-  main line has made, and names the derived models that still carry them.
+  (report schema version 2) and writes what the change reaches: the objects
+  it adds to the fleet's drift, the ones it resolves, how far each reaches,
+  and what it means per model. The file is written for a CI comment: a fixed
+  hidden marker line comes first, so a later run edits the same sticky
+  comment in place. Read-only evidence; it writes no model. `--fleet` warns
+  when the committed baseline no longer matches the live template.
+- `freshness --base-ledger FILE` warns that a branch predates retirements
+  the main line has made, and names the derived models that still carry them.
   It is advisory by construction and always exits 0: the ratchet is the
   gate. `--body-file` writes a Markdown body for a CI comment;
   `--stale-flag-file` writes `1` when something is at risk.
@@ -332,7 +408,7 @@ for manual review.
 
 `groups annotate` mirrors the mapping table's groups as `Category_*`
 annotations in model.tmdl, one per group, keeping the human-written
-descriptions.
+descriptions. `--dry-run` reports counts and writes nothing.
 
 ## Mapping tables (the encoded ones)
 
@@ -343,3 +419,23 @@ has (`+`). `mapping union --template F --derived F --out F` writes every
 template row followed by each derived-only row into `--out`, then reads it
 back; the target file must already hold exactly one encoded string, and
 everything else in it is kept.
+
+## The field-parameter row propagation
+
+`fieldparam retag FILES... --from OLD --to NEW --display NAME` moves the
+named live rows from one category to another in every file at once. Only the
+category literal changes, and nothing is written unless every requested row
+is found under `--from` in every file. A retirement in one sibling and not
+the others is what `fieldparam.retag` (preflight, opt-in) reports.
+
+The row kinds the cascade propagates: `fieldparam.row_missing`,
+`fieldparam.row_drift`, `fieldparam.cross_level.<category>`,
+`fieldparam.plot_specific_extra.<category>`, `fieldparam.blank_row`,
+`fieldparam.schema_modernize`, `fieldparam.dangling_row`,
+`fieldparam.dangling_selector`.
+
+## What the tool does not cover
+
+Perspectives, cultures, roles and the report layer (the report side is the
+`chart-style` skill). Files only: no workspace or service calls. A clean
+`detect` says the copies match the template, not that the template is right.

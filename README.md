@@ -110,8 +110,8 @@ __Calendar.tmdl:4        M004 warning: lineageTag 'calendar-tag-TODO' is not a c
 tmdl-preflight: 3 error(s), 1 warning(s), 6 info(s)
 ```
 
-That is the tool's own wording, and on two of those four lines it is wrong
-about Desktop. The Windows test bench
+That is the tool's own wording, and on one of those four lines it is wrong
+about Desktop: M006 says the project will not open. The Windows test bench
 ([benchmarks/windows/RESULTS.md](benchmarks/windows/RESULTS.md)) ran each
 defect on its own:
 
@@ -127,6 +127,11 @@ worth fixing (`model.tmdl` should list every table file, and tools that read
 the table list from `model.tmdl` miss the table), but it does not stop
 Desktop. The preflight skill says the same thing and tells the agent to
 block only on M003.
+
+The block above is the pinned `v1.1.0` output, so it carries the old M006
+wording and the old severities (M006 as an error). The tool on `master`
+already prints the corrected message and M006 as a warning; the pins switch
+to that tag in one commit when the owner cuts it.
 
 **The fix**, `tmdl-preflight fix`, after your agent has asked:
 
@@ -325,8 +330,18 @@ step in [INSTALL.md](INSTALL.md), with what I have and have not tested.
 - **Right files, not right numbers.** A clean lint says the model is
   structurally sound, not that a measure means what the business means. The
   forge checks catch some grain mistakes; the rest is review.
-- **The skills are not benchmarked yet.** The demo tests the tools. How well
-  an agent uses them through the skills has not been measured.
+- **The skills are benchmarked, and the effect is small.** The demo tests the
+  tools. What the skills do to an agent is measured separately
+  ([method](benchmarks/METHOD.md), [results](benchmarks/results/eval-runs.json)):
+  across 37 case-runs the plugin arm scored 0.90 against 0.84 without it,
+  and the per-suite mean delta was positive in four runs out of five
+  (median +0.05). The plugin's value is narrow and real — the agent quotes
+  the tool's counts, asks before it edits, and says which finding Desktop
+  actually blocks — and it is not a licence to let a model loose on a real
+  model. The suite is also the first step of a
+  [complexity ladder](benchmarks/LADDER.md): four rungs of growing model
+  size, so the question "does this hold as the model grows?" can be asked
+  as a measurement rather than a belief.
 
 Found a model that trips a rule it should not, or slips past one it should
 catch? [Open an issue](https://github.com/C-Kapsalis/swift-pbi/issues) or see

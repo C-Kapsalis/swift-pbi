@@ -1,7 +1,11 @@
-# pbip-model-forge spec format (v1.1.0)
+# pbip-model-forge spec format
 
 A spec is a JSON file (or a Python file with a module-level `SPEC` dict). Only
 `name` and `tables` are required. In JSON, dates are `"YYYY-MM-DD"` strings.
+
+The spec shape is the same in the pinned `v1.1.0` tag and on `master`: the
+22 rule ids and their severities are identical in both, verified by running
+`pbip-forge rules` at the tag and on `master`.
 
 ```json
 {

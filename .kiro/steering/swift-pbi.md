@@ -26,10 +26,24 @@ the user the commands to run.
 
 **Version note.** The pins above are the released `v1.1.0` tag. The skills in
 this plugin describe the *final* tools, which are further along than that
-tag: `tmdl-preflight` now carries 114 rules (22 with a fixer), and the other
-three have commands that `v1.1.0` does not have yet. Run the tool's own
-listing to see what the installed version offers, and quote the counts from
-there. The pins switch to the new tag in one commit when the owner cuts it.
+tag. Read the counts off the tool you actually have:
+
+- The **pinned `v1.1.0`** the plugin installs carries **37 rules, 10 with
+  fixers** (verified by running that tag's own `tmdl-preflight rules --json`).
+- The tool on **`master`** carries **114 rules, 22 with fixers** (verified by
+  running `tmdl-preflight rules --json` on `master`; the same numbers the
+  tool prints at the top of its markdown catalog).
+
+Say which build you are talking about, and never mix the two counts in one
+sentence. The pins switch to the new tag in one commit when the owner cuts
+it.
+
+The other three tools' counts, each read from its own listing on `master`:
+`tmdl-drift-doctor` has **20 commands** (the pinned `v1.1.0` has **7**),
+`pbip-model-forge` has **8 commands** and **22 rules** (the pinned `v1.1.0`
+has **3** commands and the same 22 rules), and `pbi-plot-styler` has **6
+commands** and **44 check ids** (the pinned `v1.1.0` has **2** commands and
+**11** ids). The full inventories are in the skills' `references/` files.
 
 ## Rules that always hold
 
@@ -86,7 +100,13 @@ $PREFLIGHT check out/<Domain>                             # need 0 errors
 report bound to the model) and `pbip-forge clone-report <template.Report>
 <Name> <target>` (a copy under a new identity). `pbip-forge f-filters` writes
 the `f-<Category>` measures and the `f-All` gates; `pbip-forge i-filters`
-regenerates the `i-Applied Filters` caption. Both are dry runs first.
+regenerates the `i-Applied Filters` caption. `pbip-forge table dump` reads
+an encoded entered-data table back, which is the only way to see what a
+mapping table holds. Both filter commands are dry runs first.
+
+The rules, the commands and the exit codes are in
+`skills/prototype-model/references/forge-rules.md`; the spec shape is in
+`skills/prototype-model/references/spec-format.md`.
 
 Hand-off: `out/<Domain>/handoff/SPEC.md` (diagram, dictionary, DAX) and
 `manifest.json`, plus a `HANDOFF.md` with: questions mapped to measures; the
@@ -100,17 +120,27 @@ anything the user was unsure of); both gate lines copied; and "Opening the
 ```
 $PREFLIGHT check <path>            # 0 clean, 1 violations, 2 usage error
 $PREFLIGHT check <path> --json     # count from summary and violations
+$PREFLIGHT check <path> --strict   # a warning fails too
+$PREFLIGHT check <path> --select M003,D004
 $PREFLIGHT fix <path>              # only after a yes; re-checks from disk
 $PREFLIGHT check <path>            # independent re-check
 $PREFLIGHT rules --json            # the catalog: id, severity, fixer, options
 ```
 
-114 rules; 22 have fixers. Three fixers are unsafe and run only when their
-rule is selected explicitly: D004, R007 and P001. Lead with errors, then
+On `master`: 114 rules, 22 with fixers. In the pinned `v1.1.0`: 37 rules, 10
+fixers. Quote the count of the build you are running, from its own
+`rules --json`. On `master`, three fixers are unsafe and run only when their
+rule is selected explicitly: D004, R007 and P001. In the `v1.1.0` build
+D004 and R007 are in the catalog but have no fixer, and P001 is not in the
+catalog at all, so nothing there is unsafe. Lead with errors, then
 warnings, then infos. Everything not auto-fixable is a human decision:
-propose the edit and why. The rules that encode a house rule (C001 to C012,
-plus R008, R015, R016, X001, S004, O007 and A001 to A005) are inert until
-configured: each names its own options.
+propose the edit and why. The rules that encode a house rule
+(C001 to C012, plus R008, R015, R016, X001, S004, O007 and A001 to A005) are
+inert until configured: each names its own options.
+
+The whole catalog, with every rule's severity, fixer and options, is in
+`skills/preflight/references/rules.md`. The row-level-security rules L001 to
+L006 are the leak rules: run them whenever a model has roles.
 
 Also available, when the question calls for it: `stats`, `report
 complexity|nameof|relationships`, `baseline`, `--format github|sarif`,
@@ -120,6 +150,13 @@ contract), `grain` (which dimensions can filter a ratio's two sides),
 `fieldparam retag`, `comment-refs`, and the opt-in `live` check against the
 published dataset, which is the only command that talks to the Power BI
 service and needs an explicit yes.
+
+A project may hold named **profiles** in its configuration file, each a
+table of the same keys as the top level: `--profile ci` merges one over the
+base settings, so one repository can have a CI gate, a local gate and a
+strict gate without three configuration files. `strict = true` in a profile
+makes warnings fail. `--profile` without a configuration file, or with a
+name that does not exist, is an error, never a silent no-op.
 
 ## 3. One template, many client models
 
@@ -151,6 +188,12 @@ check|files|is-exempt`, `fleet check|connection|family`, `audit`, `diff` (the
 blast radius of a change), `freshness`, `enrichment report|rescan`, `ratchet
 check|tighten`.
 
+The kinds, the exit codes and every `fleet.yml` key are in
+`skills/fleet-drift/references/drift-kinds.md`. The interactive and
+non-interactive guard decides what a scheduled job may do: without a
+terminal, `--yes` applies only the batch-safe kinds and never deletes; a
+deletion needs `--sync` and a second, explicit consent.
+
 ## 4. Chart style, bindings and the standard canvas
 
 ```
@@ -159,18 +202,22 @@ $STYLER check <X.Report> --rule slicer-gates    # the canvas conventions
 $STYLER style <X.Report> --dry-run [--palette "#hex" ...] [--color "Table.Measure=#hex"]
 $STYLER style <X.Report>                         # after a yes; run twice, second restyles 0
 $STYLER colors sync --report <X.Report>          # the palette, dry run unless --apply
+$STYLER colors reset --report <X.Report>         # revert what sync wrote
 $STYLER bookmarks build entries.json --report <X.Report>
 $STYLER rename-measure OLD NEW --model <X.SemanticModel>
 $STYLER rename-label <client-dir> --pair OLD NEW
 ```
 
 Styling needs PBIR visual files, field-parameter tables (`x-Plot Specific 1`,
-`x-Plot Specific 2`, `y-Plot Specific`, or `--table`) and combo charts. Ask for
-brand hex codes; never guess them. The canvas conventions are the slicer
-gates, the slicer-mode gates, the category filter, the theme, the visual
-positions, the y-combo groups, the filter panel, the format selector, the
-stale placeholders, the answer bookmarks and the bookmark literals; each is a
-`--rule` slug, and each names its own settings.
+`x-Plot Specific 2`, `y-Plot Specific`, or `--table`) and combo charts. With
+no `--table` and no config list, the styler detects the field parameters from
+the TMDL and uses the **dimension** ones (the rows that point at columns).
+Ask for brand hex codes; never guess them. The canvas conventions are the
+slicer gates, the slicer-mode gates, the category filter, the theme, the
+visual positions, the y-combo groups, the filter panel, the format selector,
+the stale placeholders, the answer bookmarks and the bookmark literals; each
+is a `--rule` slug, and each names its own settings. The ids, the fixers and
+the settings are in `skills/chart-style/references/canvas-rules.md`.
 
 ## 5. Reuse a model's definitions
 

@@ -1,12 +1,32 @@
-# tmdl-preflight rule catalog (v1.1.0)
+# tmdl-preflight: the rule catalog and the commands
 
-Generated from the tool's own listing, `tmdl-preflight rules --json`, at the
-pinned v1.1.0 release. The tool prints the same counts at the top of its
-markdown catalog: **Rules: 114 · auto-fixable: 22 · baselinable: 109.**
+**This file is the single source the `preflight` skill routes to.** Every
+count, id, severity, fixer and command below was read from the tool's own
+listing, not from memory:
 
-Never quote a count that is not in this file or in a fresh run of the tool.
-If the pinned tag moves, regenerate this file from
-`tmdl-preflight rules --format markdown`.
+```
+tmdl-preflight rules --json          # every id, name, severity, fixable, baselinable, options
+tmdl-preflight rules                 # the text catalog
+tmdl-preflight rules --format markdown --out FILE --check   # regenerate; fails when stale
+tmdl-preflight --help                # the commands
+```
+
+Never state a count that is not in this file or in a fresh run of the tool.
+
+## Which build is which
+
+| Build | Rules | With a fixer | How it was measured |
+|---|---|---|---|
+| `master` (this file, and the next tag) | **114** | **22** | `tmdl-preflight rules --json` on `master`; the same numbers the tool prints at the top of its markdown catalog: `Rules: 114 · auto-fixable: 22 · baselinable: 109` |
+| the pinned `v1.1.0` the plugin installs | **37** | **10** | `tmdl-preflight rules --json` at the `v1.1.0` tag |
+
+The 10 fixers in `v1.1.0` are M003, M004, M006, M011, M013, F001, F002, F003,
+B001, B003. The 22 on `master` are those ten plus D004, R007, P001, M019,
+M021, M022, F004, F006, F007, F014, A003, O009.
+
+Quote the count of the build you are actually running, and never mix the two
+in one sentence. The plugin's pins stay on `v1.1.0` until the owner cuts a new
+tag; when the tag appears, the pins switch in one commit.
 
 Prefixes: M model structure, D DAX, R relationships, F field parameters and
 calculated-table sources, B report and bookmarks, S style, O organisation
@@ -28,16 +48,110 @@ time:
 | S001 measure with no format string (control) | **opened** |
 
 So: only M003 blocks opening, on the evidence. F001 opens and breaks the
-field-parameter visuals. M006 and M004 do not block. For every other rule,
-the tool's text is a prediction, not a measurement: say "the tool marks this
-as an error" and do not claim what Desktop does.
+field-parameter visuals. M006 and M004 do not block.
 
-The rules that can never be baselined are M003, M007, M010, M015 and R006.
+**The rules whose own text asserts what Desktop does.** These **30** rules
+make a claim about the product in their own description: 19 name Power BI or
+Desktop, and 11 more say a model will be refused, rejected, fail to load or
+fail to evaluate. Only the five rows above were measured. For every other
+rule the text is the tool's prediction: report it as what the tool says,
+never as what Desktop does.
+
+| Group | Count | Ids |
+|---|---|---|
+| Name Power BI or Desktop | 19 | F001, F002, F003, L002, M006, M007, M008, M009, M010, M011, M013, M014, M015, M017, M022, O001, P001, R001, R007 |
+| Assert a load, import or evaluation outcome | 11 | B003, B006, D005, F004, F014, L001, M003, M012, M020, R002, R006 |
+
+F002 and F003 say so themselves ("it has not been observed for this defect on
+its own"). M006 and F001 quote the measurement directly, and are consistent
+with the table above. M003 is the one that was measured to refuse to open.
+
+The safest phrasing for the rest is: "the tool marks this as an error
+because …" — never "Power BI will refuse to open this model".
+
+## The commands
+
+`tmdl-preflight --help` lists 15 commands:
+
+| Command | What it does |
+|---|---|
+| `check` | report violations; never modifies files |
+| `fix` | apply auto-fixes, then re-check (imposition pattern) |
+| `baseline` | record today's violations so `check --baseline` fails only on new ones |
+| `stats` | print an inventory of the project (counts only) |
+| `comment-refs` | count ticket references (#123) in model comments |
+| `report` | read-only reports (`complexity`, `nameof`, `relationships`) |
+| `format-resolve` | resolve the format a measure name gets from a format calculation group |
+| `grain` | derive which dimensions can filter a cost fact and its backend facts; check a grain guard against it |
+| `info` | derived model facts (analysis categories) |
+| `fieldparam` | edit field-parameter rows (`retag`) |
+| `manifest` | write a JSON manifest of a model (tables, roles, sources, relationships) |
+| `schema-check` | compare a manifest with a warehouse schema snapshot, or prove view columns from SQL files |
+| `refs` | count the places that name an object (model and report), before a rename or delete |
+| `live` | opt-in checks against the published dataset (Power BI REST; `--replay` answers from recordings) |
+| `rules` | list the rule catalog |
+
+### The flags that matter
+
+| Flag | On | What it does |
+|---|---|---|
+| `--select IDS` | `check`, `fix` | comma-separated rule ids or names to run (default: all) |
+| `--ignore IDS` | `check`, `fix` | comma-separated rule ids or names to skip |
+| `--format {text,json,github,sarif,markdown}` | `check`, `fix` | output format; `--json` is the same as `--format json` |
+| `--strict` | `check`, `fix` | exit nonzero on warnings as well as errors |
+| `--baseline FILE` | `check`, `fix` | only fail on violations not recorded in that baseline file |
+| `--config FILE` | most | read the configuration from FILE instead of searching for `.tmdl-preflight.toml` / `.json` or `pyproject.toml` |
+| `--profile NAME` | most | merge the `[profiles.NAME]` table of the configuration |
+| `--no-config` | most | ignore any configuration file |
+| `--dry-run` | `fix` | report what the fix would change; write nothing |
+| `--check` | `fix` | write nothing; exit with the number of objects the selected fixers would act on (capped at 255) |
+| `--only {missing,invalid}` | `fix` | refresh-policy fixers: only add missing policies, or only realign invalid ones |
+| `--clear-cache` / `--keep-cache` | `fix` | after lineage tags change, delete (or keep) the model's `.pbi/cache.abf` so Desktop does not reuse old tags |
+| `--output FILE` | `baseline` | where the baseline goes (default `<path>/.tmdl-preflight-baseline.json`) |
+| `--update` / `--accept-new` | `baseline` | shrink the baseline to what still fails (never adds); `--accept-new` also adds today's new violations |
+| `--measures` | `stats` | add the measure-organisation summary (classes, field-parameter surfacing, top tables) |
+| `--field-parameter-tables NAMES` | `stats` | comma-separated table names or globs whose NAMEOF rows count as surfaced (default: detected field parameters) |
+| `--top N` | `report complexity` | the longest N measures |
+| `--group-prefix PREFIX` | `report nameof` | table-name prefix to group by (repeatable) |
+| `--table TABLE` / `--axis AXIS` / `--label LABEL` / `--compare NAME2` | `format-resolve` | the calculation group, the field parameter in scope, the label it shows, a second name to resolve beside it |
+| `--cost-fact T` / `--backend-fact T` / `--permit TABLE` / `--axis-prefix PREFIX` | `grain` | the fact the cost side reads, a fact of the population side, a dimension to treat as conformed, the field-parameter tables whose NAMEOF rows expose columns |
+| `--guard-table T` / `--guard-measure M` / `--emit-config` | `grain` | the guard to check, the guard measure, print the blocked/permitted lists as grain-guard-coverage config |
+| `--mapping-table T` | `info --categories` | the mapping table (default: the first table named `z-Map*`) |
+| `--out FILE` | `manifest`, `schema-check`, `rules` | where the manifest / schema report / catalog goes |
+| `--check` | `manifest` | write nothing; exit 1 when the file is missing or stale |
+| `--targets FILE` | `manifest` | the target contract file (YAML or JSON) |
+| `--schema SNAPSHOT` / `--sql-dir DIR` / `--entries FILE` / `--holdbacks FILE` / `--write-holdbacks` / `--owner-folder-pattern RE` / `--ignore-columns FILE` | `schema-check` | the schema snapshot, the SQL project root, the entry list, the holdbacks file, the owner-id to SQL-folder regex, the column exceptions |
+| `--files` / `--include-history` / `--history GLOB` / `--loose` | `refs` | list the matching files, include archived copies, the glob of archived paths, count the closing-delimiter spelling too |
+| `--workspace ID` / `--dataset ID` / `--checks IDS` / `--record DIR` / `--replay DIR` / `--cache-ttl N` / `--non-interactive` / `--expect-name TEXT` / `--no-coupling-check` | `live` | the workspace and dataset ids, a subset of live checks, record every response, answer from a recording, the metadata cache lifetime, never open a sign-in prompt, accept a workspace name, run even when the dataset name does not match |
+| `--json` | `check`, `fix`, `stats`, `baseline`, `report`, `grain`, `info`, `comment-refs`, `live`, `rules` | machine-readable output |
+
+### Exit codes
+
+| Command | Codes |
+|---|---|
+| `check`, `fix` | `0` nothing to report, `1` violations remain, `2` a refused fix or a usage/path problem |
+| `baseline` | `0`, `2` on a usage problem |
+| `rules` | `0`; `2` when `--out`/`--check` are used with a format other than markdown |
+| `manifest`, `schema-check` | `0`, `1` when the file is missing or stale / a column is missing, `2` on a usage problem |
+| `refs` | `0` |
+| `grain` | `0`, `1` when `--check` finds a gap |
+| `live` | `0`, `1` on a failure or an error (and on a warning with `--strict`), `2` on a usage problem |
+| every command | `2` on a usage error or an unreadable path |
 
 ## The catalog
 
-`fix` = the rule has a fixer. `unsafe` = the fixer runs only when the rule
-is selected explicitly. `opt-in` = the rule is off unless it is selected.
+`fix` = the rule has a fixer. `unsafe` = the fixer runs only when the rule is
+selected explicitly, never in a blanket fix. `opt-in` = the rule is off unless
+it is selected (or its `enabled` option is turned on). `baselinable` = the
+rule's findings can be recorded in a baseline.
+
+The 22 rules with a fixer: M003, M004, M006, M011, M013, M019, M021, M022,
+P001, D004, R007, F001, F002, F003, F004, F006, F007, F014, A003, B001, B003,
+O009.
+
+The three unsafe fixers: D004, R007, P001.
+
+The rules that can never be baselined: M003, M007, M010, M015, R006.
 
 ### Model structure (M)
 
@@ -97,7 +211,7 @@ is selected explicitly. `opt-in` = the rule is off unless it is selected.
 | R012 | calendar-relationship-cardinality | warning | no | A relationship into the calendar table should be many (fact dates) to one (calendar date). One-to-one or many-to-many usually means duplicate calendar dates or a relationship drawn backwards; totals then double count. |
 | R013 | calendar-standard-columns | info | no (opt-in) | Report authors expect a calendar with the usual levels (Date, Year, Quarter, Month, Week, Day by default). One info finding lists the missing ones. Opt-in. |
 | R014 | dimension-key-columns | info | no (opt-in) | A dimension table (name starts with '_') without a recognisable key column (…_id, date, …_date, …_level, .id, or a z- column) usually cannot be the one side of a relationship. Advisory, opt-in; require_dimension_keys = false skips it. |
-| R015 | cohort-calendar-reach | error | no | A cohort calendar (a table with a plain column whose name ends with 'Cohort Date', whatever the table is called) must reach every fact that carries its cohort subject within max_hops active relationship hops; otherwise every cohort measure on that fact blanks or repeats the total. Subjects are the dimensions the calendar filters; their facts are the many sides of those dimensions. |
+| R015 | cohort-calendar-reach | error | no | A cohort calendar (a table with a plain column whose name ends in 'Cohort Date', whatever the table is called) must reach every fact that carries its cohort subject within max_hops active relationship hops; otherwise every cohort measure on that fact blanks or repeats the total. Subjects are the dimensions the calendar filters; their facts are the many sides of those dimensions. |
 | R016 | dead-anchor-calendar | error | no | An anchor calendar (a table named '__…Calendar') that reaches no table through active relationships filters nothing: every cohort measure written against it renders the grand total or blanks. Calendars the template model also carries (set 'template' to its folder) and tables listed in 'retained' are not anchors. Use the baseline to accept known dead calendars. |
 
 ### Field parameters and calculated sources (F)
@@ -218,6 +332,56 @@ rather than a habit.
 | X001 | cross-fact-multirow-key-join | error | no | Some dimensions carry several rows per real-world entity (a page dimension grained by URL x domain x source). Two facts loaded from different sources key the same entity to different rows, so 'A'[key] IN VALUES('B'[key]) intersects key spaces that never overlap: the measure returns blank and nothing errors. Lists the keys in multi_row_keys (empty by default: add a key only with row-count evidence); a comparison of the same table is not flagged. |
 | N020 | dimension-prefix-floor | warning | no (opt-in, off by default) | Opt-in and disabled by default (select it and set enabled = true): count the tables whose name starts with the dimension prefix and warn when there are fewer than min_dimension_tables. Useful for a template whose convention is a fixed set of dimensions; a copy that lost some fails here before anything is published. |
 
+## The configuration file and the profiles
+
+The project configuration lives in `[tool.tmdl-preflight]` in `pyproject.toml`,
+or in `.tmdl-preflight.toml` / `.tmdl-preflight.json`. The tool's own source
+names the top-level keys:
+
+`select`, `ignore`, `strict`, `severity_overrides`, `exclude`, `rules`,
+`exemptions`, `profiles` — plus the project-level sections `contracts`,
+`refresh_policy`, `live`, `advisory`, `table_roles`, `measure_classes`,
+`bookmarks`.
+
+A profile is a table of the same keys, merged over the base with `--profile
+NAME`. `--profile` without a configuration file, or with a name that does not
+exist, is an error, never a silent no-op. Unknown keys, unknown rule ids and
+wrongly typed options are errors too.
+
+```toml
+[tool.tmdl-preflight.profiles.ci]
+strict = true
+[tool.tmdl-preflight.profiles.ci.rules.S002]
+min_length = 20
+```
+
+An exemption needs a `reason` and can carry an `until` date, after which the
+rule is reported again. `severity_overrides` makes a rule bite harder in one
+project without editing the rule: `R007 = "error"`.
+
+## The live check (the only command that talks to the service)
+
+`live` is **opt-in** and the only command that reaches the Power BI REST API.
+It checks the published dataset: do the tables hold rows (a row-limit
+parameter left at `LIMIT 1` imports one row per table), do the measures
+evaluate, did the last refresh succeed and is the data fresh, plus a
+best-practice pass over the published metadata.
+
+- It signs in as a service principal (`PBI_TENANT_ID`, `PBI_CLIENT_ID`,
+  `PBI_CLIENT_SECRET`) or, with the optional `msal` package, interactively.
+  Credentials are never stored.
+- It refuses to run when the dataset name does not match the local model.
+  `--no-coupling-check` overrides; `--expect-name TEXT` accepts a workspace
+  name instead.
+- `--record DIR` saves every response and `--replay DIR` answers from such a
+  folder with no network access: use `--replay` to rehearse the check.
+- `--non-interactive` never opens a sign-in prompt (service principal only).
+- `--cache-ttl` sets the metadata cache lifetime (default 300 seconds).
+
+**Get the user's explicit yes before running it, and never let it run as a
+side effect of a lint.** Without a terminal, a service principal and
+`--non-interactive` are the only safe combination.
+
 ## What the tool does not do
 
 - It does not prove the numbers are right. A ratio at the wrong grain passes
@@ -227,3 +391,5 @@ rather than a habit.
   measured that, and only for the defects listed above.
 - It does not judge a report's visuals against a brand. That is
   `pbi-plot-styler`.
+- It does not apply the template's truth to a fleet of copies. That is
+  `tmdl-drift-doctor`.

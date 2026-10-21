@@ -1,13 +1,28 @@
-# pbi-plot-styler: the standardized canvas (v1.1.0)
+# pbi-plot-styler: the standardized canvas
 
-Everything here was read from the tool's own listing at the pinned v1.1.0
-release (`pbi-plot-styler --help` and its sub-command help, the `CHECKS`
-table in the tool's own `check.py`, and `docs/convention-rules.md` in the
-tool's repository).
+**This file is the single source the `chart-style` skill routes to.** Every
+command, id, severity, fixer, setting and exit code below was read from the
+tool itself: `pbi-plot-styler --help` and each sub-command's help, the
+`CHECKS` table in the tool's own `check.py`, the `rules()` registry in the
+tool's own `rules/__init__.py`, and the tool's own
+`docs/convention-rules.md`.
+
+Never state a count that is not in this file or in a fresh run of the tool.
+
+## Which build is which
+
+| Build | Commands | Check ids | How it was measured |
+|---|---|---|---|
+| `master` (this file, and the next tag) | **6** | **44** | `pbi-plot-styler --help` on `master`; the `CHECKS` table in the tool's own `check.py` |
+| the pinned `v1.1.0` the plugin installs | **2** (`check`, `style`) | **11** (`JSN001`, `BND001`, `BND002`, `BMK001`–`BMK005`, `FPM001`, `FPM002`, `THM001`) | `pbi-plot-styler --help` at the `v1.1.0` tag and its own `CHECKS` table |
+
+The other 4 commands, the 12 convention rule slugs and the other 33 check ids
+need the new tag. Say which build you are talking about; never mix the two.
+The plugin's pins stay on `v1.1.0` until the owner cuts a new tag.
 
 ## The commands
 
-`pbi-plot-styler --help` lists five commands. Without a command, `style`
+`pbi-plot-styler --help` lists six commands. Without a command, `style`
 runs: `pbi-plot-styler REPORT_DIR` is the same as `pbi-plot-styler style
 REPORT_DIR`.
 
@@ -20,10 +35,59 @@ REPORT_DIR`.
 | `rename-measure` | Rename measure OLD to NEW in every visual and bookmark of the reports. |
 | `style` | Style every combo chart in REPORT_DIR from its field parameters. |
 
+### The flags that matter
+
+| Flag | On | What it does |
+|---|---|---|
+| `--model DIRECTORY` | `check`, `style`, `colors sync`, `colors reset`, `rename-measure` | semantic-model folder, used for every report found. Default: resolved per report from its `definition.pbir`. |
+| `--rule SLUG` | `check` | run that convention rule instead of the default `integrity` checks (repeatable) |
+| `--config FILE` | `check`, `style`, `bookmarks build` | config file (TOML) with the canvas sections. Default: `./plotstyler.toml` if present. |
+| `--report TEXT` | `check` | check only the report folder with this name (with or without the `.Report` suffix). Overrides the excluded-reports list. |
+| `--model-name TEXT` | `check` | check only reports whose `definition.pbir` points at `<NAME>.SemanticModel`. |
+| `--json` | `check` | print the result as JSON instead of text |
+| `--fix` | `check` | run the fixers of the selected rules (`integrity`: BMK001, BMK002), then check again |
+| `--dry-run` | `check` | with `--fix`: print the diff of every change the fixers would make and write nothing. Exits 1 when there is something to fix. |
+| `--summary` | `check` | report compliance with the four foundation rules. Never fails. |
+| `--only-display-names FILE` | `check` | `bookmark-literals`: a config json that names the bookmarks to check |
+| `--baseline FILE` | `check` | accepted-findings file. Only findings not in it fail the run. |
+| `--update-baseline` | `check` | write every current finding to the `--baseline` file and exit 0 |
+| `--table TEXT` | `style` | field-parameter table name or shell-style pattern such as `x-*` (repeatable). Overrides the default trio. |
+| `--rename-table OLD=NEW` | `style` | rename one default field-parameter table (repeatable) |
+| `--visual-type TEXT` | `style`, `colors sync`, `colors reset` | visualType to restyle (repeatable). Default: `lineClusteredColumnComboChart` and `lineStackedColumnComboChart` for `style`; bar, line, combo charts and matrices for `colors`. |
+| `--exclude-role TEXT` | `style` | query role (repeatable) whose measures are excluded from styling |
+| `--line-color TEXT` | `style` | hex color for every series line and column fill |
+| `--palette TEXT` | `style` | hex color to add to the palette (repeatable). Each measure gets the color of its stable slot; `--line-color` is ignored. |
+| `--color TABLE.MEASURE=HEX` | `style` | pin one measure's series color. Beats the palette, the theme color and `--line-color`. |
+| `--theme-color-id INTEGER` | `style` | use the report theme's data color N (0-based) instead of `--line-color`, written as a ThemeDataColor so it follows theme changes |
+| `--theme-color-percent FLOAT` | `style` | lighten (0 to 1) or darken (-1 to 0) the theme color. Default: 0. |
+| `--label-color TEXT` / `--label-background TEXT` | `style` | hex color for the data-label text; hex color for the data-label background (default: the measure's series color) |
+| `--label-transparency INTEGER` | `style` | data-label background transparency, 0-100. Default: 20, seeded only where a measure has none. |
+| `--seed-label-transparency INTEGER` | `style` | seed a transparency where a measure has none, never overwriting an existing value |
+| `--show-labels` / `--hide-labels` | `style` | turn data labels on or off. Default: on for visuals without label settings. |
+| `--rebind-stale-line` | `style` | point a stale line (Y2) measure projection at the measure the model declares now |
+| `--dry-run` | `style` | print a unified diff of what would change; write nothing. Exits 1 if any visual is out of style. |
+| `--zip FILE` | `style` | also emit the styled report folder(s) as `OUT.zip` |
+| `--apply` | `colors sync`, `colors reset`, `rename-label` | write the changes. Without it nothing is written. |
+| `--default-color-id INTEGER` | `colors sync`, `colors reset` | theme data colour that `reset` reverts chart fills to. Default: 9. |
+| `--palette-table TEXT` | `colors sync`, `colors reset` | the table searched first for the palette measure. Default: `w-Colors`. |
+| `--measure TEXT` | `colors sync`, `colors reset` | the palette measure. Default: `c-Measure Color`. |
+| `--min-series INTEGER` | `colors sync` | a bookmark capture with this many Y measures is multi-series. Default: 2. |
+| `--all-visuals` | `colors sync` | stamp every supported visual, not only the ones in scope. |
+| `--report DIRECTORY` | `colors sync`, `colors reset`, `bookmarks build` | the report folder (required for `colors`) |
+| `--base TEXT` | `bookmarks build` | bookmark id to clone as the base state (default `[bookmarks] base`) |
+| `--group TEXT` | `bookmarks build` | bookmark group name to register under |
+| `--keep-ids` | `bookmarks build` | re-render: an existing bookmark with the entry's display name is the base and keeps its name |
+| `--legacy-layout` | `bookmarks build` | single-page layout: the measures picker fills the matrix values (3 or more) and unused pickers are emptied |
+| `--self-test` | `bookmarks build` | build one synthetic entry from the base bookmark in memory, check it and print self-test PASS; nothing is written |
+| `--pair OLD NEW` | `rename-label` | old and new row label (repeatable). Required. |
+| `--table-pattern TEXT` | `rename-label` | selector tables to edit (glob, repeatable). Default: `x-*`. |
+| `--label-from TEXT` / `--label-to TEXT` | `rename-measure` | old label (default: OLD) and new label (default: NEW) |
+| `--dry-run` | `rename-measure` | count the references; write nothing |
+
 ## The check ids
 
-`CHECKS` in the tool's own `check.py` holds 44 ids. The first group is the
-`integrity` rule, which `check` runs by default. The rest belong to the
+`CHECKS` in the tool's own `check.py` holds **44** ids. The first group is
+the `integrity` rule, which `check` runs by default. The rest belong to the
 convention rules and run only when named with `--rule SLUG`.
 
 ### integrity (the default rule)
@@ -51,17 +115,24 @@ the intended one.
 
 | Slug | Ids | What it checks | `--fix` |
 |---|---|---|---|
-| `slicer-gates` | GAT001, GAT002 | Every selector slicer on a visible canvas page, and every bookmark capture of one, has an active `[f-Slicer] > 0` filter. | Writes the gate on the table that declares the measure |
-| `slicer-mode-gates` | GAT003, GAT004, GAT005 | Dropdown slicers gate on `f-Slicer`, list slicers on `f-All`, bound to the table that declares them; no gate reference names another table. | Writes or repoints the gates |
+| `integrity` | JSN001, BND001, BND002, BMK001, BMK002, BMK003, BMK004, BMK005, FPM001, FPM002, THM001 | the report holds together | yes (BMK001, BMK002) |
+| `slicer-gates` | GAT001, GAT002 | Every selector slicer on a visible canvas page, and every bookmark capture of one, has an active `[f-Slicer] > 0` filter. | yes |
+| `slicer-mode-gates` | GAT003, GAT004, GAT005 | Dropdown slicers gate on `f-Slicer`, list slicers on `f-All`, bound to the table that declares them; no gate reference names another table. | yes |
 | `category-filter` | CAT001 | Menu bookmarks set the analysis-category filter. | no |
 | `theme` | THM002, THM003, THM004, THM005, THM006 | A theme collection with a base and a custom theme, and no hex colour literals in `report.json`. | no |
 | `visual-position` | POS001 | Every visual has an x and y position. | no |
 | `y-combo` | YCG001, YCG002 | `y<N>_combo_group` naming and membership. | no |
-| `filter-panel` | PNL001, PNL002 | The filter slicers live in a master group named `y_filters_group`. | Renames the detected group, its children's parent links and bookmark references |
-| `format-selector` | FMT001 | A hidden, locked report filter selects the `Format` item of `z-Selector Format` (only when the model has that table). | Writes the canonical filter |
-| `stale-placeholders` | PLH001 | Visuals and bookmarks bind the blank-dimension placeholder their y-axis selector actually offers. | Repoints the placeholder |
+| `filter-panel` | PNL001, PNL002 | The filter slicers live in a master group named `y_filters_group`. | yes |
+| `format-selector` | FMT001 | A hidden, locked report filter selects the `Format` item of `z-Selector Format` (only when the model has that table). | yes |
+| `stale-placeholders` | PLH001 | Visuals and bookmarks bind the blank-dimension placeholder their y-axis selector actually offers. | yes |
 | `answer-bookmarks` | ABK000, ABK001, ABK003, ABK004, ABK005, ABK006, ABK007, ABK008, ABK009, ABK010, PGW001, PGW002 | Whole-page answer bookmarks: scope, category, submenu, matrix capture, slot map, row filters, picker selections; raw measures in parameter wells and dead navigator targets on the main page. | no |
 | `bookmark-literals` | BML001, BML002 | Each saved picker selection is a row of the field parameter behind that slicer. | no |
+
+**Five of the twelve convention rules have a fixer**: `slicer-gates`,
+`slicer-mode-gates`, `filter-panel`, `format-selector` and
+`stale-placeholders`. `category-filter`, `theme`, `visual-position`,
+`y-combo`, `answer-bookmarks` and `bookmark-literals` have none: their
+findings need a decision or a re-capture.
 
 ### What each convention id means
 
@@ -123,9 +194,10 @@ loaded is an `MDL001` error, not a skip.
 ## The settings (`plotstyler.toml`)
 
 Every name a rule depends on is a setting with a generic default. Put the
-sections you need in `plotstyler.toml` (read from the working directory, or
-`--config FILE`); sections for `style` and `bookmarks build` can live in the
-same file.
+sections you need in `plotstyler.toml` next to where you run it (`[canvas]`,
+`[gates]`, `[category]`, `[placeholders]`, `[panel]`, `[format_selector]`,
+`[answer_bookmarks]`); sections for `style` and `bookmarks build` can live in
+the same file.
 
 ```toml
 [canvas]
@@ -174,15 +246,14 @@ row_dropdowns = ["<visual id>"]           # optional; slicers on panel.filter_ta
 inherited_fingerprints = []
 submenu_prefix = "Submenu"
 slot_mode = "all-roles"                   # or "values-only" (Values slots only)
-baseline = "answer-floors.json"           # optional; used without --baseline,
-                                          # relative to this file
+baseline = "answer-floors.json"           # optional; used without --baseline
 ```
 
 Report discovery: a `*.Report` folder is checked as is; any other folder is
-searched at every depth. `--report NAME` keeps one report by folder name
-(with or without `.Report`) and overrides `exclude_reports`; `--model-name
-NAME` keeps reports whose `definition.pbir` points at `NAME.SemanticModel`.
-When nothing matches, the run exits 2 and names the filter.
+searched at every depth. `--report NAME` keeps one report by folder name (with
+or without `.Report`) and overrides `exclude_reports`; `--model-name NAME`
+keeps reports whose `definition.pbir` points at `NAME.SemanticModel`. When
+nothing matches, the run exits `2` and names the filter.
 
 ## `style`: the series colours and labels
 
@@ -191,31 +262,19 @@ backgrounds, deterministically and idempotently, keeping every other
 formatting entry intact. It owns two arrays per chart: `dataPoint[]` (the
 series fill) and `labels[]` (the per-measure data-label background).
 
-| Flag | What it does |
-|---|---|
-| `--model DIRECTORY` | Semantic-model folder, used for every report found. Default: resolved per report from `definition.pbir`. |
-| `--config FILE` | Config file (TOML). Default: `./plotstyler.toml` if present. |
-| `--table TEXT` | Field-parameter table name or shell-style pattern such as `x-*` (repeatable). Overrides the default `x-Plot Specific 1` / `x-Plot Specific 2` / `y-Plot Specific` trio. |
-| `--rename-table OLD=NEW` | Rename one default field-parameter table (repeatable), for example `--rename-table "y-Plot Specific=Set Lines"`. |
-| `--visual-type TEXT` | visualType to restyle (repeatable). Default: `lineClusteredColumnComboChart` and `lineStackedColumnComboChart`. |
-| `--exclude-role TEXT` | Query role (repeatable), for example `Y`, whose measures are excluded from styling. Their existing formatting is kept. |
-| `--line-color TEXT` | Hex color for every series line and column fill (for example `#118DFF`). |
-| `--palette TEXT` | Hex color to add to the palette (repeatable). Each measure gets the color of its stable slot (field-parameter order) and `--line-color` is ignored. |
-| `--color TABLE.MEASURE=HEX` | Pin one measure's series color (repeatable). Beats the palette, the theme color and `--line-color`. |
-| `--theme-color-id INTEGER` | Use the report theme's data color N (0-based) instead of `--line-color`, written as a ThemeDataColor so it follows theme changes. |
-| `--theme-color-percent FLOAT` | Lighten (0 to 1) or darken (-1 to 0) the theme color. Default: 0. |
-| `--label-color TEXT` | Hex color for the data-label text. |
-| `--label-background TEXT` | Hex color for the data-label background. Default: match the measure's series color. |
-| `--label-transparency INTEGER` | Data-label background transparency, 0-100. Default: 20. Seeded only where a measure has none; set it to enforce it everywhere. |
-| `--seed-label-transparency INTEGER` | Seed a transparency where a measure has none, never overwriting an existing value. |
-| `--show-labels` / `--hide-labels` | Turn data labels on or off. Default: on for visuals without label settings. |
-| `--rebind-stale-line` | Before styling, point a line (Y2) measure projection whose name the model no longer declares at the current measure: leading symbols are stripped, then an exact name or a single case-insensitive match in the same table wins. Off by default. |
-| `--dry-run` | Print a unified diff of what would change; write nothing. Exits 1 if any visual is out of style. |
-| `--zip FILE` | Also emit the styled report folder(s) as `OUT.zip`. |
+The field-parameter tables the styler reads are, by default, `x-Plot
+Specific 1`, `x-Plot Specific 2` and `y-Plot Specific`. With no `--table` and
+no config list, the tool **detects the field parameters from the TMDL**: a
+calculated table whose column carries `extendedProperty ParameterMetadata` and
+whose rows are `NAMEOF(...)` tuples. A detected table whose rows point at
+columns is a **dimension** parameter; rows pointing at measures make it a
+**metric** parameter; a mix is flagged. The selector and the column-well
+logic use the dimension parameters. The tool prints one line naming the
+detected tables, so the agent and the user can see what it read.
 
 Exit codes: `0` nothing to change, `1` drift (at least one visual would
-change, `--dry-run` only), `2` a bad config value, a missing folder, an
-unresolvable model, no measures, no report or no targeted visual.
+change, `--dry-run` only), `2` a setup problem (a bad config value, a missing
+folder, an unresolvable model, no measures, no report or no targeted visual).
 
 ## `colors sync` and `colors reset`
 
@@ -248,12 +307,6 @@ stamps:
 - bookmark overrides under `objects.merge` (or directly under `objects`),
   matched on page section and visual id, only where the array already exists.
 
-Flags: `--default-color-id INTEGER` (theme data colour that `reset` reverts
-chart fills to, default 9), `--palette-table TEXT` (default `w-Colors`),
-`--measure TEXT` (default `c-Measure Color`), `--apply`, `--model`,
-`--report` (required), `--visual-type` (default: bar, line, combo charts and
-matrices), `--min-series INTEGER` (default 2), `--all-visuals`.
-
 `reset` reverts entries of the picker's registered measures whose colour is
 a palette colour (or black, compared case-insensitively), on visuals and on
 bookmark overrides: chart fills go back to theme colour `--default-color-id`;
@@ -267,8 +320,8 @@ nothing.
 
 ## `bookmarks build`
 
-`bookmarks build ENTRIES --report DIR` renders one bookmark per entry of a
-JSON list into the report.
+`bookmarks build ENTRIES --report DIR` renders one bookmark per entry of
+a JSON list into the report.
 
 | Flag | What it does |
 |---|---|
@@ -295,7 +348,8 @@ chart_series}`. The well map has no built-in default: list the pickers that
 feed each well.
 
 Any invalid entry, missing picker, chart or matrix capture, filter or base
-stops the run with exit 2 before a file is written.
+stops the run with exit 2 before a file is written: the build is all or
+nothing.
 
 ## The renames
 
@@ -323,6 +377,8 @@ declare the measure under the new name. A missing measure is a model problem
 and belongs to `tmdl-preflight` (D004) or `tmdl-drift-doctor`.
 
 ## Exit codes
+
+The tool's own constants: `EXIT_OK = 0`, `EXIT_DRIFT = 1`, `EXIT_ERROR = 2`.
 
 | Command | Codes |
 |---|---|

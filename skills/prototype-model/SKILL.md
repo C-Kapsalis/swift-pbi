@@ -114,6 +114,7 @@ over a year or two, amounts that reconcile.
 
 ```
 $FORGE check <domain>-spec.json --profile handoff
+$FORGE check <domain>-spec.json --profile handoff --format json   # machine-readable
 $FORGE rules                          # the 22 rules, with their fix
 ```
 
@@ -122,12 +123,21 @@ Common ones: FM005 orphan key (add the Unknown member), FM007 key names differ,
 FM013 DAX typo, FM015 ratio counted from a dimension, FM017 missing
 description. P2 lines are advice: list them for the user, do not hide them.
 
+The two profiles are `--profile mockup` (the early shape, so a P0 does not
+stop the conversation) and `--profile handoff` (the engineer's bar: no P0 and
+no P1). Use `handoff` for the deliverable.
+
 ## 5. Build, then gate 2: will the files open?
 
 ```
 $FORGE build <domain>-spec.json out/<Domain> --check --profile handoff
+$FORGE build <domain>-spec.json out/<Domain> --no-handoff    # skip SPEC.md and manifest.json
 $PREFLIGHT check out/<Domain>
 ```
+
+`--check` refuses to build when the check finds a P0 or P1, so a spec that
+fails the gate never produces files. `--no-handoff` skips the `handoff/`
+folder (SPEC.md and manifest.json) when the deliverable is the model alone.
 
 Done when tmdl-preflight prints `0 error(s)`. Never hand-edit the generated
 TMDL; change the spec and rebuild. The build is deterministic, so a rebuild of
@@ -216,9 +226,26 @@ $FORGE i-filters --model out/<Domain>.SemanticModel
 
 Both keep a timestamped backup of the file they change unless
 `--no-backups` is given, and a second run on a repaired model changes
-nothing.
+nothing. `-v` prints the steps.
 
-## 9. Iterate
+## 9. Read an encoded entered-data table
+
+An entered-data table (`Binary.FromText`, what Desktop's "Enter data"
+writes) is one opaque base64 string in the TMDL. `table dump` reads it back
+and prints the rows, which is the only way to see what a mapping table or a
+lookup actually holds:
+
+```
+$FORGE table dump out/<Domain>.SemanticModel/definition/tables/<Table>.tmdl
+$FORGE table dump <Table>.tmdl --max-rows 100
+$FORGE table dump --b64 "WyJhIiwiYidd"          # a bare payload, no file
+```
+
+`--max-rows` defaults to 20. The decoded rows are always headerless data:
+only the dump display treats row 0 as column names. Use it when the user
+asks what a mapping table contains, and quote the rows rather than guessing.
+
+## 10. Iterate
 
 "Add a promotions dimension", "split revenue into gross and net": edit the
 spec, re-run step 4 and step 5, and update HANDOFF.md. Keep the spec file as

@@ -1,8 +1,17 @@
-# pbip-model-forge: the rules and the model commands (v1.1.0)
+# pbip-model-forge: the rules and the model commands
 
-Everything here was read from the tool's own listing at the pinned v1.1.0
-release (`pbip-forge --help`, `pbip-forge rules`, the sub-command help of
-every command, and `docs/model-commands.md` in the tool's repository).
+Everything here was read from the tool's own listing on its `master` branch
+(`pbip-forge --help`, `pbip-forge rules`, the sub-command help of every
+command, and `docs/model-commands.md` in the tool's repository).
+
+**Which build this describes.** The commands below are the tool on `master`.
+The pinned `v1.1.0` tag carries **3 commands** (`check`, `build`, `rules`) —
+verified by running the tag's own `pbip-forge --help`. The other 5 commands
+here need the new tag. The **22 rules are the same in both**: `pbip-forge
+rules` at the `v1.1.0` tag prints the same 22 rule ids with the same
+mockup and hand-off severities. So the rule catalog below holds whichever
+build is installed; the command list does not. Say which build you are
+talking about; never mix the two.
 
 ## The commands
 
@@ -51,6 +60,19 @@ every command, and `docs/model-commands.md` in the tool's repository).
 
 ## The model commands
 
+### Exit codes
+
+| Command | Codes |
+|---|---|
+| `check` | `0` when no blocking violation, `1` when one is found (a P0 or a P1, per the profile). `--format json` prints the same findings machine-readably. |
+| `build` | `0` on success, `1` when `--check` refuses the build (a P0/P1 is found) or the build raises a spec error. |
+| `rules` | `0`. |
+| `report blank` | `0` unless a report failed to write; `1` when the `--client` folder does not exist; `2` when `--name` is used with more than one `--model`. A model folder that does not exist is skipped, not an error; an error while writing one report marks that report failed and the remaining models are still processed. |
+| `clone-report` | `0` on success, or when the operator declines the overwrite prompt; `1` for a missing template, a missing required file or a failed template check; `2` when the target lies inside the template or `--logical-id` is not a UUID. |
+| `f-filters` | `0` when every model succeeded, `1` when a model failed (a model without `f-Filters.tmdl` or without a `definition/tables` folder fails). |
+| `i-filters` | `0` when every model succeeded, `1` when a model failed (no y- tables, a y- row on a column that does not exist, a missing `Helper Measures.tmdl` or measure, or a failed validation). |
+| `table dump` | `0` on success, `1` when the payload cannot be read or decoded. |
+
 ### `pbip-forge report blank`
 
 ```
@@ -64,7 +86,8 @@ deployment pipelines need: `definition/report.json`,
 `definition/version.json`, one page (`Page 1`, 1280 x 720) listed in
 `definition/pages/pages.json`, `.pbi/localSettings.json`, and the
 `bookmarks` and `StaticResources` folders. `--full` is accepted and has no
-further effect; `build` keeps its own two-file report.
+further effect: the complete PBIR definition is the default in this command
+(`build` keeps its own two-file report).
 
 - A model folder that does not exist is skipped.
 - An existing report folder is never overwritten.
