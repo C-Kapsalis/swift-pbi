@@ -1,5 +1,5 @@
 #!/bin/sh
-# tmdl-preflight v1.2.0 on the bike-shop examples: rule catalog, check the
+# tmdl-preflight v1.2.1 on the bike-shop examples: rule catalog, check the
 # broken copy, fix a copy, re-check from disk, diff what the fixers changed.
 . "$(dirname -- "$0")/lib.sh"
 HERE="$REPO_ROOT/benchmarks/demo"

@@ -1,5 +1,5 @@
 #!/bin/sh
-# tmdl-drift-doctor v1.2.0 on a fictional fleet: one template (bike-shop-clean)
+# tmdl-drift-doctor v1.2.1 on a fictional fleet: one template (bike-shop-clean)
 # and four client copies with planted drift. Capture, detect, preview,
 # remediate, re-detect; then retire a measure from the template and walk the
 # double-gated deletion, including one client that keeps it.
@@ -29,7 +29,7 @@ $DRIFT remediate --dry-run > dry-run.txt
 grep -c '^\[would apply\]' dry-run.txt | sed 's/^/would-apply lines: /'
 tail -1 dry-run.txt
 
-# Without a terminal, v1.2.0 applies nothing unless --yes names the kinds
+# Without a terminal, v1.2.1 applies nothing unless --yes names the kinds
 # (batch-safe kinds only, never a deletion). The six planted kinds are all
 # batch-safe.
 note "Remediate (non-interactive: --yes with the planted kinds)"

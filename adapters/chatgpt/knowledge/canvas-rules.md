@@ -13,12 +13,12 @@ Never state a count that is not in this file or in a fresh run of the tool.
 
 | Build | Commands | Check ids | How it was measured |
 |---|---|---|---|
-| the pinned `v1.2.0` the plugin installs | **6** | **44** | `pbi-plot-styler --help` at the `v1.2.0` tag; the `CHECKS` table in the tool's own `check.py` |
+| the pinned `v1.2.1` the plugin installs | **6** | **44** | `pbi-plot-styler --help` at the `v1.2.1` tag (the same as `v1.2.0`); the `CHECKS` table in the tool's own `check.py` |
 
 The older `v1.1.0` tag is still on the repository, and it carried 2 commands
 (`check`, `style`) and 11 check ids (`JSN001`, `BND001`, `BND002`,
 `BMK001`–`BMK005`, `FPM001`, `FPM002`, `THM001`). The plugin's pins are on
-`v1.2.0`, so quote the 6 and the 44 unless the user says otherwise.
+`v1.2.1`, so quote the 6 and the 44 unless the user says otherwise.
 
 ## The commands
 
@@ -47,7 +47,7 @@ REPORT_DIR`.
 | `--json` | `check` | print the result as JSON instead of text |
 | `--fix` | `check` | run the fixers of the selected rules (`integrity`: BMK001, BMK002), then check again |
 | `--dry-run` | `check` | with `--fix`: print the diff of every change the fixers would make and write nothing. Exits 1 when there is something to fix. |
-| `--summary` | `check` | report compliance with the four foundation rules. Never fails. |
+| `--summary` | `check` | report compliance with the four foundation rules. Never fails. At `v1.2.1` the lint lines, the closing totals and the `--json` findings carry only the ids the compliance rows count (the theme row counts THM002, THM003 and THM004); THM005 and THM006 run under `--rule theme`. |
 | `--only-display-names FILE` | `check` | `bookmark-literals`: a config json that names the bookmarks to check |
 | `--baseline FILE` | `check` | accepted-findings file. Only findings not in it fail the run. |
 | `--update-baseline` | `check` | write every current finding to the `--baseline` file and exit 0 |

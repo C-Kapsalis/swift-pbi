@@ -8,7 +8,7 @@ macOS, Linux (bash):
 
 ```sh
 curl -LsSf https://astral.sh/uv/install.sh | sh
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight --version
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight --version
 ```
 
 Windows (PowerShell):
@@ -17,10 +17,10 @@ Windows (PowerShell):
 winget install Git.Git          # uvx --from git+... clones with Git
 winget install astral-sh.uv
 # close this terminal and open a new one, so git and uvx are on the PATH
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight --version
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight --version
 ```
 
-The last line prints `tmdl-preflight 1.2.0` when everything works. Git must
+The last line prints `tmdl-preflight 1.2.1` when everything works. Git must
 be installed on every platform, because `uvx --from git+https://...` clones
 the tool. The four tool repositories are public, so no GitHub credentials
 are needed.

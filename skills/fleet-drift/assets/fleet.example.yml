@@ -1,7 +1,6 @@
 # fleet.yml for tmdl-drift-doctor. All paths are relative to this file.
-# The keys below work in the pinned v1.2.0 tag; the newer ones
-# (source_identity, incremental_refresh, fieldparam.families, purge,
-# renames) need the next tag. See references/drift-kinds.md.
+# Every key below is read by the pinned v1.2.1 tag (`drift-doctor fleet
+# check` validates the file). See references/drift-kinds.md.
 version: 1
 template: template/Product.SemanticModel
 models:

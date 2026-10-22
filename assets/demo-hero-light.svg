@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="820" height="360" viewBox="0 0 820 360" role="img" aria-labelledby="t d">
-<title id="t">Recorded runs at v1.2.0, fictional models</title>
+<title id="t">Recorded runs at v1.2.1, fictional models</title>
 <desc id="d">Before and after one swift-pbi pass. Preflight errors in a broken model: 2 before, 0 after; Hand-off blockers in a draft spec: 3 before, 0 after; Drift findings across 4 spinout models: 8 before, 0 after; Spinout models failing preflight: 1 before, 0 after.</desc>
 <rect width="820" height="360" fill="#ffffff"/>
 <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
-<text x="24" y="34" font-size="20" font-weight="600" fill="#1f2328">Recorded runs at v1.2.0, fictional models</text>
+<text x="24" y="34" font-size="20" font-weight="600" fill="#1f2328">Recorded runs at v1.2.1, fictional models</text>
 <rect x="24" y="52" width="14" height="14" rx="3" fill="#a8a59c"/>
 <text x="44" y="64" font-size="14" fill="#59636e">Before</text>
 <rect x="114" y="52" width="14" height="14" rx="3" fill="#2a78d6"/>

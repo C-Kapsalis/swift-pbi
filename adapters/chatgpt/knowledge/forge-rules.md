@@ -1,11 +1,13 @@
 # pbip-model-forge: the rules and the model commands
 
-Everything here was read from the tool's own listing at the `v1.2.0` tag
+Everything here was read from the tool's own listing at the `v1.2.1` tag
 (`pbip-forge --help`, `pbip-forge rules`, the sub-command help of every
 command, and `docs/model-commands.md` in the tool's repository).
 
 **Which build this describes.** The commands below are the tool at the
-`v1.2.0` tag, which is what the plugin's pins install. The older `v1.1.0`
+`v1.2.1` tag, which is what the plugin's pins install (`v1.2.0` lists the
+same eight commands and 22 rules; `v1.2.1` changed what `build` and
+`report blank` write, below). The older `v1.1.0`
 tag is still on the repository and carried **3 commands** (`check`, `build`,
 `rules`) — verified by running that tag's own `pbip-forge --help`. The
 **22 rules are the same in both**: `pbip-forge rules` at either tag prints
@@ -67,7 +69,7 @@ does not.
 | `check` | `0` when no blocking violation, `1` when one is found (a P0 or a P1, per the profile). `--format json` prints the same findings machine-readably. |
 | `build` | `0` on success, `1` when `--check` refuses the build (a P0/P1 is found) or the build raises a spec error. |
 | `rules` | `0`. |
-| `report blank` | `0` unless a report failed to write; `1` when the `--client` folder does not exist; `2` when `--name` is used with more than one `--model`. A model folder that does not exist is skipped, not an error; an error while writing one report marks that report failed and the remaining models are still processed. |
+| `report blank` | `0` when every report was created or already existed (an existing report is a skip); `1` when nothing was created (a model folder that does not exist is skipped, and the footer reads `NO REPORTS CREATED`), when some reports failed (`SOME REPORTS FAILED`), or when the `--client` folder does not exist; `2` when `--name` is used with more than one `--model`. An error while writing one report marks that report failed and the remaining models are still processed. |
 | `clone-report` | `0` on success, or when the operator declines the overwrite prompt; `1` for a missing template, a missing required file or a failed template check; `2` when the target lies inside the template or `--logical-id` is not a UUID. |
 | `f-filters` | `0` when every model succeeded, `1` when a model failed (a model without `f-Filters.tmdl` or without a `definition/tables` folder fails). |
 | `i-filters` | `0` when every model succeeded, `1` when a model failed (no y- tables, a y- row on a column that does not exist, a missing `Helper Measures.tmdl` or measure, or a failed validation). |
@@ -84,21 +86,30 @@ Creates `<DIR>/<REPORT>.Report` bound to `<DIR>/<NAME>.SemanticModel`. It
 writes a complete PBIR definition, which Fabric Git integration and
 deployment pipelines need: `definition/report.json`,
 `definition/version.json`, one page (`Page 1`, 1280 x 720) listed in
-`definition/pages/pages.json`, `.pbi/localSettings.json`, and the
-`bookmarks` and `StaticResources` folders. `--full` is accepted and has no
-further effect: the complete PBIR definition is the default in this command
-(`build` keeps its own two-file report).
+`definition/pages/pages.json` (pages metadata schema 1.1.0, the version
+tmdl-preflight B005 accepts), and the `bookmarks` and `StaticResources`
+folders. It writes no `.pbi/localSettings.json` (Power BI Desktop writes that
+user state itself). `--full` is accepted and has no further effect: the
+complete PBIR definition is the default. Since `v1.2.1`, `build` writes the
+same structure next to the model (with a deterministic `logicalId` and page
+id), so a built model and a fresh `report blank` report both pass
+`tmdl-preflight check` with 0 errors.
 
-- A model folder that does not exist is skipped.
-- An existing report folder is never overwritten.
+- A model folder that does not exist is skipped (`Semantic model not
+  found`); when no report was created, the footer reads `NO REPORTS
+  CREATED` and the run exits 1.
+- An existing report folder is never overwritten (`Report already exists`,
+  a skip, exit 0). Right after a `build`, pass `--name` for a second report.
 - `--theme` names the base theme (default `CY25SU12`). The theme JSON is
   copied from `--theme-file`, or else from another report of the same client
   that ships it; when neither exists, report.json still names the theme and
   Power BI falls back to its default.
 - The `logicalId` and page id are random, so two runs differ only there.
-- Exit 0 unless writing a report failed; a missing `--client` folder exits 1.
-  An error while writing one report (of any kind) is printed, marks that
-  report failed and the remaining models are still processed.
+- Exit 0 when every requested report was created or already existed; exit 1
+  when nothing was created, when some reports failed (`SOME REPORTS FAILED`)
+  or when the `--client` folder does not exist. An error while writing one
+  report (of any kind) is printed, marks that report failed and the
+  remaining models are still processed.
 
 ### `pbip-forge clone-report`
 

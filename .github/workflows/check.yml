@@ -1,0 +1,75 @@
+name: check
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: check (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Adapter copies match AGENTS.md and the skill references
+        run: python scripts/sync-adapters.py --check
+
+      - name: README numbers and hero chart match the recorded demo output
+        run: python benchmarks/demo/hero.py --check
+
+      - name: Plugin manifests and hooks are valid JSON
+        run: |
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json \
+                   .codex-plugin/plugin.json .agents/plugins/marketplace.json \
+                   adapters/chatgpt/plugin.json hooks/claude-hooks.json; do
+            python -m json.tool "$f" > /dev/null && echo "ok  $f"
+          done
+
+      - name: Every tool pin names the same tag
+        id: pin
+        run: |
+          pins=$(grep -rhoE "C-Kapsalis/(tmdl-preflight|pbip-model-forge|tmdl-drift-doctor|pbi-plot-styler)@v[0-9]+\.[0-9]+\.[0-9]+" \
+                   --exclude-dir=.git . | sed 's/.*@//' | sort -u)
+          echo "pins found: $pins"
+          test "$(printf '%s\n' "$pins" | wc -l | tr -d ' ')" = 1
+          tag=$(grep -oE "tmdl-preflight@v[0-9]+\.[0-9]+\.[0-9]+" AGENTS.md | head -1 | sed 's/.*@//')
+          test "$pins" = "$tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Labs engine parity tests
+        run: uv run --no-project --with pytest --with duckdb --with pyyaml pytest -q -p no:cacheprovider labs/engine/tests
+
+      - name: Pinned tmdl-preflight passes the clean example (exit 0)
+        run: |
+          uvx --from "git+https://github.com/C-Kapsalis/tmdl-preflight@${{ steps.pin.outputs.tag }}" tmdl-preflight --version
+          uvx --from "git+https://github.com/C-Kapsalis/tmdl-preflight@${{ steps.pin.outputs.tag }}" tmdl-preflight check examples/bike-shop-clean
+
+      - name: Pinned tmdl-preflight fails the broken example (exit 1)
+        run: |
+          set +e
+          uvx --from "git+https://github.com/C-Kapsalis/tmdl-preflight@${{ steps.pin.outputs.tag }}" tmdl-preflight check examples/bike-shop-broken
+          rc=$?
+          echo "exit $rc"
+          test "$rc" = 1

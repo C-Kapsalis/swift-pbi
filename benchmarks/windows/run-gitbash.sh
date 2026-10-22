@@ -10,7 +10,7 @@
 # UV_PYTHON_INSTALL_DIR and UV_TOOL_DIR first to keep uv's files in one
 # folder (see CHECKLIST.md).
 set -u
-TAG=${SWIFT_PBI_TAG:-v1.2.0}
+TAG=${SWIFT_PBI_TAG:-v1.2.1}
 GH=https://github.com/C-Kapsalis
 REPO=$(cd -- "$(dirname -- "$0")/../.." && pwd)
 OUT=${1:-"$PWD/windows-run-$(date +%Y-%m-%d)"}

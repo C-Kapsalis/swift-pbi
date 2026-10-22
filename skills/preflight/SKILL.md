@@ -30,15 +30,15 @@ Claude Desktop, Codex or another agent with a terminal). It does not run in
 claude.ai chat. Check once:
 
 ```
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
-$PREFLIGHT --version      # prints: tmdl-preflight 1.2.0
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight"
+$PREFLIGHT --version      # prints: tmdl-preflight 1.2.1
 ```
 
 PowerShell (Windows):
 
 ```powershell
-$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0', 'tmdl-preflight')
-uvx @PREFLIGHT --version   # prints: tmdl-preflight 1.2.0
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1', 'tmdl-preflight')
+uvx @PREFLIGHT --version   # prints: tmdl-preflight 1.2.1
 ```
 
 `uvx --from git+...` clones the tool, so Git must be installed (`winget
@@ -87,12 +87,12 @@ $PREFLIGHT rules --json          # every id, severity, fixer, options
 $PREFLIGHT rules --format markdown --out rules.md --check   # regenerate, and fail when stale
 ```
 
-**Which build am I talking about?** The pinned `v1.2.0` the plugin installs
+**Which build am I talking about?** The pinned `v1.2.1` the plugin installs
 carries **119 rules, 25 with fixers** (its own `rules --json`; the markdown
 catalog prints `Rules: 119 · auto-fixable: 25 · baselinable: 113`). The
 catalog in [references/rules.md](references/rules.md) is generated from that
-same tag. The older `v1.1.0` tag carried 37 rules with 10 fixers; never mix
-the two builds' counts in one sentence.
+same tag (`v1.2.0` prints the identical catalog). The older `v1.1.0` tag
+carried 37 rules with 10 fixers; never mix two builds' counts in one sentence.
 
 ## 3. Explain
 
@@ -161,7 +161,7 @@ because only a person knows which value is right. Split the report into the
 two lists and say so.
 
 - **Mechanical (the fixer, after a yes):** every rule marked "yes" in
-  [references/rules.md](references/rules.md): 25 at the pinned `v1.2.0`.
+  [references/rules.md](references/rules.md): 25 at the pinned `v1.2.1`.
 - **Unsafe fixers (never in a blanket fix):** the tool marks four fixers
   `safe: false` in `rules --json`: D004, R007, P001 and F016 (F016 deletes
   field-parameter rows that carry `//`). They run only when their rule is
@@ -207,13 +207,15 @@ the old tags in the model's `.pbi/cache.abf` and can reuse them, so a fixed
 model still looks broken in Desktop. Ask before deleting the cache folder.
 `--keep-cache` keeps it even on a single-model run.
 
-The pinned `v1.2.0` holds **25 rules with a fixer** (`rules --json`): A003,
+The pinned `v1.2.1` holds **25 rules with a fixer** (`rules --json`): A003,
 B001, B003, B007, D004, F001, F002, F003, F004, F006, F007, F014, F016, F017,
 M003, M004, M006, M011, M013, M019, M021, M022, O009, P001, R007. Four of them
 are **unsafe** (`safe: false`): D004, R007, P001 and F016 run their fixer
-only when the rule is selected explicitly, never in a blanket fix; a blanket
-`fix` prints `not fixed  R007: its fixer can change data, so a blanket fix
-skips it`. The tool re-checks from disk after every fix. Never edit the files
+only when the rule is selected explicitly, never in a blanket fix. When one
+of them has work to do (its rule reported findings; for P001, also the
+missing policies P002 reports), a blanket `fix` names it on a `not fixed`
+line, for example `not fixed  R007: its fixer can change data, so a blanket
+fix skips it`; on a model where they found nothing, no such line appears. The tool re-checks from disk after every fix. Never edit the files
 yourself to make a rule pass.
 
 ## 5. Re-check and show the diff
@@ -224,7 +226,7 @@ git -C <path> diff --stat && git -C <path> diff     # or: diff -ru <orig> <copy>
 ```
 
 Report before and after as counts copied from the two runs. On the
-`examples/bike-shop-broken` copy, `v1.2.0` prints
+`examples/bike-shop-broken` copy, `v1.2.1` prints
 "2 errors, 2 warnings, 8 infos -> 0 errors, 0 warnings, 8 infos; 4 fixes".
 
 ## 6. What is left is a human decision

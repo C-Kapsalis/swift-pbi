@@ -98,7 +98,7 @@ would measure the harness instead of the skills.
 So the scaffold does the installing, while the real package cache is still
 available:
 
-- `fixtures/vendor_tools.py` exports each tool's **pinned `v1.2.0` tag**
+- `fixtures/vendor_tools.py` exports each tool's **pinned `v1.2.1` tag**
   from the local checkout, builds one virtual environment with all four
   tools in it, and copies that environment into the sandbox;
 - `tools/tools.sh` points `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` at
@@ -118,7 +118,7 @@ with Claude Code 2.1.304 and `claude-haiku-5-5`. The table is what
 `aggregate-result.json` files:
 
 **These runs measured the plugin against the `v1.1.0` tools**, which is
-what the plugin pinned on 2026-10-21. The plugin now pins `v1.2.0`, so
+what the plugin pinned on 2026-10-21. The plugin now pins `v1.2.1`, so
 these numbers describe the skills and the older tools. Re-run the suite
 before quoting them as a measurement of the current pin.
 

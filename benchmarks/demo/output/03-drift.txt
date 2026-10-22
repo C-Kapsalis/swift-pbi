@@ -2,8 +2,8 @@ fleet written: template + 4 clients (north-cycles, harbor-bikes, summit-wheels, 
 
 # Tool version
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor --version
-drift-doctor, version 1.2.0
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor --version
+drift-doctor, version 1.2.1
 [exit 0]
 
 # Before: tmdl-preflight errors per client (harbor-bikes lost a measure the Metric Selector uses)
@@ -14,14 +14,14 @@ valley-spokes  tmdl-preflight: 0 error(s), 0 warning(s), 7 info(s)
 
 # Capture the template baseline
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor capture
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor capture
 baseline written: $WORK/fleet/.drift-doctor/baseline.json
   tables=6 columns=22 measures=6 relationships=4 mapping_rows=0 expressions=0
 [exit 0]
 
 # Detect (read-only; exit 1 means actionable drift)
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor detect
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor detect
 
 ── north-cycles: 2 finding(s)
   measure.expression_drift     Sales Measures[Revenue per Store]
@@ -73,7 +73,7 @@ FLEET TOTAL: applied=6 skipped_destructive=0 skipped_override=0 skipped_divergen
 
 # Remediate (non-interactive: --yes with the planted kinds)
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor remediate --yes --kind measure --kind column --kind relationship
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor remediate --yes --kind measure --kind column --kind relationship
 [applied] summit-wheels: column.missing Products[unit_price] — insert column block from template (fresh lineage tag)
 [applied] harbor-bikes: measure.missing Sales Measures[Units Sold] — insert measure block from template (fresh lineage tag)
 [applied] valley-spokes: measure.wrong_host Sales Measures[Orders #] — move measure block verbatim from 'Sales' to the template's host 'Sales Measures' (DAX and lineage tag untouched)
@@ -93,7 +93,7 @@ FLEET TOTAL: applied=6 skipped_destructive=0 skipped_override=0 skipped_divergen
 
 # Detect again
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor detect
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor detect
 
 ── north-cycles: 1 finding(s)
   extra.measure                Sales Measures[North Loyalty Revenue]  [advisory]
@@ -113,7 +113,7 @@ Summary: 4/4 models in cascade
 
 # Remediate again (idempotence)
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor remediate --yes --kind measure --kind column --kind relationship
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor remediate --yes --kind measure --kind column --kind relationship
 
 ── summary: applied=0 would-apply=0 skipped=0 manual=0 blocked=0 auto_skipped_precondition=0 overridden=0 skipped_override=0 skipped_divergent=0 skipped_destructive=0 skipped_noninteractive=0 failed=0
 
@@ -136,13 +136,13 @@ removed lines 21-28
 
 # Detect on a stale baseline (should refuse)
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor detect
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor detect
 Error: the template has changed since the last capture — the committed baseline is stale, and findings computed against it can be misclassified (a retired object would look missing and be resurrected). Run `drift-doctor capture` before detecting or remediating; --allow-stale proceeds anyway if you accept that risk.
 [exit 2]
 
 # Recapture: the retirement is recorded in the ledger
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor capture
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor capture
 baseline written: $WORK/fleet/.drift-doctor/baseline.json
   tables=6 columns=22 measures=5 relationships=4 mapping_rows=0 expressions=0
   [ledger] retired measure: Sales Measures[Revenue per Store]
@@ -150,7 +150,7 @@ baseline written: $WORK/fleet/.drift-doctor/baseline.json
 
 # Remediate retirements without --sync (should skip every removal)
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor remediate --kind retire.
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor remediate --kind retire.
 note: stdin is not a terminal, so questions are disabled and every item is treated as 'no' (non-interactive). Pass --yes with --kind to apply batch-safe kinds.
 [skipped] north-cycles: retire.measure Sales Measures[Revenue per Store] — retirement and purge items require --sync (they never run in a default pass) — re-run with --sync to apply this
 [skipped] harbor-bikes: retire.measure Sales Measures[Revenue per Store] — retirement and purge items require --sync (they never run in a default pass) — re-run with --sync to apply this
@@ -169,13 +169,13 @@ FLEET TOTAL: applied=0 skipped_destructive=0 skipped_override=0 skipped_divergen
 
 # valley-spokes keeps the KPI on purpose: record a revival
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor ledger --revive Sales Measures[Revenue per Store] --kind measure --model valley-spokes --note valley-spokes reports this to its owners
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor ledger --revive Sales Measures[Revenue per Store] --kind measure --model valley-spokes --note valley-spokes reports this to its owners
 revived measure Sales Measures[Revenue per Store] for model 'valley-spokes' — it will not be re-removed.
 [exit 0]
 
 # Remediate retirements with --sync --confirm-deletions
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor remediate --kind retire. --sync --confirm-deletions
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor remediate --kind retire. --sync --confirm-deletions
 note: stdin is not a terminal, so questions are disabled and every item is treated as 'no' (non-interactive). Pass --yes with --kind to apply batch-safe kinds.
 [decision] valley-spokes: measure Sales Measures[Revenue per Store] — revived (manual); retirement skipped
 [applied] north-cycles: retire.measure Sales Measures[Revenue per Store] — remove retired measure block
@@ -194,7 +194,7 @@ FLEET TOTAL: applied=3 skipped_destructive=0 skipped_override=0 skipped_divergen
 
 # Final detect and audit
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor detect
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor detect
 [decision] valley-spokes: measure Sales Measures[Revenue per Store] — revived (manual); retirement skipped
 
 ── north-cycles: 1 finding(s)
@@ -216,7 +216,7 @@ $ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-do
 Summary: 4/4 models in cascade
 [exit 0]
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor audit
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor audit
 ── audit: checked=6 ok=6 reverted=0 superseded=0 error=0
 [exit 0]
 

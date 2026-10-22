@@ -1,4 +1,4 @@
-# Demo: the four tools at v1.2.0, run on fictional models
+# Demo: the four tools at v1.2.1, run on fictional models
 
 Every number in the swift-pbi README comes from the files in
 [output/](output/). The scripts here reproduce them.
@@ -8,7 +8,7 @@ sh benchmarks/demo/run-all.sh
 ```
 
 Needs `uv` (for `uvx`), `git`, `python3` and `diff`. Each tool runs through
-`uvx --from git+https://github.com/C-Kapsalis/<repo>@v1.2.0`, as the skills do.
+`uvx --from git+https://github.com/C-Kapsalis/<repo>@v1.2.1`, as the skills do.
 Each script works in a fresh scratch folder and deletes it; the vendored
 examples never change. The scratch path appears as `$WORK` in the output.
 Generated lineage tags (UUIDs) differ between runs; the counts do not.
@@ -23,7 +23,7 @@ See [output/00-environment.txt](output/00-environment.txt).
 | [01-preflight.sh](01-preflight.sh) | tmdl-preflight | `examples/bike-shop-broken`, `examples/bike-shop-clean` | [01-preflight.txt](output/01-preflight.txt) |
 | [02-forge.sh](02-forge.sh) | pbip-model-forge, tmdl-preflight | [specs/bike-repair-draft.json](specs/bike-repair-draft.json), [specs/bike-repair.json](specs/bike-repair.json) | [02-forge.txt](output/02-forge.txt) |
 | [03-drift.sh](03-drift.sh) | tmdl-drift-doctor, tmdl-preflight | a fleet built by [make_fleet.py](make_fleet.py): template + 4 clients | [03-drift.txt](output/03-drift.txt) |
-| [04-plot-styler.sh](04-plot-styler.sh) | pbi-plot-styler | `examples/coffee-roastery` from the tool's own repo at v1.2.0 | [04-plot-styler.txt](output/04-plot-styler.txt) |
+| [04-plot-styler.sh](04-plot-styler.sh) | pbi-plot-styler | `examples/coffee-roastery` from the tool's own repo at v1.2.1 | [04-plot-styler.txt](output/04-plot-styler.txt) |
 
 All models, clients, people and businesses in these inputs are fictional.
 
@@ -38,7 +38,7 @@ All models, clients, people and businesses in these inputs are fictional.
 | bike-shop-clean | 0 errors, 0 warnings, 7 infos (S002 x5, M017, R013), exit 0 |
 | bike-shop-broken, before | 12 findings: 2 errors, 2 warnings, 8 infos, exit 1 |
 | by rule | F001 x1, M003 x1 (errors); M006 x1, M004 x1 (warnings); S002 x5, S001 x1, M017 x1, R013 x1 (infos) |
-| `fix` | 4 fixes applied (M006, M003, M004, F001), exit 0; it also prints `not fixed  R007: its fixer can change data, so a blanket fix skips it` |
+| `fix` | 4 fixes applied (M006, M003, M004, F001), exit 0 |
 | independent re-check | 0 errors, 0 warnings, 8 infos, exit 0 |
 | files changed by the fixers | 4 (one line each) |
 | second `fix` run | 0 fixes |
@@ -57,9 +57,8 @@ its place. The re-check accepts it.
 | First draft spec, `check --profile handoff` | 0 P0, 3 P1 (FM005 orphan key, FM015 ratio counted from a dimension, FM017 missing description), exit 1 |
 | Corrected spec | 0 P0, 0 P1, 0 P2, exit 0 |
 | `build --check` | built `BikeRepair.pbip`, exit 0 |
-| tmdl-preflight on the build | 2 errors, 0 warnings, 1 info, exit 1; 6 tables, 29 columns, 6 measures, 4 relationships. Both errors are on the forge's minimal report stub (B007 `Missing report.json`, B005 `pages.json` missing); the info is R013 |
-| the same, `--ignore B005,B007` | 0 errors, 0 warnings, 1 info, exit 0 |
-| Files written | 16, including `handoff/SPEC.md` (Mermaid diagram, dictionary) and `handoff/manifest.json` |
+| tmdl-preflight on the build | 0 errors, 0 warnings, 1 info (R013), exit 0; 6 tables, 29 columns, 6 measures, 4 relationships, 1 report page |
+| Files written | 20, including the PBIR report (`report.json`, `version.json`, `pages.json`, one `page.json`), `handoff/SPEC.md` (Mermaid diagram, dictionary) and `handoff/manifest.json` |
 | Rebuild into a second folder | byte-identical (`diff -rq` empty) |
 
 ### tmdl-drift-doctor
@@ -74,7 +73,7 @@ summit-wheels, valley-spokes, each with drift planted by `make_fleet.py`.
 | `detect` | actionable=8 advisory=1, exit 1 |
 | kinds found | measure.expression_drift, extra.measure (advisory), measure.property_drift, measure.missing, model.count_below_template x2 (always gating, on harbor-bikes), column.missing, relationship.modified, measure.wrong_host |
 | `remediate --dry-run` | 6 would-apply lines, nothing written |
-| `remediate --yes --kind measure --kind column --kind relationship` | applied=6 failed=0 (without a terminal, v1.2.0 applies nothing unless `--yes` names the kinds) |
+| `remediate --yes --kind measure --kind column --kind relationship` | applied=6 failed=0 (without a terminal, v1.2.1 applies nothing unless `--yes` names the kinds) |
 | `detect` after | actionable=0 advisory=1, exit 0 |
 | second `remediate` | applied=0 |
 | tmdl-preflight after | 0 errors in all four clients |
@@ -98,7 +97,7 @@ summit-wheels, valley-spokes, each with drift planted by `make_fleet.py`.
 
 The tool's README quickstart shows 5 measures and 2 visuals; that example is
 a different fixture. The example shipped in `examples/coffee-roastery` at
-v1.2.0 has 6 measures and 1 combo chart, which is what ran here.
+v1.2.1 has 6 measures and 1 combo chart, which is what ran here.
 
 ## What was not verified
 

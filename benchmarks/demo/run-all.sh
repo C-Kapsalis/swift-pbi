@@ -13,7 +13,7 @@ mkdir -p "$OUT"
   printf 'os: %s %s\n' "$(uname -s)" "$(uname -r)"
   printf 'uv: %s\n' "$(uv --version)"
   printf 'python3: %s\n' "$(python3 --version 2>&1)"
-  printf 'tag: %s\n' "${SWIFT_PBI_TAG:-v1.2.0}"
+  printf 'tag: %s\n' "${SWIFT_PBI_TAG:-v1.2.1}"
 } > "$OUT/00-environment.txt"
 for s in 01-preflight 02-forge 03-drift 04-plot-styler; do
   echo "running $s"
