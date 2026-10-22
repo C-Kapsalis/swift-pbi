@@ -220,7 +220,9 @@ $FORGE clone-report templates/TEMPLATE.Report <Name> out/<Name>.Report --expect-
   template or a missing required file, 2 the target lies inside the template
   or `--logical-id` is not a UUID.
 
-Both commands write files. Show the dry run first and get the user's yes.
+Both commands write files. `report blank` has `--dry-run`: show it first.
+`clone-report` has no dry run: show the command, the template and the
+target folder, and get the user's yes before running it.
 
 ## 8. The filter measures (when the model follows the selector pattern)
 
@@ -301,7 +303,7 @@ and act on a failure before moving on.
 | Measures | "Is this ratio right at every grain?" | numerator and denominator are base measures; entity counts from the fact | rewrite as DIVIDE of base measures |
 | Sample data | "Is any value real: a person, a client, an account id?" | every name and id is invented | replace it |
 | Gates | "Am I quoting a count I did not see?" | gate lines copied from tool output | re-run and copy |
-| Report layer | "Did I overwrite a report the user had?" | `report blank` never overwrites; `clone-report` asked | use `--dry-run` first |
+| Report layer | "Did I overwrite a report the user had?" | `report blank` never overwrites; `clone-report` asked | `report blank --dry-run` first; for `clone-report`, name the target and ask |
 | Filters | "Did I hand-write an f- or i- measure?" | the forge wrote it | change the spec or the template |
 | Openability | "Am I claiming Desktop opened it?" | the verbatim sentence in HANDOFF.md | fix the wording |
 
