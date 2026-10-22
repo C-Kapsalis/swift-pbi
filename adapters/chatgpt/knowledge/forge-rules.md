@@ -5,8 +5,8 @@ Everything here was read from the tool's own listing at the `v1.2.0` tag
 command, and `docs/model-commands.md` in the tool's repository).
 
 **Which build this describes.** The commands below are the tool at the
-`v1.2.0` tag, which is what the plugin's pins install. The `v1.2.0` tag is
-still on the repository and carried **3 commands** (`check`, `build`,
+`v1.2.0` tag, which is what the plugin's pins install. The older `v1.1.0`
+tag is still on the repository and carried **3 commands** (`check`, `build`,
 `rules`) — verified by running that tag's own `pbip-forge --help`. The
 **22 rules are the same in both**: `pbip-forge rules` at either tag prints
 the same 22 rule ids with the same mockup and hand-off severities. So the

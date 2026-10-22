@@ -44,7 +44,9 @@ uvx --version            # any version prints: you can build
 No shell, or `uvx` is missing: do steps 1 to 3 (interview, star schema, spec
 file), give the user the spec, and tell them the two commands in step 5 to run
 where they have a terminal. Install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-(macOS, Linux) or `winget install astral-sh.uv` (Windows).
+(macOS, Linux) or `winget install astral-sh.uv` (Windows; then open a new
+terminal so `uvx` is on the PATH). `uvx --from git+...` clones the tools, so
+Git must be installed too (`winget install Git.Git`).
 
 Use these two commands throughout:
 
@@ -53,7 +55,16 @@ FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip
 PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
 ```
 
-In PowerShell, type the full `uvx ...` command instead of the variable.
+PowerShell (Windows):
+
+```powershell
+$FORGE = @('--from', 'git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0', 'pbip-forge')
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0', 'tmdl-preflight')
+uvx @FORGE --version
+```
+
+In PowerShell, write `uvx @FORGE` and `uvx @PREFLIGHT` wherever this page
+writes `$FORGE` and `$PREFLIGHT`.
 
 ## 1. Interview (at most three questions per turn)
 
@@ -132,15 +143,32 @@ no P1). Use `handoff` for the deliverable.
 ```
 $FORGE build <domain>-spec.json out/<Domain> --check --profile handoff
 $FORGE build <domain>-spec.json out/<Domain> --no-handoff    # skip SPEC.md and manifest.json
-$PREFLIGHT check out/<Domain>
+$PREFLIGHT check out/<Domain>                         # the whole project, report stub included
+$PREFLIGHT check out/<Domain> --ignore B005,B007      # the model gate
 ```
 
 `--check` refuses to build when the check finds a P0 or P1, so a spec that
 fails the gate never produces files. `--no-handoff` skips the `handoff/`
 folder (SPEC.md and manifest.json) when the deliverable is the model alone.
 
-Done when tmdl-preflight prints `0 error(s)`. Never hand-edit the generated
-TMDL; change the spec and rebuild. The build is deterministic, so a rebuild of
+**What v1.2.0 prints.** The build also writes a minimal report stub
+(`<Domain>.Report` with only `.platform` and `definition.pbir`), and
+tmdl-preflight `v1.2.0` reports two errors on it: B007 `Missing report.json
+(neither at root nor in definition/)` and B005 `definition/pages/pages.json
+is missing`. On the demo spec (`benchmarks/demo/specs/bike-repair.json`) the
+first command prints `tmdl-preflight: 2 error(s), 0 warning(s), 1 info(s)`
+and the second prints `tmdl-preflight: 0 error(s), 0 warning(s), 1 info(s)`
+(the info is R013, calendar columns). Pointing the check at the
+`.SemanticModel` folder does not help: it still scans the sibling report.
+
+Done when the second command prints `0 error(s)`. Report both lines, and
+name B007 and B005 as the two known findings on the forge's report stub;
+never present the `--ignore` run alone as "clean". `report blank` (step 7)
+does not clear them: it skips a report folder that already exists, and on a
+fresh folder its own output still draws a B005 error (its `pages.json`
+declares the pages schema 1.0.0; preflight expects 1.1.0) and a B007 warning
+(`.pbi/localSettings.json` is present). Never hand-edit the generated TMDL;
+change the spec and rebuild. The build is deterministic, so a rebuild of
 the same spec gives the same files.
 
 ## 6. The hand-off package
@@ -172,8 +200,8 @@ and a template report cannot be copied by hand without breaking its identity.
 These four commands are the report layer:
 
 ```
-$FORGE report blank --client out --model <Domain>          # a blank PBIR report bound to the model
-$FORGE report blank --client out --model <Domain> --dry-run # what it would create
+$FORGE report blank --client out/<Domain> --model <Domain> --dry-run  # what it would create
+$FORGE report blank --client out/<Domain> --model <Domain>            # a blank PBIR report bound to the model
 $FORGE clone-report templates/TEMPLATE.Report <Name> out/<Name>.Report
 $FORGE clone-report templates/TEMPLATE.Report <Name> out/<Name>.Report --expect-visuals 12 --expect-bookmark "Sales | Revenue"
 ```
@@ -182,7 +210,12 @@ $FORGE clone-report templates/TEMPLATE.Report <Name> out/<Name>.Report --expect-
   `<client>/<NAME>.SemanticModel`, with a complete PBIR definition
   (`report.json`, `version.json`, one page, `pages.json`,
   `localSettings.json`, the `bookmarks` and `StaticResources` folders). It
-  never overwrites an existing report folder. `--theme` names the base theme
+  never overwrites an existing report folder, so after a `build` (which
+  writes a stub `<Domain>.Report`) it prints `Report already exists` and
+  skips. `--client` is the folder that holds `<NAME>.SemanticModel`
+  (`out/<Domain>` after a build); given a folder without it, `v1.2.0`
+  prints `Semantic model not found`, skips, and still exits 0 with
+  `ALL REPORTS CREATED SUCCESSFULLY`, so read the output, not the exit code. `--theme` names the base theme
   (default `CY25SU12`); `--theme-file` supplies the theme JSON. The
   `logicalId` and the page id are random, so two runs differ only there.
 - **`clone-report`** copies a finished report folder under a new name and a
