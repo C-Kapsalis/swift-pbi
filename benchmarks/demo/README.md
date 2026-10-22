@@ -13,7 +13,7 @@ Each script works in a fresh scratch folder and deletes it; the vendored
 examples never change. The scratch path appears as `$WORK` in the output.
 Generated lineage tags (UUIDs) differ between runs; the counts do not.
 
-Recorded on 2026-10-17, macOS (Darwin 27.0.0, Apple silicon), uv 0.11.20.
+Last recorded on 2026-10-22, macOS (Darwin 27.0.0, Apple silicon), uv 0.11.20.
 See [output/00-environment.txt](output/00-environment.txt).
 
 ## What was run
@@ -33,18 +33,19 @@ All models, clients, people and businesses in these inputs are fictional.
 
 | Measure | Observed |
 |---|---|
-| Rules in the catalog | 37 |
-| Rules with a fixer | 10 (M006, M003, M004, M011, M013, F001, F002, F003, B001, B003) |
-| bike-shop-clean | 0 errors, 0 warnings, 5 infos (S002 x5), exit 0 |
-| bike-shop-broken, before | 10 findings: 3 errors, 1 warning, 6 infos, exit 1 |
-| by rule | F001 x1, M003 x1, M006 x1 (errors); M004 x1 (warning); S001 x1, S002 x5 (infos) |
-| `fix` | 4 fixes applied (M006, M003, M004, F001), exit 0 |
-| independent re-check | 0 errors, 0 warnings, 6 infos, exit 0 |
+| Rules in the catalog | 119 |
+| Rules with a fixer | 25 (M006, M003, M004, M011, M013, M019, P001, M021, M022, D004, R007, F001, F002, F003, F004, F006, F007, F016, F017, F014, A003, B001, B003, B007, O009) |
+| bike-shop-clean | 0 errors, 0 warnings, 7 infos (S002 x5, M017, R013), exit 0 |
+| bike-shop-broken, before | 12 findings: 2 errors, 2 warnings, 8 infos, exit 1 |
+| by rule | F001 x1, M003 x1 (errors); M006 x1, M004 x1 (warnings); S002 x5, S001 x1, M017 x1, R013 x1 (infos) |
+| `fix` | 4 fixes applied (M006, M003, M004, F001), exit 0; it also prints `not fixed  R007: its fixer can change data, so a blanket fix skips it` |
+| independent re-check | 0 errors, 0 warnings, 8 infos, exit 0 |
 | files changed by the fixers | 4 (one line each) |
 | second `fix` run | 0 fixes |
 
-The 6 infos left are style nudges (a missing format string, missing
-descriptions); no rule auto-fixes them, by design. One detail the diff shows:
+The 8 infos left are style nudges (a missing format string, missing
+descriptions, a multiline DAX note, missing calendar columns); no rule
+auto-fixes them, by design. One detail the diff shows:
 the F001 fixer removes the orphan comma and leaves a whitespace-only line in
 its place. The re-check accepts it.
 
@@ -56,7 +57,8 @@ its place. The re-check accepts it.
 | First draft spec, `check --profile handoff` | 0 P0, 3 P1 (FM005 orphan key, FM015 ratio counted from a dimension, FM017 missing description), exit 1 |
 | Corrected spec | 0 P0, 0 P1, 0 P2, exit 0 |
 | `build --check` | built `BikeRepair.pbip`, exit 0 |
-| tmdl-preflight on the build | 0 errors, 0 warnings, 0 infos; 6 tables, 29 columns, 6 measures, 4 relationships |
+| tmdl-preflight on the build | 2 errors, 0 warnings, 1 info, exit 1; 6 tables, 29 columns, 6 measures, 4 relationships. Both errors are on the forge's minimal report stub (B007 `Missing report.json`, B005 `pages.json` missing); the info is R013 |
+| the same, `--ignore B005,B007` | 0 errors, 0 warnings, 1 info, exit 0 |
 | Files written | 16, including `handoff/SPEC.md` (Mermaid diagram, dictionary) and `handoff/manifest.json` |
 | Rebuild into a second folder | byte-identical (`diff -rq` empty) |
 
@@ -69,17 +71,17 @@ summit-wheels, valley-spokes, each with drift planted by `make_fleet.py`.
 |---|---|
 | tmdl-preflight before | harbor-bikes 1 error (D002: the Metric Selector's `NAMEOF` points at the deleted `Units Sold`); the other three 0 errors |
 | `capture` | tables=6 columns=22 measures=6 relationships=4 |
-| `detect` | actionable=6 advisory=1, exit 1 |
-| kinds found | measure.expression_drift, extra.measure (advisory), measure.property_drift, measure.missing, column.missing, relationship.modified, measure.wrong_host |
-| `remediate --dry-run` | would-apply=6 skipped=1, nothing written |
-| `remediate` | applied=6 skipped=1 failed=0 |
+| `detect` | actionable=8 advisory=1, exit 1 |
+| kinds found | measure.expression_drift, extra.measure (advisory), measure.property_drift, measure.missing, model.count_below_template x2 (always gating, on harbor-bikes), column.missing, relationship.modified, measure.wrong_host |
+| `remediate --dry-run` | 6 would-apply lines, nothing written |
+| `remediate --yes --kind measure --kind column --kind relationship` | applied=6 failed=0 (without a terminal, v1.2.0 applies nothing unless `--yes` names the kinds) |
 | `detect` after | actionable=0 advisory=1, exit 0 |
 | second `remediate` | applied=0 |
 | tmdl-preflight after | 0 errors in all four clients |
-| template change, `detect` | refused: stale baseline, exit 1 |
+| template change, `detect` | refused: stale baseline, exit 2 |
 | recapture | `[ledger] retired measure: Sales Measures[Revenue per Store]` |
 | `remediate --kind retire.` without `--sync` | applied=0 skipped=4 |
-| `ledger --revive` for valley-spokes, then `--sync` | applied=3 (valley-spokes kept its copy) |
+| `ledger --revive` for valley-spokes, then `--sync --confirm-deletions` | applied=3 (valley-spokes kept its copy) |
 | final `detect` | actionable=0 advisory=2, exit 0 |
 | `audit` | checked=6 ok=6 reverted=0 |
 | ledger | 11 lines |
@@ -89,8 +91,8 @@ summit-wheels, valley-spokes, each with drift planted by `make_fleet.py`.
 | Step | Observed |
 |---|---|
 | `check` on the shipped example | 0 errors, 0 warnings, exit 0 |
-| `style --dry-run` | 6 measures drive the styling; exit 1 (a visual would change); 254 changed diff lines |
-| `style` | restyled 1/1 visual |
+| `style --dry-run` | exit 1 (a visual would change): `5dd25eb672a72da45096: WOULD CHANGE` |
+| `style` | rebuilt 1/1 combo chart (5 line measures; 1 columns-role measure excluded) |
 | `style` again | restyled 0/1; `--dry-run` exit 0 |
 | `check` after a measure rename in the model only | 2 errors (BND001, BND002), exit 1 |
 
@@ -108,4 +110,5 @@ v1.2.0 has 6 measures and 1 combo chart, which is what ran here.
 - **Windows shells.** Only macOS was run. The tools state Windows support;
   the demo scripts are POSIX `sh`.
 - **The skills.** These scripts test the tools, not how well an agent uses
-  them. No skill evaluation has been run yet.
+  them. The skill evaluation is separate: [../METHOD.md](../METHOD.md) and
+  [../results/eval-runs.json](../results/eval-runs.json).

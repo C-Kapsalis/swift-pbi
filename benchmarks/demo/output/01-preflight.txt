@@ -203,8 +203,8 @@ findings: 12
 
 $ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix bike-shop-fixed
 fixed  M006: model.tmdl: + ref table Stores
-fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' -> '16447a18-f799-4acd-ae9a-be4c26c54965'
-fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '996bcbae-f281-4e75-b02a-0abdc0fab2c1'
+fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' -> '48d8ee70-1682-4e1a-893d-24b0b43872eb'
+fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '2d10f041-9390-471c-8a59-b39ac1ef2959'
 fixed  F001: Metric Selector.tmdl: removed 1 orphan comma(s)
 not fixed  R007: its fixer can change data, so a blanket fix skips it; run 'fix --select R007' to apply it
 
@@ -391,16 +391,16 @@ findings: 8
 
 # What the fixers changed (unified diff, broken vs fixed)
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 16:42:56
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 16:43:07
+--- bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 18:04:40
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 18:04:50
 @@ -19,3 +19,4 @@
  ref table 'Sales Measures'
  ref table 'Metric Selector'
  
 +ref table Stores
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 16:42:56
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 16:43:07
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 18:04:40
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 18:04:50
 @@ -43,7 +43,7 @@
  				{
  				    ( "Revenue", NAMEOF ( [Revenue] ), 0 ),
@@ -411,25 +411,25 @@ diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Select
  				}
  
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 16:42:56
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 16:43:07
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 18:04:40
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 18:04:50
 @@ -1,6 +1,6 @@
  /// One row per retail store.
  table Stores
 -	lineageTag: e689596a-59ea-4b2c-a14d-48596a7b8c9d
-+	lineageTag: 16447a18-f799-4acd-ae9a-be4c26c54965
++	lineageTag: 48d8ee70-1682-4e1a-893d-24b0b43872eb
  
  	column store_id
  		dataType: int64
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 16:42:56
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 16:43:07
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 18:04:40
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 18:04:50
 @@ -1,7 +1,7 @@
  /// Central date dimension. Self-contained calculated table so it always
  /// populates without an external source.
  table __Calendar
 -	lineageTag: calendar-tag-TODO
-+	lineageTag: 996bcbae-f281-4e75-b02a-0abdc0fab2c1
++	lineageTag: 2d10f041-9390-471c-8a59-b39ac1ef2959
  	dataCategory: Time
  
  	column Date

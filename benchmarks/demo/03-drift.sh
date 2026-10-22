@@ -29,14 +29,17 @@ $DRIFT remediate --dry-run > dry-run.txt
 grep -c '^\[would apply\]' dry-run.txt | sed 's/^/would-apply lines: /'
 tail -1 dry-run.txt
 
-note "Remediate"
-run $DRIFT remediate
+# Without a terminal, v1.2.0 applies nothing unless --yes names the kinds
+# (batch-safe kinds only, never a deletion). The six planted kinds are all
+# batch-safe.
+note "Remediate (non-interactive: --yes with the planted kinds)"
+run $DRIFT remediate --yes --kind measure --kind column --kind relationship
 
 note "Detect again"
 run $DRIFT detect
 
 note "Remediate again (idempotence)"
-run $DRIFT remediate
+run $DRIFT remediate --yes --kind measure --kind column --kind relationship
 
 note "After: tmdl-preflight errors per client"
 for c in north-cycles harbor-bikes summit-wheels valley-spokes; do
@@ -68,8 +71,10 @@ run $DRIFT remediate --kind retire.
 note "valley-spokes keeps the KPI on purpose: record a revival"
 run $DRIFT ledger --revive "Sales Measures[Revenue per Store]" --kind measure --model valley-spokes --note "valley-spokes reports this to its owners"
 
-note "Remediate retirements with --sync"
-run $DRIFT remediate --kind retire. --sync
+# A deletion without a terminal needs --sync and the second, explicit
+# consent --confirm-deletions.
+note "Remediate retirements with --sync --confirm-deletions"
+run $DRIFT remediate --kind retire. --sync --confirm-deletions
 
 note "Final detect and audit"
 run $DRIFT detect
