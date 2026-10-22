@@ -52,9 +52,9 @@ from what the tools printed.
 </p>
 
 <p align="center">
-  <strong>A broken model: <!--PF_ERR_BEFORE-->3<!--/PF_ERR_BEFORE--> errors before, <!--PF_ERR_AFTER-->0<!--/PF_ERR_AFTER--> after one <code>fix</code>, each repair a one-line edit.</strong><br>
-  <strong><!--CLIENTS-->4<!--/CLIENTS--> spinout models drifted from their template: <!--DRIFT_BEFORE-->6<!--/DRIFT_BEFORE--> findings before, <!--DRIFT_AFTER-->0<!--/DRIFT_AFTER--> after remediation.</strong><br>
-  <sub>Every number is copied from <a href="benchmarks/demo/output/">recorded tool output</a> at v1.2.0 on macOS, re-run on 2026-10-18 with identical counts. All models and spinouts are fictional. <code>sh benchmarks/demo/run-all.sh</code> reproduces them.</sub>
+  <strong>A broken model: <!--PF_ERR_BEFORE-->2<!--/PF_ERR_BEFORE--> errors before, <!--PF_ERR_AFTER-->0<!--/PF_ERR_AFTER--> after one <code>fix</code>, each repair a one-line edit.</strong><br>
+  <strong><!--CLIENTS-->4<!--/CLIENTS--> spinout models drifted from their template: <!--DRIFT_BEFORE-->8<!--/DRIFT_BEFORE--> findings before, <!--DRIFT_AFTER-->0<!--/DRIFT_AFTER--> after remediation.</strong><br>
+  <sub>Every number is copied from <a href="benchmarks/demo/output/">recorded tool output</a> at v1.2.0 on macOS, last re-recorded on 2026-10-22. All models and spinouts are fictional. <code>sh benchmarks/demo/run-all.sh</code> reproduces them.</sub>
 </p>
 
 The part I care most about is restraint. A measure that only one spinout has
@@ -79,8 +79,24 @@ keeps every report on the same canvas.
 
 ## Try it in a minute
 
-You need [uv](https://docs.astral.sh/uv/). Lint the broken example, then fix
-a copy (`fix` edits files in place):
+You need [uv](https://docs.astral.sh/uv/) and Git (`uvx --from git+...`
+clones the tool). Lint the broken example, then fix a copy (`fix` edits files
+in place).
+
+Windows (PowerShell):
+
+```powershell
+winget install Git.Git
+winget install astral-sh.uv
+# open a new terminal, so git and uvx are on the PATH, then:
+git clone https://github.com/C-Kapsalis/swift-pbi
+cd swift-pbi
+Copy-Item -Recurse examples\bike-shop-broken "$env:TEMP\bike-shop"
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check "$env:TEMP\bike-shop"
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix "$env:TEMP\bike-shop"
+```
+
+macOS, Linux (bash):
 
 ```sh
 git clone https://github.com/C-Kapsalis/swift-pbi && cd swift-pbi
@@ -98,20 +114,24 @@ tell me what blocks it from opening."*
 with four planted defects. Full run:
 [01-preflight.txt](benchmarks/demo/output/01-preflight.txt).
 
-**Before**, `tmdl-preflight check` (errors and warning only):
+**Before**, `tmdl-preflight check` (errors and warnings only; the
+`BikeShop.SemanticModel/definition/tables/` prefix and the long lineage tag
+are shortened):
 
 ```
-Metric Selector.tmdl:45  F001 error: stray comma run (1 orphan comma(s)) in calculated partition source (auto-fixable)
-Stores.tmdl              M006 error: table 'Stores' is defined in tables/ but has no 'ref table' line in model.tmdl,
-                         so it is not part of the model and Power BI will not open the project. (auto-fixable)
-Stores.tmdl:3            M003 error: lineageTag 'e689596a-…' duplicates the one on table Products (Products.tmdl:3)
-__Calendar.tmdl:4        M004 warning: lineageTag 'calendar-tag-TODO' is not a canonical UUID (auto-fixable)
+Metric Selector.tmdl:45  F001 error: 1 orphan comma(s). Power BI Desktop still opens the model, but every
+                         visual that uses this table fails ('Error fetching data for this visual'). (auto-fixable)
+Stores.tmdl              M006 warning: table 'Stores' is defined in tables/ but has no 'ref table' line in
+                         model.tmdl. Power BI Desktop still loads the table, but model.tmdl is out of step
+                         with tables/. Add: ref table Stores [Stores] (auto-fixable)
+Stores.tmdl:3            M003 error: Duplicate lineageTag 'e689596a-…' found in files: Products.tmdl, Stores.tmdl. (auto-fixable)
+__Calendar.tmdl:4        M004 warning: LineageTag 'calendar-tag-TODO' is not a canonically-formatted UUID
+                         (expected 8-4-4-4-12 hex). (auto-fixable)
 
-tmdl-preflight: 3 error(s), 1 warning(s), 6 info(s)
+tmdl-preflight: 2 error(s), 2 warning(s), 8 info(s)
 ```
 
-That is the tool's own wording, and on one of those four lines it is wrong
-about Desktop: M006 says the project will not open. The Windows test bench
+That is the tool's own wording. The Windows test bench
 ([benchmarks/windows/RESULTS.md](benchmarks/windows/RESULTS.md)) ran each
 defect on its own:
 
@@ -128,29 +148,28 @@ the table list from `model.tmdl` miss the table), but it does not stop
 Desktop. The preflight skill says the same thing and tells the agent to
 block only on M003.
 
-The block above is the pinned `v1.2.0` output, so it carries the old M006
-wording and the old severities (M006 as an error). The tool on `master`
-already prints the corrected message and M006 as a warning; the pins switch
-to that tag in one commit when the owner cuts it.
-
 **The fix**, `tmdl-preflight fix`, after your agent has asked:
 
 ```
 fixed  M006: model.tmdl: + ref table Stores
-fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-…' -> 'af0fb374-…'
-fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '5fb432bd-…'
-fixed  F001: Metric Selector.tmdl: removed 1 orphan comma(s) from 'Metric Selector' partition source
+fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-…' -> '48d8ee70-…'
+fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '2d10f041-…'
+fixed  F001: Metric Selector.tmdl: removed 1 orphan comma(s)
+not fixed  R007: its fixer can change data, so a blanket fix skips it; run 'fix --select R007' to apply it
 ```
+
+The new lineage tags are random, so they differ on every run.
 
 **After**, an independent re-check:
 
 ```
-tmdl-preflight: 0 error(s), 0 warning(s), 6 info(s)
+tmdl-preflight: 0 error(s), 0 warning(s), 8 info(s)
 ```
 
-<!--PF_FILES-->4<!--/PF_FILES--> files changed, one line each. The 6 infos
-are missing descriptions and a missing format string: a person should write
-those, so no fixer touches them. A second `fix` changes nothing.
+<!--PF_FILES-->4<!--/PF_FILES--> files changed, one line each. The 8 infos
+are five missing descriptions (S002), a missing format string (S001), a
+multiline DAX style note (M017) and missing calendar columns (R013): a
+person should decide those, so no fixer touches them. A second `fix` changes nothing.
 
 ## What it does
 
@@ -177,10 +196,9 @@ history, row-level security).
 
 **For practitioners.** 119 lint rules on TMDL, 25 of them with a mechanical
 fixer, plus `baseline`, GitHub and SARIF output and a pre-commit hook for CI.
-(Those are the counts the final tools print on their `master` branch. The
-pinned v1.2.0 release the skills install carries the full 119 rules
-and 10 fixers; the pins switch to the new tag in one commit when the owner
-cuts it.) Spinout models kept in line with one template, with an
+(Those are the counts the pinned v1.2.0 release prints in its own
+`tmdl-preflight rules --json`; four of the 25 fixers, D004, R007, P001 and
+F016, run only when their rule is selected.) Spinout models kept in line with one template, with an
 allowlist of what may be auto-fixed and a ledger of what was retired. Reports
 built on one standardized canvas: a single combo-chart page driven by three
 field parameters (plot axis, legend, measures) and bookmarks that each answer
@@ -228,25 +246,29 @@ The rules live in [`AGENTS.md`](AGENTS.md); each skill is in
 ## Demo: real runs at v1.2.0
 
 Every number below is copied from
-[benchmarks/demo/output/](benchmarks/demo/output/), recorded on 2026-10-17 on
-macOS and re-run on 2026-10-18 with identical counts.
+[benchmarks/demo/output/](benchmarks/demo/output/), last recorded on
+2026-10-22 on macOS with the v1.2.0 tools.
 `sh benchmarks/demo/run-all.sh` reproduces them, and
 `python3 benchmarks/demo/hero.py` redraws the chart and refills the numbers in
 this README from that output. All models and spinouts are fictional.
 
 **Lint and fix** ([output](benchmarks/demo/output/01-preflight.txt)). On
-`bike-shop-broken`, tmdl-preflight reported <!--PF_FINDINGS-->10<!--/PF_FINDINGS-->
-findings: 3 errors (M006, M003, F001), 1 warning (M004) and 6 infos (S001,
-S002 x5). `fix` applied <!--PF_FIXES-->4<!--/PF_FIXES--> fixes. The re-check found 0 errors and 0 warnings.
+`bike-shop-broken`, tmdl-preflight reported <!--PF_FINDINGS-->12<!--/PF_FINDINGS-->
+findings: 2 errors (M003, F001), 2 warnings (M006, M004) and 8 infos (S002
+x5, S001, M017, R013). `fix` applied <!--PF_FIXES-->4<!--/PF_FIXES--> fixes. The re-check found 0 errors and 0 warnings.
 
 **A model from a spec** ([output](benchmarks/demo/output/02-forge.txt)). A
 first-draft spec for a bike repair workshop failed the hand-off profile with
 0 P0 and <!--FORGE_P1_BEFORE-->3<!--/FORGE_P1_BEFORE--> P1: an orphan customer
 key (FM005), a per-customer ratio counted from the dimension instead of the
 fact (FM015), and a measure with no description (FM017). The corrected spec
-passed with 0 P0, <!--FORGE_P1_AFTER-->0<!--/FORGE_P1_AFTER--> P1, 0 P2. The
-build passed tmdl-preflight with 0 errors, 0 warnings, 0 infos (6 tables, 29
-columns, 6 measures, 4 relationships) and wrote `handoff/SPEC.md` with a
+passed with 0 P0, <!--FORGE_P1_AFTER-->0<!--/FORGE_P1_AFTER--> P1, 0 P2. On
+the build (6 tables, 29 columns, 6 measures, 4 relationships) tmdl-preflight
+printed `2 error(s), 0 warning(s), 1 info(s)`: both errors are on the
+minimal report stub the forge writes (B007 `Missing report.json`, B005
+`pages.json` missing), and the info is R013 (calendar columns). With those
+two rules left out by name (`--ignore B005,B007`) it printed `0 error(s),
+0 warning(s), 1 info(s)`. The build wrote `handoff/SPEC.md` with a
 Mermaid diagram. Rebuilding gave byte-identical files.
 
 **One template, four spinout models** ([output](benchmarks/demo/output/03-drift.txt)).
@@ -254,18 +276,22 @@ Planted drift: changed DAX, a lost currency format, a deleted measure, a
 dropped column, a relationship switched to both directions, a measure moved
 to another table, and one spinout-only measure. Before remediation,
 tmdl-preflight found 1 error in one spinout (a field parameter pointing at the
-deleted measure). `detect` found 6 actionable findings and 1 advisory.
-`remediate` applied <!--DRIFT_APPLIED-->6<!--/DRIFT_APPLIED--> and skipped
-the advisory one; afterwards `detect` reported 0 actionable and
+deleted measure). `detect` found 8 actionable findings (the 6 planted
+ones, plus 2 `model.count_below_template` on the spinout that lost a
+measure) and 1 advisory. With no terminal, `remediate --yes --kind measure
+--kind column --kind relationship` applied
+<!--DRIFT_APPLIED-->6<!--/DRIFT_APPLIED--> and left the advisory one alone; afterwards `detect` reported 0 actionable and
 tmdl-preflight 0 errors in all four spinouts. Then I retired a measure from
 the template: `detect` refused to run on the stale baseline; after recapture,
 `remediate` without `--sync` removed nothing (4 skipped); one spinout was
-marked as keeping the measure; `--sync` removed it from the other 3. `audit`
+marked as keeping the measure; `--sync --confirm-deletions` (the second,
+explicit consent a run without a terminal needs) removed it from the other 3. `audit`
 checked 6 applied fixes, 6 still in place.
 
 **Chart style** ([output](benchmarks/demo/output/04-plot-styler.txt)). On the
 coffee-roastery example shipped with pbi-plot-styler, `check` found 0 errors;
-`style` restyled 1 of 1 combo chart from 6 measures; a second run restyled 0.
+`style` rebuilt 1 of 1 combo chart (5 line measures; 1 columns-role measure
+excluded); a second run rebuilt 0.
 After I renamed one measure in the model only, `check` reported 2 errors
 (BND001, BND002) naming the visual that still pointed at the old name.
 
@@ -281,7 +307,7 @@ welcome.
 | [ALM Toolkit](https://github.com/microsoft/Analysis-Services/tree/master/AlmToolkit) | No | No | No | Compare and merge two models at a time, TMDL included | No | Metadata-only deploys |
 | [PBI Inspector / Fab Inspector](https://github.com/NatVanG/fab-inspector) | Report and Fabric items, declarative JSON rules | No | No | No | Yes, PBIR | No |
 | [fabric-cicd](https://github.com/microsoft/fabric-cicd), [Fabric CLI](https://github.com/microsoft/fabric-cli) | No | No | No | No | No | Yes, git to Fabric workspaces |
-| swift-pbi (four tools) | Yes, 119 rules on TMDL files (25 with a fixer) | 25 mechanical fixers, 3 of them unsafe | Yes, with sample data and a hand-off pack | Yes: detect, allowlist, ledger, double-gated deletion | Combo-chart bindings, bookmarks, canvas conventions, styling | No |
+| swift-pbi (four tools) | Yes, 119 rules on TMDL files (25 with a fixer) | 25 mechanical fixers, 4 of them unsafe | Yes, with sample data and a hand-off pack | Yes: detect, allowlist, ledger, double-gated deletion | Combo-chart bindings, bookmarks, canvas conventions, styling | No |
 
 Where swift-pbi is weaker: Tabular Editor's rule sets are larger and far more
 widely used; ALM Toolkit compares and deploys to live models; Fab Inspector
