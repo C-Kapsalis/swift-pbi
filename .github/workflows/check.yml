@@ -61,6 +61,11 @@ jobs:
       - name: Labs engine parity tests
         run: uv run --no-project --with pytest --with duckdb --with pyyaml pytest -q -p no:cacheprovider labs/engine/tests
 
+      - name: metric_contract.py keeps multiline DAX apart in markdown
+        run: |
+          python skills/power-bi-definitions/scripts/metric_contract.py --self-test
+          uv run --no-project --with pytest pytest -q -p no:cacheprovider tests
+
       - name: Pinned tmdl-preflight passes the clean example (exit 0)
         run: |
           uvx --from "git+https://github.com/C-Kapsalis/tmdl-preflight@${{ steps.pin.outputs.tag }}" tmdl-preflight --version

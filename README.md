@@ -28,8 +28,9 @@ and the chart still points at the old name.
 
 None of these needs a redesign. Each one can cost an afternoon of clicking
 through Desktop, or a number nobody trusts. And few tools check, before you
-open Desktop, that a model will load at all: I tested each of these defects
-on its own in Power BI Desktop, and only the duplicate lineage tag stopped
+open Desktop, that a model will load at all: on the Windows bench (with the
+`v1.1.0` tools) I tested each of these defects on its own in Power BI
+Desktop, and only the duplicate lineage tag stopped
 the project from opening at all.
 
 **swift-pbi is the Power BI colleague in your terminal.** Business teams
@@ -131,9 +132,9 @@ __Calendar.tmdl:4        M004 warning: LineageTag 'calendar-tag-TODO' is not a c
 tmdl-preflight: 2 error(s), 2 warning(s), 8 info(s)
 ```
 
-That is the tool's own wording. The Windows test bench
-([benchmarks/windows/RESULTS.md](benchmarks/windows/RESULTS.md)) ran each
-defect on its own:
+That is the tool's own wording. The Windows test bench of 2026-10-18
+([benchmarks/windows/RESULTS.md](benchmarks/windows/RESULTS.md)), run with
+the `v1.1.0` tools, ran each defect on its own:
 
 | Defect alone | What Desktop did |
 |---|---|
@@ -338,10 +339,11 @@ step in [INSTALL.md](INSTALL.md), with what I have and have not tested.
 - **"Opens in Power BI Desktop" is verified by the validator, not by Desktop.**
   The demo script runs on macOS, where Power BI Desktop does not run, so the
   recorded demo output is not a Desktop open-test. I did run a separate
-  Windows bench on 2026-10-18
+  Windows bench on 2026-10-18 with the `v1.1.0` tools
   ([benchmarks/windows/RESULTS.md](benchmarks/windows/RESULTS.md)): every
-  model the demo produced was opened in Power BI Desktop, and each planted
-  defect was tested on its own. That bench found one case where the tool and
+  model the `v1.1.0` demo produced was opened in Power BI Desktop, and each
+  planted defect was tested on its own against `tmdl-preflight v1.1.0`. The
+  bench has not been re-run with the `v1.2.1` pin. That bench found one case where the tool and
   Desktop disagree, and it is written up in the "Before / after" section
   above. Opening any other `.pbip` is still a manual step on Windows, and the
   skills say so in every hand-off.
@@ -355,7 +357,9 @@ step in [INSTALL.md](INSTALL.md), with what I have and have not tested.
 - **The skills are benchmarked, and the effect is small.** The demo tests the
   tools. What the skills do to an agent is measured separately
   ([method](benchmarks/METHOD.md), [results](benchmarks/results/eval-runs.json)):
-  across 37 case-runs the plugin arm scored 0.90 against 0.84 without it,
+  in runs made on 2026-10-21 against the `v1.1.0` tools (the pin at the
+  time, not today's `v1.2.1`), across 37 case-runs the plugin arm scored
+  0.90 against 0.84 without it,
   and the per-suite mean delta was positive in four runs out of five
   (median +0.05). The plugin's value is narrow and real — the agent quotes
   the tool's counts, asks before it edits, and says which finding Desktop

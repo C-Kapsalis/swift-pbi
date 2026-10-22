@@ -1,8 +1,8 @@
 # Shared helpers for the demo scripts. Sourced, not run.
 #
 # Every tool runs through uvx from its v1.2.1 tag, exactly as the skills do.
-# The four repositories are private at the time of writing: uvx needs git
-# credentials that can read them (for example `gh auth setup-git`).
+# The four repositories are public: uvx clones them over HTTPS with no
+# credentials, so only Git and uv need to be installed.
 
 set -u
 

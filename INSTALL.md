@@ -32,7 +32,8 @@ are needed.
 | Claude Code (CLI, Desktop Code tab) | `.claude-plugin/`, `skills/`, `hooks/` | `claude plugin validate` passes; the tools ran through uvx on macOS (see `benchmarks/demo/`). The skills were run with and without the plugin on the fictional cases in `benchmarks/eval-cases/` (method: `benchmarks/METHOD.md`, results: `benchmarks/results/eval-runs.json`) |
 | Claude (web and Desktop chat) | `dist/swift-pbi-plugin.zip`, skill zips | Zip structure built locally; upload untested. No tool runs in chat |
 | ChatGPT | `adapters/chatgpt/`, `dist/swift-pbi-chatgpt.zip` | Untested. No tool runs in ChatGPT |
-| Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json` | Untested |
+| Codex | `npx skills add C-Kapsalis/swift-pbi`; `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json` | `npx skills add` verified on 2026-10-22: installs the 6 skills into `.agents/skills/`, no hook. The Codex plugin route is untested |
+| OpenCode | `npx skills add C-Kapsalis/swift-pbi` | Verified on 2026-10-22: installs the 6 skills into `.agents/skills/`, no hook |
 | GitHub Copilot (editor) | `.github/copilot-instructions.md` | Untested |
 | Cursor | `.cursor/rules/swift-pbi.mdc` | Untested |
 | Cline | `.clinerules/swift-pbi.md` | Untested |
@@ -76,7 +77,21 @@ Plugins > Skills, or use `swift-pbi-chatgpt.zip` for the plugin directory
 [`adapters/chatgpt/project-instructions.md`](adapters/chatgpt/project-instructions.md)
 as instructions and the files in `adapters/chatgpt/knowledge/` attached.
 
-## Codex
+## Codex and OpenCode
+
+```sh
+npx skills add C-Kapsalis/swift-pbi
+```
+
+This installs the 6 skills (`agency-workflow`, `chart-style`, `fleet-drift`,
+`power-bi-definitions`, `preflight`, `prototype-model`) into the project's
+`.agents/skills/` folder, which Codex and OpenCode both read. It installs no
+hook: the consent rules live in each skill and in `AGENTS.md`. Add `-g` to
+install for your user instead of the project, `-a codex` or `-a opencode` to
+pick the agent, and `--list` to see the skills without installing. Verified
+on 2026-10-22 with Codex and OpenCode.
+
+Codex can also take the plugin (untested):
 
 ```sh
 codex plugin marketplace add C-Kapsalis/swift-pbi
@@ -105,7 +120,8 @@ Copy [`AGENTS.md`](AGENTS.md) into its rules file, or install the folders in
 | Claude Code | `/plugin remove swift-pbi` |
 | Claude chat | Customize > Plugins or Skills, then remove |
 | ChatGPT | Remove the skills or the project |
-| Codex | `codex plugin remove swift-pbi` |
+| Codex, OpenCode (skills) | `npx skills remove agency-workflow chart-style fleet-drift power-bi-definitions preflight prototype-model` |
+| Codex (plugin) | `codex plugin remove swift-pbi` |
 | Rules files | Delete the copied file |
 
 swift-pbi writes nothing outside the folders you point the tools at. uv keeps

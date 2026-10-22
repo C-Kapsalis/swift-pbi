@@ -98,8 +98,9 @@ would measure the harness instead of the skills.
 So the scaffold does the installing, while the real package cache is still
 available:
 
-- `fixtures/vendor_tools.py` exports each tool's **pinned `v1.2.1` tag**
-  from the local checkout, builds one virtual environment with all four
+- `fixtures/vendor_tools.py` exports each tool's pinned tag from the local
+  checkout (its `TAG` constant: **`v1.2.1` today**; it was `v1.1.0` when the
+  results below were recorded, so those runs used the `v1.1.0` tools), builds one virtual environment with all four
   tools in it, and copies that environment into the sandbox;
 - `tools/tools.sh` points `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` at
   the executables in it;
@@ -108,7 +109,9 @@ available:
 
 The venv is relocatable, so it works from any sandbox path. The cost of
 this is that the tools the agent runs are the **pinned** ones, not the ones
-on `master` — which is what the plugin installs anyway.
+on `master` — which is what the plugin installs anyway. A run measures
+whichever tag `TAG` names on the day it runs: a re-run today measures
+`v1.2.1`; the recorded results measured `v1.1.0`.
 
 ## The results
 
@@ -141,7 +144,7 @@ median +0.048; positive in 4/5 runs
 
 ### What this does and does not show
 
-**It shows a small, real effect.** Across 37 case-runs the plugin arm
+**It shows a small, real effect** (with the `v1.1.0` tools). Across 37 case-runs the plugin arm
 scores 0.90 against 0.84, and the per-suite mean delta is positive in four
 of five runs (median +0.048). The two cases with the largest deltas are the
 two where the tool's output is hardest to reproduce by reading

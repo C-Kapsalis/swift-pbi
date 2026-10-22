@@ -217,8 +217,9 @@ $FORGE clone-report templates/TEMPLATE.Report <Name> out/<Name>.Report --expect-
   `--expect-visuals N` and `--expect-bookmark NAME` prove the copy is
   complete. When the target exists it asks before overwriting; `--force`
   answers yes. Exit codes: 0 success (or the operator declined), 1 a missing
-  template or a missing required file, 2 the target lies inside the template
-  or `--logical-id` is not a UUID.
+  template or a missing required file, **or** a failed expectation
+  (`--expect-visuals` count or `--expect-bookmark` name did not match),
+  2 the target lies inside the template or `--logical-id` is not a UUID.
 
 Both commands write files. `report blank` has `--dry-run`: show it first.
 `clone-report` has no dry run: show the command, the template and the
@@ -230,11 +231,16 @@ A model built on the selector pattern carries two families of helper
 measures. The forge writes them; you never hand-write them.
 
 ```
-$FORGE f-filters --model out/<Domain>.SemanticModel --dry-run
-$FORGE f-filters --model out/<Domain>.SemanticModel
-$FORGE i-filters --model out/<Domain>.SemanticModel --dry-run
-$FORGE i-filters --model out/<Domain>.SemanticModel
+$FORGE f-filters --model out/<Domain>/<Domain>.SemanticModel --dry-run
+$FORGE f-filters --model out/<Domain>/<Domain>.SemanticModel
+$FORGE i-filters --model out/<Domain>/<Domain>.SemanticModel --dry-run
+$FORGE i-filters --model out/<Domain>/<Domain>.SemanticModel
 ```
+
+`--model` is the `.SemanticModel` folder the build wrote inside
+`out/<Domain>/`. Given a folder with no `definition/tables` (such as
+`out/<Domain>.SemanticModel`, which the build never writes), `f-filters`
+prints `[SKIP] <folder>: <folder>/definition/tables not found` and exits 1.
 
 - **`f-filters`** writes one hidden `f-<Category>` measure per analysis
   category in `f-Filters`, and the `f-All` orchestrator with its two gate
@@ -263,9 +269,9 @@ and prints the rows, which is the only way to see what a mapping table or a
 lookup actually holds:
 
 ```
-$FORGE table dump out/<Domain>.SemanticModel/definition/tables/<Table>.tmdl
+$FORGE table dump out/<Domain>/<Domain>.SemanticModel/definition/tables/<Table>.tmdl
 $FORGE table dump <Table>.tmdl --max-rows 100
-$FORGE table dump --b64 "WyJhIiwiYidd"          # a bare payload, no file
+$FORGE table dump --b64 "i45WUlCKjQUA"          # a bare payload, no file
 ```
 
 `--max-rows` defaults to 20. The decoded rows are always headerless data:
