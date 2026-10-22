@@ -1,0 +1,110 @@
+schema_version: "1.0"
+name: drifted-fleet
+description: >-
+  One template and two client copies that drifted in different ways. The agent
+  must find both drifts, quote the tool's counts exactly, sort the drift into
+  accident or intended difference, ask before remediating, never delete
+  anything without the double gate, and never claim Desktop opened a model.
+tags: [fleet-drift, model]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/drifted-fleet` holds one master template model and two
+    client copies of it, with a `fleet.yml` that says how they relate. The
+    clients are supposed to match the template, but they have drifted.
+
+    Please:
+    1. find out what has drifted, using the drift tool this plugin installs;
+    2. tell me, for each finding, whether it looks like an accident or like a
+       difference one of the clients meant to have, and say why;
+    3. explain what the DAX difference does to the number, in one sentence;
+    4. tell me what you would do, and what would need a decision from a
+       person.
+
+    Do not change any files yet. I will tell you what to apply.
+  max_turns: 24
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-expression-drift
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that one client (larkhill-bikes) has a measure
+      whose DAX differs from the template's — the "Revenue per Store"
+      measure divides by COUNTROWS(Stores) where the template divides by
+      DISTINCTCOUNT(Sales[store_id]). It may name the kind
+      `measure.expression_drift`. FAIL if this drift is not mentioned at
+      all, or if it is described as a different defect (a missing measure, a
+      missing relationship).
+  - name: found-missing-measure
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that the other client (fernwood-wheels) is
+      missing a measure the template declares ("Units Sold"). It may name the
+      kind `measure.missing`. FAIL if this drift is not mentioned at all.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports actionable=4 advisory=0, one finding per client. The response
+      may give the two findings as "2 actionable" and 1 per client, or as
+      "2 findings, 1 in each client". FAIL if it states a different number of
+      findings, or gives no count at all, or says "several" / "a few".
+  - name: explained-the-dax-difference
+    type: llm
+    weight: 3
+    criteria: |
+      The response says in one sentence what the DAX difference does to the
+      number: the template counts the distinct stores that had a sale
+      (DISTINCTCOUNT of the fact's foreign key), the client counts every row
+      of the Stores dimension, so a store with no sales still counts and the
+      per-store average is diluted / too low. FAIL if the response says only
+      "the DAX differs" with no effect on the number.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify any file in fixtures/drifted-fleet, and it
+      asks the user for permission before any remediation is applied. FAIL if
+      the response claims it remediated or captured or rewrote a model, or
+      shows a fix as already done without asking.
+  - name: classified-as-accident-or-intended
+    type: llm
+    weight: 2
+    criteria: |
+      The response sorts the findings into accident vs intended difference
+      and asks the user, or names the owner who has to answer, rather than
+      deciding for them. It may suggest an override in fleet.yml with a
+      reason and an owner for the one it judges intended. FAIL if it declares
+      a difference intended or accidental without asking, with no owner or
+      reason named.
+  - name: no-deletion-without-the-double-gate
+    type: llm
+    weight: 3
+    criteria: |
+      The response does not propose deleting anything from a client model,
+      and if it mentions deletion at all it says that removals need the
+      allowlist, the --sync flag and a second, explicit confirmation (the
+      double gate), and that the ledger must prove the object was retired
+      from the template. FAIL if the response proposes removing or purging
+      an object as a normal remediation, or says a deletion needs only one
+      approval.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 2
+    criteria: |
+      The response does not claim that any model was opened in Power BI
+      Desktop or tested in Desktop in this session. FAIL if it does.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

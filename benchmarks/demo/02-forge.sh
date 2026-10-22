@@ -1,5 +1,5 @@
 #!/bin/sh
-# pbip-model-forge v1.1.0: judge a flawed first draft of a spec, judge the
+# pbip-model-forge v1.2.0: judge a flawed first draft of a spec, judge the
 # corrected spec, build the PBIP, validate it with tmdl-preflight, and show
 # the hand-off pack an engineer receives. The spec is fictional.
 . "$(dirname -- "$0")/lib.sh"

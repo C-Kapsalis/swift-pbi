@@ -1,5 +1,5 @@
 #!/bin/sh
-# tmdl-drift-doctor v1.1.0 on a fictional fleet: one template (bike-shop-clean)
+# tmdl-drift-doctor v1.2.0 on a fictional fleet: one template (bike-shop-clean)
 # and four client copies with planted drift. Capture, detect, preview,
 # remediate, re-detect; then retire a measure from the template and walk the
 # double-gated deletion, including one client that keeps it.

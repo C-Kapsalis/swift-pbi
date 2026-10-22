@@ -5,8 +5,8 @@ Answers: which campaigns earn revenue, where the send funnel leaks
 (sent -> delivered -> opened -> clicked -> ordered), and which segments are
 eroding (unsubscribes, bounces).
 
-Build:  uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.1.0 pbip-forge build email_campaigns.py out/EmailCampaigns --check --profile handoff
-Gate:   uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check out/EmailCampaigns
+Build:  uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge build email_campaigns.py out/EmailCampaigns --check --profile handoff
+Gate:   uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check out/EmailCampaigns
 """
 
 import datetime as dt

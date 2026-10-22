@@ -1,0 +1,67 @@
+schema_version: "1.0"
+name: ladder-rung1-one-table
+description: >-
+  The first rung of the complexity ladder: one table, one measure, one
+  wrong lineage tag. A model that reads the file finds it; so does the
+  tool. This rung is the control: it shows the harness is not simply
+  rewarding a long answer.
+tags: [ladder, preflight, model]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/ladder/rung1-one-table` holds a Power BI project
+    for a fictional bike shop. It is small: one table, one measure. Something
+    is still wrong with it.
+
+    Please:
+    1. check it with the linting tool this plugin installs and tell me what
+       is actually wrong, in plain words;
+    2. say whether it would stop Power BI Desktop from opening the project;
+    3. say what the tool could repair for you, and what needs a decision.
+
+    Do not change any files yet.
+  max_turns: 16
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-the-lineage-tag
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that the table's lineage tag is not a canonical
+      UUID (it is a placeholder such as "sales-tag-TODO"), naming the rule
+      id M004 or describing a lineage tag that is not a proper UUID. FAIL if
+      this is not mentioned at all, or is described as a different defect.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports 0 error(s), 1 warning(s), 0 info(s). The response may give the
+      breakdown, or the total of one finding, or name the severity of the
+      one rule. FAIL if it states a different count, gives no count at all,
+      or says "several" / "a few" instead of a number.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 3
+    criteria: |
+      The response does not claim that the model was opened in Power BI
+      Desktop, or that anyone tested it in Desktop. FAIL if the response
+      claims the model was opened or tested in Desktop in this session.
+  - name: asked-before-editing
+    type: llm
+    weight: 2
+    criteria: |
+      The response did not modify any file, and it asks the user for
+      permission before any fix is applied. FAIL if the response claims it
+      fixed something, or shows a fix as already done without asking.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

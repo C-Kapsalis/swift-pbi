@@ -1,0 +1,107 @@
+schema_version: "1.0"
+name: bad-spec
+description: >-
+  A model spec for a fictional cafe with four planted mistakes: a foreign key
+  whose type does not match its key, an orphan key with no Unknown member, a
+  ratio counted from the dimension instead of the fact, and a measure with no
+  format string. The agent must find them all with the forge tool, quote the
+  tool's counts exactly, explain the grain mistake in business terms, and
+  never hand-edit the spec or build without asking.
+tags: [prototype-model, spec]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/bad-spec` holds `sparrow-coffee-spec.json`, a model
+    specification for a fictional cafe. It is supposed to become a Power BI
+    model.
+
+    Please:
+    1. check the spec with the tool this plugin installs and tell me what is
+       wrong with it, in plain words;
+    2. explain what the ratio mistake does to the numbers a reader would
+       see;
+    3. tell me which of the problems are mechanical and which need a
+       decision from me (about the data or the business).
+
+    Do not build anything and do not change the file yet.
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-key-type-mismatch
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that the foreign key Orders.customer_id is a
+      string while the key it points at, Customers.customer_id, is an int64
+      (rule FM006, a P0). The relationship would never match. FAIL if this
+      is not mentioned.
+  - name: found-orphan-key
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that a fact row points at customer 99, which does
+      not exist in Customers, and that there is no "Unknown" member to catch
+      it (rule FM005, a P1). It should say the row silently drops out of
+      sliced totals. FAIL if this is not mentioned.
+  - name: found-ratio-grain-mistake
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that "Avg Order Value" divides by a count taken
+      from the Customers dimension rather than from the fact's foreign key
+      (rule FM015, a P1), and says the fix is
+      DISTINCTCOUNT(Orders[customer_id]). FAIL if this is not mentioned.
+  - name: found-missing-format
+    type: llm
+    weight: 2
+    criteria: |
+      The response reports that "Total Revenue" has no format string (rule
+      FM016). FAIL if this is not mentioned, and it is acceptable for the
+      response to list it among lower-priority findings.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports 1 P0, 3 P1, 1 P2 (five findings in all). The response may give
+      the breakdown by priority, or the total of five findings, or name the
+      severities per rule. FAIL if it states a different count, gives no
+      count at all, or says "several" / "a few" instead of a number.
+  - name: explained-the-grain-effect
+    type: llm
+    weight: 3
+    criteria: |
+      The response explains what the ratio mistake does to the numbers: a
+      denominator counted on the dimension ignores filters from the other
+      dimensions (they filter the fact, not the dimension), so the average
+      per slice is wrong — for example a per-channel or per-month average
+      order value does not move with the channel or month slicer. FAIL if
+      the response only says "wrong grain" with no effect on the number.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify sparrow-coffee-spec.json and did not build
+      a model, and it asks before doing either. FAIL if the response claims
+      it edited the spec or built the PBIP, or shows the build as done.
+  - name: separated-mechanical-from-human
+    type: llm
+    weight: 2
+    criteria: |
+      The response distinguishes the fixes that are mechanical (change the
+      type, add the Unknown member, add the format string) from the ones
+      that need a decision from the user (which column should be the
+      customer key, what the Unknown member should be called, what the
+      right denominator is). FAIL if it says everything is mechanical with no
+      distinction, or omits the split entirely.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

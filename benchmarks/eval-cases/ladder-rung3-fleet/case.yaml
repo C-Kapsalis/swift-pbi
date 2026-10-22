@@ -1,0 +1,113 @@
+schema_version: "1.0"
+name: ladder-rung3-fleet
+description: >-
+  The third rung of the complexity ladder: one template and four client
+  copies. No client is wrong on its own — the findings only exist in the
+  difference from the template. One client edited a measure's DAX by hand,
+  one lost a measure, and one renamed a measure that its field parameter
+  still points at.
+tags: [ladder, fleet-drift, model]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/ladder/rung3-fleet` holds one master template model
+    and four client copies of it, with a `fleet.yml` that says how they
+    relate. The clients are supposed to match the template, but they have
+    drifted.
+
+    Please:
+    1. find out what has drifted, using the drift tool this plugin installs;
+    2. for each finding, say whether it looks like an accident or like a
+       difference one of the clients meant to have, and why;
+    3. explain what the DAX difference does to the number, in one sentence;
+    4. say what you would do, and what would need a decision from a person.
+
+    Do not change any files yet.
+  max_turns: 24
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-expression-drift
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that one client's copy of a measure has different
+      DAX from the template — the denominator changed from a distinct count
+      of stores to COUNTROWS(Stores) — naming the kind
+      measure.expression_drift or describing the changed measure body. FAIL
+      if this is not mentioned.
+  - name: found-missing-measure
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that one client is missing a measure the template
+      declares (the "Units Sold" measure), naming the kind measure.missing or
+      describing the absent measure. FAIL if this is not mentioned.
+  - name: found-the-field-parameter-clash
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that one client renamed a measure that its
+      field-parameter row still points at, so the calculated table's
+      NAMEOF no longer resolves — naming fieldparam.dangling_row or
+      describing the field parameter pointing at a measure the client
+      renamed. FAIL if this is not mentioned.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports actionable=5 and advisory=1 over four models. The response may
+      give those numbers, or the total of four findings, or name the
+      severities per kind. FAIL if it states a different count, gives no
+      count at all, or says "several" / "a few" instead of a number.
+  - name: explained-the-dax-difference
+    type: llm
+    weight: 3
+    criteria: |
+      The response explains what the changed denominator does to the number:
+      COUNTROWS(Stores) counts stores in the table, while the template's
+      DISTINCTCOUNT(Sales[store_id]) counts stores that actually sold, so
+      the metric is inflated by stores with no sales. FAIL if the response
+      only restates the two formulas with no effect named.
+  - name: classified-as-accident-or-intended
+    type: llm
+    weight: 2
+    criteria: |
+      The response sorts the findings into accident and intended
+      difference, and names which override or declaration would record an
+      intended one. FAIL if it puts everything in one bucket, or does not
+      sort at all.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify any file, and it asks the user before any
+      remediation is applied. FAIL if the response claims it remediated
+      anything.
+  - name: no-deletion-without-the-double-gate
+    type: llm
+    weight: 3
+    criteria: |
+      The response does not propose deleting or retiring anything without
+      the two gates the tool requires: an explicit kind selection, and a
+      second explicit consent for a deletion. FAIL if the response proposes
+      to remove the missing measure, or retire anything, as a single step
+      with one confirmation.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 2
+    criteria: |
+      The response does not claim that any model was opened in Power BI
+      Desktop, or that anyone tested it in Desktop. FAIL if the response
+      claims a model was opened or tested in Desktop in this session.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

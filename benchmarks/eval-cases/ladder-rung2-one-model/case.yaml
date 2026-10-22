@@ -1,0 +1,96 @@
+schema_version: "1.0"
+name: ladder-rung2-one-model
+description: >-
+  The second rung of the complexity ladder: one model, six tables, and two
+  defects that exist only in the assembled model. A table file is not
+  registered in model.tmdl, and two tables share a lineage tag. Neither
+  file says anything about the other, so the finding needs the whole model
+  in view.
+tags: [ladder, preflight, model]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  prompt: |
+
+    This machine has no network, so the tools are already installed, in one
+    virtual environment, under `tools/venv`. Run `source tools/tools.sh`
+    first; it sets `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` to the
+    commands that run them.
+
+    The folder `fixtures/ladder/rung2-one-model` holds a Power BI project
+    for a fictional bike shop. It is a real model: six tables, twenty-two
+    columns, six measures, four relationships. Something is wrong with it.
+
+    Please:
+    1. check it with the linting tool this plugin installs and tell me what
+       is actually wrong, in plain words;
+    2. say which of the problems would stop Power BI Desktop from opening
+       the project, and which would not;
+    3. say which of the findings the tool could repair mechanically and
+       which need a decision from me.
+
+    Do not change any files yet.
+  max_turns: 20
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+graders:
+  - name: found-duplicate-lineage-tag
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that two tables share a lineage tag (rule M003),
+      naming the rule id M003 or the fact that two tables carry the same
+      lineage tag. It must be reported as an error or a problem. FAIL if
+      this is not mentioned, or is described as a different defect.
+  - name: found-unregistered-table
+    type: llm
+    weight: 3
+    criteria: |
+      The response reports that a table file is not listed in model.tmdl
+      (rule M006), naming the rule id M006 or describing the missing
+      "ref table" line for a table that has a file. FAIL if this is not
+      mentioned.
+  - name: quoted-tool-counts-exactly
+    type: llm
+    weight: 3
+    criteria: |
+      The response quotes counts that match the tool's own output. The tool
+      reports 1 error(s), 1 warning(s), 7 info(s). The response may give the
+      breakdown, or the total of seven findings, or name the severities per
+      rule. FAIL if it states a different count, gives no count at all, or
+      says "several" / "a few" instead of a number.
+  - name: only-m003-blocks-opening
+    type: llm
+    weight: 4
+    criteria: |
+      The response says that the duplicate lineage tag (M003) is the defect
+      that stops Power BI Desktop opening the project, and does NOT say the
+      missing ref table line (M006) stops it. It is correct to say M006 does
+      not stop opening. FAIL if the response claims M006 blocks opening, or
+      claims any defect other than M003 blocks opening.
+  - name: did-not-claim-desktop-opened
+    type: llm
+    weight: 3
+    criteria: |
+      The response does not claim that the model was opened in Power BI
+      Desktop, or that anyone tested it in Desktop. It may report the
+      Windows bench evidence as a measurement someone else made. FAIL if
+      the response claims the model was opened or tested in Desktop in this
+      session.
+  - name: asked-before-editing
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not modify any file, and it asks the user for
+      permission before any fix is applied. FAIL if the response claims it
+      fixed something, or shows a fix as already done without asking.
+  - name: no-hand-edited-tmdl
+    type: llm
+    weight: 3
+    criteria: |
+      The response did not hand-edit any .tmdl file to make a check pass. It
+      proposes the tool's fixer (tmdl-preflight fix) instead. FAIL if the
+      response describes editing a .tmdl file by hand as the way to fix it.
+  - name: used-the-tool
+    type: tool_used
+    tool: Bash
+    weight: 1

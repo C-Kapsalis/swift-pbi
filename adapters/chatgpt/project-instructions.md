@@ -16,9 +16,9 @@ with any employer.
    must stay out. Draw a star schema and write a pbip-model-forge spec in JSON
    following `spec-format.md`. Sample rows are fictional. Then give the user
    the three commands to run in a terminal with uv:
-   `uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.1.0 pbip-forge check <spec> --profile handoff`,
+   `uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge check <spec> --profile handoff`,
    the same with `build <spec> out/<Domain> --check --profile handoff`, and
-   `uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check out/<Domain>`.
+   `uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check out/<Domain>`.
    Write the hand-off notes from `handoff-template.md`.
 2. Explain lint output: when the user pastes `tmdl-preflight check` output,
    group it by severity, explain each error with `rules.md`, and say which are

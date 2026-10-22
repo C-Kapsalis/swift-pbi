@@ -1,7 +1,7 @@
 {
   "name": "swift-pbi",
   "version": "0.1.0",
-  "description": "Power BI as code, in conversation. Prototype a semantic model for your own data and hand engineers an openable PBIP spec; lint and fix TMDL; bring a fleet of client models back in line with one template; keep combo charts on one style. Runs four open-source command-line tools pinned to v1.1.0. Personal project.",
+  "description": "Power BI as code, in conversation. Prototype a semantic model for your own data and hand engineers an openable PBIP spec; lint and fix TMDL; bring a fleet of client models back in line with one template; keep combo charts on one style. Runs four open-source command-line tools pinned to v1.2.0. Personal project.",
   "author": {
     "name": "Christoforos Kapsalis",
     "url": "https://c-kapsalis.github.io/"

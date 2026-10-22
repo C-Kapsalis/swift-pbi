@@ -1,4 +1,4 @@
-# Demo: the four tools at v1.1.0, run on fictional models
+# Demo: the four tools at v1.2.0, run on fictional models
 
 Every number in the swift-pbi README comes from the files in
 [output/](output/). The scripts here reproduce them.
@@ -8,7 +8,7 @@ sh benchmarks/demo/run-all.sh
 ```
 
 Needs `uv` (for `uvx`), `git`, `python3` and `diff`. Each tool runs through
-`uvx --from git+https://github.com/C-Kapsalis/<repo>@v1.1.0`, as the skills do.
+`uvx --from git+https://github.com/C-Kapsalis/<repo>@v1.2.0`, as the skills do.
 Each script works in a fresh scratch folder and deletes it; the vendored
 examples never change. The scratch path appears as `$WORK` in the output.
 Generated lineage tags (UUIDs) differ between runs; the counts do not.
@@ -23,7 +23,7 @@ See [output/00-environment.txt](output/00-environment.txt).
 | [01-preflight.sh](01-preflight.sh) | tmdl-preflight | `examples/bike-shop-broken`, `examples/bike-shop-clean` | [01-preflight.txt](output/01-preflight.txt) |
 | [02-forge.sh](02-forge.sh) | pbip-model-forge, tmdl-preflight | [specs/bike-repair-draft.json](specs/bike-repair-draft.json), [specs/bike-repair.json](specs/bike-repair.json) | [02-forge.txt](output/02-forge.txt) |
 | [03-drift.sh](03-drift.sh) | tmdl-drift-doctor, tmdl-preflight | a fleet built by [make_fleet.py](make_fleet.py): template + 4 clients | [03-drift.txt](output/03-drift.txt) |
-| [04-plot-styler.sh](04-plot-styler.sh) | pbi-plot-styler | `examples/coffee-roastery` from the tool's own repo at v1.1.0 | [04-plot-styler.txt](output/04-plot-styler.txt) |
+| [04-plot-styler.sh](04-plot-styler.sh) | pbi-plot-styler | `examples/coffee-roastery` from the tool's own repo at v1.2.0 | [04-plot-styler.txt](output/04-plot-styler.txt) |
 
 All models, clients, people and businesses in these inputs are fictional.
 
@@ -96,7 +96,7 @@ summit-wheels, valley-spokes, each with drift planted by `make_fleet.py`.
 
 The tool's README quickstart shows 5 measures and 2 visuals; that example is
 a different fixture. The example shipped in `examples/coffee-roastery` at
-v1.1.0 has 6 measures and 1 combo chart, which is what ran here.
+v1.2.0 has 6 measures and 1 combo chart, which is what ran here.
 
 ## What was not verified
 

@@ -1,45 +1,394 @@
-# tmdl-preflight rules (v1.1.0)
+# tmdl-preflight: the rule catalog and the commands
 
-Generated from `tmdl-preflight rules --json` at v1.1.0. 37 rules, 10 with a fixer.
+**This file is the single source the `preflight` skill routes to.** Every
+count, id, severity, fixer and command below was read from the tool's own
+listing, not from memory:
 
-Prefixes: M model structure, D DAX, R relationships, F field parameters and calculated-table sources, B report and bookmarks, S style.
+```
+tmdl-preflight rules --json          # every id, name, severity, fixable, baselinable, options
+tmdl-preflight rules                 # the text catalog
+tmdl-preflight rules --format markdown --out FILE --check   # regenerate; fails when stale
+tmdl-preflight --help                # the commands
+```
 
-| ID | Name | Severity | Fixer | What it checks |
+Never state a count that is not in this file or in a fresh run of the tool.
+
+## Which build is which
+
+| Build | Rules | With a fixer | How it was measured |
+|---|---|---|---|
+| the pinned `v1.2.0` the plugin installs | **119** | **25** | `tmdl-preflight rules --json` at the `v1.2.0` tag; the same numbers the tool prints at the top of its markdown catalog: `Rules: 119 · auto-fixable: 25 · baselinable: 113` |
+
+The 25 fixers in `v1.2.0` are A003, B001, B003, B007, D004, F001, F002,
+F003, F004, F006, F007, F014, F016, F017, M003, M004, M006, M011, M013,
+M019, M021, M022, O009, P001, R007.
+
+The `v1.1.0` tag is still on the repository, and it carried 37 rules with
+10 fixers. The plugin's pins are on `v1.2.0`, so quote the 119 and the 25
+unless the user says otherwise.
+
+Prefixes: M model structure, D DAX, R relationships, F field parameters and
+calculated-table sources, B report and bookmarks, S style, O organisation
+(where measures live), A analysis-category mapping, C contracts, L row-level
+security, P refresh policy, X cross-fact keys, N naming floors.
+
+## Desktop truth (Windows bench, 2026-10-18)
+
+Read [benchmarks/windows/RESULTS.md](../../../benchmarks/windows/RESULTS.md)
+before saying anything about Desktop. What was measured, one defect at a
+time:
+
+| Rule | What Desktop did |
+|---|---|
+| M003 duplicate lineage tag | **refused to open** ("An object with lineage-tag '…' already exists") |
+| M006 table file with no `ref table` line | **opened**; the table loaded and kept its relationship |
+| M004 placeholder lineage tag | **opened** |
+| F001 stray field-parameter comma | **opened**, but every visual on the field parameter failed ("Failed to move the data reader to the next row") |
+| S001 measure with no format string (control) | **opened** |
+
+So: only M003 blocks opening, on the evidence. F001 opens and breaks the
+field-parameter visuals. M006 and M004 do not block.
+
+**The rules whose own text asserts what Desktop does.** These **30** rules
+make a claim about the product in their own description: 19 name Power BI or
+Desktop, and 11 more say a model will be refused, rejected, fail to load or
+fail to evaluate. Only the five rows above were measured. For every other
+rule the text is the tool's prediction: report it as what the tool says,
+never as what Desktop does.
+
+| Group | Count | Ids |
+|---|---|---|
+| Name Power BI or Desktop | 19 | F001, F002, F003, L002, M006, M007, M008, M009, M010, M011, M013, M014, M015, M017, M022, O001, P001, R001, R007 |
+| Assert a load, import or evaluation outcome | 11 | B003, B006, D005, F004, F014, L001, M003, M012, M020, R002, R006 |
+
+F002 and F003 say so themselves ("it has not been observed for this defect on
+its own"). M006 and F001 quote the measurement directly, and are consistent
+with the table above. M003 is the one that was measured to refuse to open.
+
+The safest phrasing for the rest is: "the tool marks this as an error
+because …" — never "Power BI will refuse to open this model".
+
+## The commands
+
+`tmdl-preflight --help` lists 15 commands:
+
+| Command | What it does |
+|---|---|
+| `check` | report violations; never modifies files |
+| `fix` | apply auto-fixes, then re-check (imposition pattern) |
+| `baseline` | record today's violations so `check --baseline` fails only on new ones |
+| `stats` | print an inventory of the project (counts only) |
+| `comment-refs` | count ticket references (#123) in model comments |
+| `report` | read-only reports (`complexity`, `nameof`, `relationships`) |
+| `format-resolve` | resolve the format a measure name gets from a format calculation group |
+| `grain` | derive which dimensions can filter a cost fact and its backend facts; check a grain guard against it |
+| `info` | derived model facts (analysis categories) |
+| `fieldparam` | edit field-parameter rows (`retag`) |
+| `manifest` | write a JSON manifest of a model (tables, roles, sources, relationships) |
+| `schema-check` | compare a manifest with a warehouse schema snapshot, or prove view columns from SQL files |
+| `refs` | count the places that name an object (model and report), before a rename or delete |
+| `live` | opt-in checks against the published dataset (Power BI REST; `--replay` answers from recordings) |
+| `rules` | list the rule catalog |
+
+### The flags that matter
+
+| Flag | On | What it does |
+|---|---|---|
+| `--select IDS` | `check`, `fix` | comma-separated rule ids or names to run (default: all) |
+| `--ignore IDS` | `check`, `fix` | comma-separated rule ids or names to skip |
+| `--format {text,json,github,sarif,markdown}` | `check`, `fix` | output format; `--json` is the same as `--format json` |
+| `--strict` | `check`, `fix` | exit nonzero on warnings as well as errors |
+| `--baseline FILE` | `check`, `fix` | only fail on violations not recorded in that baseline file |
+| `--config FILE` | most | read the configuration from FILE instead of searching for `.tmdl-preflight.toml` / `.json` or `pyproject.toml` |
+| `--profile NAME` | most | merge the `[profiles.NAME]` table of the configuration |
+| `--no-config` | most | ignore any configuration file |
+| `--dry-run` | `fix` | report what the fix would change; write nothing |
+| `--check` | `fix` | write nothing; exit with the number of objects the selected fixers would act on (capped at 255) |
+| `--only {missing,invalid}` | `fix` | refresh-policy fixers: only add missing policies, or only realign invalid ones |
+| `--clear-cache` / `--keep-cache` | `fix` | after lineage tags change, delete (or keep) the model's `.pbi/cache.abf` so Desktop does not reuse old tags |
+| `--output FILE` | `baseline` | where the baseline goes (default `<path>/.tmdl-preflight-baseline.json`) |
+| `--update` / `--accept-new` | `baseline` | shrink the baseline to what still fails (never adds); `--accept-new` also adds today's new violations |
+| `--measures` | `stats` | add the measure-organisation summary (classes, field-parameter surfacing, top tables) |
+| `--field-parameter-tables NAMES` | `stats` | comma-separated table names or globs whose NAMEOF rows count as surfaced (default: detected field parameters) |
+| `--top N` | `report complexity` | the longest N measures |
+| `--group-prefix PREFIX` | `report nameof` | table-name prefix to group by (repeatable) |
+| `--table TABLE` / `--axis AXIS` / `--label LABEL` / `--compare NAME2` | `format-resolve` | the calculation group, the field parameter in scope, the label it shows, a second name to resolve beside it |
+| `--cost-fact T` / `--backend-fact T` / `--permit TABLE` / `--axis-prefix PREFIX` | `grain` | the fact the cost side reads, a fact of the population side, a dimension to treat as conformed, the field-parameter tables whose NAMEOF rows expose columns |
+| `--guard-table T` / `--guard-measure M` / `--emit-config` | `grain` | the guard to check, the guard measure, print the blocked/permitted lists as grain-guard-coverage config |
+| `--mapping-table T` | `info --categories` | the mapping table (default: the first table named `z-Map*`) |
+| `--out FILE` | `manifest`, `schema-check`, `rules` | where the manifest / schema report / catalog goes |
+| `--check` | `manifest` | write nothing; exit 1 when the file is missing or stale |
+| `--targets FILE` | `manifest` | the target contract file (YAML or JSON) |
+| `--schema SNAPSHOT` / `--sql-dir DIR` / `--entries FILE` / `--holdbacks FILE` / `--write-holdbacks` / `--owner-folder-pattern RE` / `--ignore-columns FILE` | `schema-check` | the schema snapshot, the SQL project root, the entry list, the holdbacks file, the owner-id to SQL-folder regex, the column exceptions |
+| `--files` / `--include-history` / `--history GLOB` / `--loose` | `refs` | list the matching files, include archived copies, the glob of archived paths, count the closing-delimiter spelling too |
+| `--workspace ID` / `--dataset ID` / `--checks IDS` / `--record DIR` / `--replay DIR` / `--cache-ttl N` / `--non-interactive` / `--expect-name TEXT` / `--no-coupling-check` | `live` | the workspace and dataset ids, a subset of live checks, record every response, answer from a recording, the metadata cache lifetime, never open a sign-in prompt, accept a workspace name, run even when the dataset name does not match |
+| `--json` | `check`, `fix`, `stats`, `baseline`, `report`, `grain`, `info`, `comment-refs`, `live`, `rules` | machine-readable output |
+
+### Exit codes
+
+| Command | Codes |
+|---|---|
+| `check`, `fix` | `0` nothing to report, `1` violations remain, `2` a refused fix or a usage/path problem |
+| `baseline` | `0`, `2` on a usage problem |
+| `rules` | `0`; `2` when `--out`/`--check` are used with a format other than markdown |
+| `manifest`, `schema-check` | `0`, `1` when the file is missing or stale / a column is missing, `2` on a usage problem |
+| `refs` | `0` |
+| `grain` | `0`, `1` when `--check` finds a gap |
+| `live` | `0`, `1` on a failure or an error (and on a warning with `--strict`), `2` on a usage problem |
+| every command | `2` on a usage error or an unreadable path |
+
+## The catalog
+
+`fix` = the rule has a fixer. `unsafe` = the fixer runs only when the rule is
+selected explicitly, never in a blanket fix. `opt-in` = the rule is off unless
+it is selected (or its `enabled` option is turned on). `baselinable` = the
+rule's findings can be recorded in a baseline.
+
+The 22 rules with a fixer: M003, M004, M006, M011, M013, M019, M021, M022,
+P001, D004, R007, F001, F002, F003, F004, F006, F007, F014, A003, B001, B003,
+O009.
+
+The three unsafe fixers: D004, R007, P001.
+
+The rules that can never be baselined: M003, M007, M010, M015, R006.
+
+### Model structure (M)
+
+| ID | Name | Severity | Fix | What it checks |
 |---|---|---|---|---|
 | M001 | model-structure | error | no | The definition folder must contain model.tmdl and a tables/ folder with at least one table file. |
 | M002 | tmdl-well-formed | error | no | Every .tmdl file must be readable UTF-8 (a byte-order mark is fine), contain no null bytes, have paired ``` expression fences, and (for table files) declare a table. Every column, measure and relationship declaration line must also be attached to the model; a mis-indented declaration the parser cannot place is reported here instead of being dropped silently. |
-| M006 | model-table-refs | error | yes | Every table defined under tables/ must be linked to the model with a 'ref table <name>' line in model.tmdl. A table file with no matching ref is not attached to the model, so Power BI Desktop refuses to open the project (the report never loads). This happens when a table is added by hand or a merge drops the ref line. Auto-fix appends the missing 'ref table' lines to model.tmdl. |
+| M003 | lineage-duplicates | error | yes | Every lineageTag in a model must be unique. Duplicates make the deployment target reject the model ('an object with that lineage tag already exists'). Auto-fix keeps the first occurrence and regenerates the rest. **Measured: this is the one rule that stopped Desktop opening the model.** |
+| M004 | lineage-format | warning | yes | Every lineageTag must be a canonical hyphenated UUID (8-4-4-4-12 hex). Placeholder or hand-typed tags are replaced with fresh UUIDs by the auto-fix. **Measured: Desktop opened the model.** |
+| M005 | column-data-types | warning | no | Declared column dataType values must be one of the types the tabular engine understands (string, int64, double, decimal, dateTime, boolean, binary, variant, currency, rowNumber). |
+| M006 | model-table-refs | warning | yes | Every table defined under tables/ should be listed in model.tmdl with a 'ref table <name>' line. Power BI Desktop still loads a table file that has no ref line (observed: the table opened and kept its relationships), but model.tmdl is then out of step with tables/, so the table order Desktop writes back changes and tools that read the table list from model.tmdl miss the table. This happens when a table is added by hand or a merge drops the ref line. Auto-fix appends the missing 'ref table' lines to model.tmdl. **Measured: Desktop opened the model.** |
 | M007 | table-partitions | error | no | Every table must declare at least one partition. A measures-only table ('measures table') still needs one: without a partition Power BI Desktop cannot map the table to a query and crashes on open ('Sequence contains no elements' in GetLinkedQuery). Give it a calculated partition or a dummy entered-data partition (Table.FromRows(...) then Table.RemoveColumns). |
 | M008 | entity-query-source | error | no | An M partition whose source is an inline '#table(type table [...])' is an entity-typed query source. Combined with any calculated table, Power BI treats the model as composite and refuses to open it ('A composite model cannot be used with entity based query sources'). Re-encode manual data as entered data (Table.FromRows(Json.Document(Binary.Decompress(...)))) or use a calculated table. |
 | M009 | reserved-table-name | error | no | Power BI reserves certain table names and refuses to open a model that uses one, most notably a table literally named 'Measures', which collides with the implicit measures container ('Unsupported Table name ... found in data model schema'). Rename the table, for example to 'Key Measures' or '<Domain> Measures'. |
-| M003 | lineage-duplicates | error | yes | Every lineageTag in a model must be unique. Duplicates make the deployment target reject the model ('an object with that lineage tag already exists'). Auto-fix keeps the first occurrence and regenerates the rest. |
-| M004 | lineage-format | warning | yes | Every lineageTag must be a canonical hyphenated UUID (8-4-4-4-12 hex). Placeholder or hand-typed tags are replaced with fresh UUIDs by the auto-fix. |
-| M005 | column-data-types | warning | no | Declared column dataType values must be one of the types the tabular engine understands (string, int64, double, decimal, dateTime, boolean, binary, variant, currency, rowNumber). |
-| M010 | metadata-in-expression | error | no | A TMDL property line (lineageTag:, formatString:, displayFolder:, isHidden, annotation ...) must never sit inside an expression body. It happens when a script or a merge inserts a property at the wrong indentation, or inside a ``` fence: the property becomes part of the DAX or M text and Power BI rejects the file ('... is neither a property nor an object in the current context'). Move the line out of the expression, one level under the object's declaration. |
-| M011 | property-after-child-block | warning | yes | An object's simple properties (isHidden, displayFolder, formatString, lineageTag ...) must come before its child blocks (annotation, changedProperty, extendedProperty). Power BI Desktop always writes them in that order; a property appended after an annotation, usually by a script, is at best ignored and at worst rejected when the file is opened. Auto-fix moves the line up into the object's property section. |
+| M010 | metadata-in-expression | error | no | A TMDL property line (lineageTag:, formatString:, displayFolder:, isHidden, annotation, kpi, detailRows ...) must never sit inside an expression body. It happens when a script or a merge inserts a property at the wrong indentation, or inside a ``` fence: the property becomes part of the DAX or M text and Power BI rejects the file ('... is neither a property nor an object in the current context'). In DAX bodies the keyword counts whatever follows it; in M bodies only a line shaped like a property counts. Lines inside a comment or a string are never findings. Move the line out of the expression, one level under the object's declaration. |
+| M011 | property-after-child-block | error | yes | An object's simple properties (isHidden, displayFolder, formatString, lineageTag ...) must come before its nested sections (annotation, changedProperty, extendedProperty, kpi, detailRows, relatedColumnDetails, formatStringDefinition). Power BI Desktop always writes them in that order; a property appended after such a section, usually by a script, is rejected as an unknown keyword when the model is imported. Auto-fix moves the line to the object's first property slot, right after its expression. |
 | M012 | duplicate-object-names | error | no | Object names are compared case-insensitively by the tabular engine. Two tables whose names differ only by case, two columns or two measures with the same name in one table, or a measure named like a column of its own table all make the model fail to load. Rename one of the pair. |
-| M013 | dangling-description | error | yes | A /// description must sit directly on top of the declaration it describes. A /// run followed by a blank line documents nothing, and Power BI rejects the file once any declaration follows it ('Unexpected line type: Empty'). At the end of a file it is harmless until something is appended, so it is reported as a warning there. Auto-fix deletes the orphaned run and the blank line next to it. |
+| M013 | dangling-description | error | yes | A /// description must sit directly on top of the declaration it describes. A /// run followed by a blank line documents nothing, and Power BI rejects the file once any declaration follows it ('Unexpected line type: Empty'). At the end of a file it breaks the file as soon as anything is appended (for example the RangeStart and RangeEnd parameters incremental refresh adds), so it is an error there too. Auto-fix deletes the orphaned run and the one blank line directly after it. |
 | M014 | calc-group-implicit-measures | error | no | A model with a calculation group must set discourageImplicitMeasures in model.tmdl. Calculation groups only apply to explicit measures, so Power BI refuses to save or deploy a model that has both a calculation group and implicit measures enabled. Add a 'discourageImplicitMeasures' line under 'model Model'. |
 | M015 | ref-table-target-missing | error | no | Every 'ref table <name>' line in model.tmdl must name a table that is defined under tables/. A ref to a missing table (a deleted or renamed table file) stops Power BI Desktop from opening the project. Restore the table file or delete the ref line. |
-| D001 | dax-delimiters | error | no | Every DAX expression in the model (measures, calculated columns, calculated-partition sources, calculation items, dynamic format strings) must have balanced parentheses, braces, brackets and quotes, with comments and string contents excluded. |
-| D002 | nameof-resolution | error | no | Every NAMEOF() reference must resolve: NAMEOF('Table'[Member]) to a column or measure on that table, NAMEOF([Measure]) to an existing, unambiguous measure. Field parameters are built from NAMEOF tuples, so a broken reference silently invalidates the whole parameter table. |
+| M016 | tmdl-file-sanity | error | no | Pre-import sanity of the files themselves: the required files (model.tmdl and database.tmdl by default) and any configured required table files exist; no .tmdl file holds a null byte; the core files (model.tmdl, database.tmdl, relationships.tmdl and the required table files) use LF line endings when check_line_endings is on (off by default, because Windows checkouts are often CRLF); model.tmdl declares the model and every table file declares a table; a measure with a quoted name has no whitespace-only fenced body; and a required table file has no comment indented one tab at the root of the table (a '// Section' line between objects). |
+| M017 | space-indentation | error | no | TMDL nests objects by tab indentation, and Power BI Desktop always writes tabs. A line that starts with four spaces (usually pasted from an editor that turned tabs into spaces, or written by a script) may attach to the wrong object or fail to load. Every such line is an error, expression bodies included; a line that starts with tabs and then has spaces is never flagged. Optional info (bare_multiline_info): a quoted measure whose multi-line body is not fenced with ```. |
+| M018 | model-annotation-duplicates | error | no | An object may carry each annotation name once. Two 'annotation X = ...' lines in the same scope of model.tmdl (the model itself, a query group, or any object declared there) are a merge accident: scripts that append model-level annotations such as the query order are the usual cause. Names compare exactly. Not auto-fixable: which value is right is a human decision. |
+| M019 | undefined-query-group | error | yes | A partition or shared expression placed in a Power Query folder ('queryGroup: <name>') needs the folder declared in model.tmdl ('queryGroup <name>'). Copying a table from another model without its folder declaration leaves the reference dangling. Auto-fix declares each missing group after the existing ones, with a PBI_QueryGroupOrder annotation numbered from 99. |
+| M020 | calculated-column-expression-present | error | no | A column declared with '=' is a calculated column and needs an expression. 'column X =' followed directly by its properties declares a calculated column with no definition, which the engine rejects. Write the expression or drop the '='. |
+| M021 | culture-orphan-bindings | error | yes | Q&A linguistic metadata in cultures/*.tmdl binds nodes to tables (ConceptualEntity). A binding to a table file that no longer exists does not break queries, but it is dead metadata and a sign the table was removed without a cleanup (dangling DAX references are likely too). Option tables names entities to treat as removed. Auto-fix deletes the nodes bound to missing tables and nothing else. |
+| M022 | diagram-layout-blank | warning | yes (opt-in) | Opt-in: diagramLayout.json must be the blank layout (one 'All tables' diagram with no table boxes). Power BI never prunes the layout when tables are renamed or removed, so stale boxes pile up and clutter the Model view; a blank layout cannot go stale and the Model view arranges the tables itself. Auto-fix writes the blank layout. Leave the rule off if your team curates layouts. |
+
+### DAX (D)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| D001 | dax-delimiters | error | no | Every DAX expression in the model (measures, calculated columns, calculated-partition sources, calculation items, dynamic format strings) must have balanced parentheses, braces, brackets and quotes, with comments and string contents excluded. Each unbalanced expression is an error. The share of clean measure and calculated-column expressions is reported; below min_success_rate (default 0.90) one extra error says so. A model with tables but no measures gets a warning (usually a parsing or layout problem). |
+| D002 | nameof-resolution | error | no | Every NAMEOF() reference must resolve: NAMEOF('Table'[Member]) to a column or measure on that table, NAMEOF([Measure]) to an existing, unambiguous measure. Field parameters are built from NAMEOF tuples, so a broken reference invalidates the whole parameter table. An unparseable NAMEOF in a field-parameter row and a name that only matches with different casing are errors too; a table-qualified measure outside a field parameter and an ambiguous bare measure are warnings. Commented-out rows are never checked. 'excluded_tables' lists tables a reference must not point at. |
 | D003 | duplicate-measure-names | error | no | Measure names must be unique across the whole model: the tabular engine enforces model-wide uniqueness (case-insensitively), so two tables declaring the same measure name cannot deploy. Duplicates inside one table are reported by M012. |
-| D004 | dax-reference-resolution | error | no | Every table and column a DAX expression names must exist: 'T'[c], T[c] and a bare 'T' must resolve to a table (and a column or measure on it), case-insensitively. TMDL import does not check DAX names, so a renamed or deleted table imports cleanly and then fails on every visual that evaluates it ('Cannot find table'). A missing table or qualified column is an error. An unqualified [X] that matches no measure, no column and no name the expression itself introduces (ADDCOLUMNS, SELECTCOLUMNS, SUMMARIZECOLUMNS and similar name new columns with string literals) is a warning. Auto date/time tables (DateTableTemplate_*, LocalDateTable_*) are always legal. |
+| D004 | dax-reference-resolution | error | yes (unsafe) | Every table and column a DAX expression names must exist: 'T'[c], T[c] and a bare 'T' must resolve to a table (and a column or measure on it). TMDL import does not check DAX names, so a renamed or deleted table imports cleanly and then fails on every visual that evaluates it ('Cannot find table'). A missing table or qualified column is an error, and so is a name spelled with different casing from its declaration. An unqualified [X] that matches no measure, no column and no name the expression itself introduces is a warning, as is one that names a measure declared in several tables. Auto date/time tables are always legal. The fixer (unsafe: it runs only when D004 is selected explicitly) deletes whole generated 'ISFILTERED('<missing table>') \|\| ...' lines and nothing else. |
 | D005 | duplicate-var-in-scope | error | no | A DAX variable name must be unique within its scope. Declaring the same VAR twice at the outer level of an expression (a common merge accident) makes it fail on evaluation ('a table or variable with the same name already exists'). The same name inside separate nested sub-expressions is legal and is not reported. |
-| R001 | relationship-endpoints | error | no | Both endpoints of every relationship must exist: the from/to tables must be declared, and the referenced columns must exist on them (names compare case-insensitively). A relationship whose fromColumn or toColumn is missing or unreadable is reported too, never dropped. |
+| D010 | calc-dax-blocks-present | warning | no (opt-in) | Models built on field parameters and a format calculation group always carry calculated-table sources, calculation items or dynamic format strings. Finding none means the tables were lost or the layout changed under the parser, and every DAX check on those blocks would pass vacuously. Warns when fewer than min_blocks such blocks exist; the per-kind counts go to the report notes. Opt-in. |
+| D011 | calc-item-blind-average | error | no | A 'Daily' calculation item that averages every measure per day turns ratios (CTR, ROAS, %) into a mean of daily ratios, silently off by a large factor. The item must classify measures by name ("#", "/", " per "), test additivity (SUMX + ISNUMBER) and average only additive measures over the calendar (AVERAGEX). Models without the calculation-group table are skipped. |
+| D012 | dax-or-chain-depth | error | no | Analysis Services lowers each \|\| to a nested binary OR; a flat chain of more than max_or_chain (default 60) terms in one VAR deploys and then fails every query. The body is cut at each 'VAR name =' line and the worst chunk's \|\| count is compared (raw count, strings and comments included). or_chain_measures restricts the rule to listed measures (default: every measure and calculated column). |
+
+### Relationships (R)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| R001 | relationship-endpoints | error | no | Both endpoints of every relationship must exist: the from/to tables must be declared, and the referenced columns must exist on them. Names resolve case-insensitively, as Power BI does, but an endpoint spelled with different casing from its declaration is reported as an error too. A relationship whose fromColumn or toColumn is missing or unreadable is reported, never dropped. When the share of relationships with valid endpoints falls under min_endpoint_success_rate (default 0.95) the report notes it; the broken endpoints are errors whatever the share. |
 | R002 | relationship-cardinality | error | no | Declared fromCardinality/toCardinality values must be 'one' or 'many'; anything else is not a cardinality the engine accepts. |
 | R003 | relationship-duplicates | warning | no | Two relationships over the same column pair almost always mean a copy/paste or merge accident. Relationships are keyed on their endpoints (not their GUIDs) so re-saved models compare cleanly. |
 | R004 | relationship-bidirectional | info | no | Bidirectional cross-filtering is sometimes necessary but often a performance and correctness hazard (ambiguous filter paths). Each occurrence is surfaced so the modeler confirms it is intentional. |
 | R005 | orphan-tables | info | no | Data tables that participate in no relationship are usually load leftovers. Tables that are unrelated by design are exempt: measure-only tables, tables whose columns are all hidden (the measure-home pattern), hidden tables, calculated helper tables and field parameters. |
 | R006 | ambiguous-active-pair | error | no | At most one relationship between the same two tables may be active. A second active relationship makes the filter path ambiguous and the engine refuses to load the model. Mark all but one as 'isActive: false' and use USERELATIONSHIP() where the other path is needed. |
-| R007 | autodetected-relationships | warning | no | Relationships whose id starts with 'AutoDetected_' were created by Power BI Desktop's relationship autodetection, not by a modeler. They often join on columns that merely share a name. Review each one; keep it (Desktop then keeps the id, so ignore this rule or baseline it) or delete it and turn autodetection off. |
-| F001 | fieldparam-comma-runs | error | yes | Calculated-table sources (which include field-parameter tables) must not contain stray structural commas: two or more commas separated only by whitespace, typically left behind when a row was removed but its separator was not. One stray comma makes the whole source unparseable. Commas inside -- or // comments are exempt. Auto-fix keeps each run's first comma and deletes the orphans. |
-| F002 | fieldparam-missing-separator | error | yes | Rows of a { (...), (...) } table constructor (field parameters, calculated tables) must be separated by commas. A row appended after the previous last row without adding its comma makes the whole source unparseable; the table then loads empty. Auto-fix inserts the comma after the previous row. |
-| F003 | fieldparam-trailing-comma | error | yes | The last row of a { (...), (...) } table constructor must not be followed by a comma. A trailing comma before the closing brace, typically left behind when the last row is deleted, makes the source unparseable. Auto-fix deletes the comma. |
-| F004 | fieldparam-ragged-rows | warning | no | Every row of a { (...), (...) } table constructor should have the same number of values. A row with one value too many or too few usually means a missing or extra comma inside the row, which shifts values into the wrong columns or fails the source. Not auto-fixable: only a human knows which value is wrong. |
+| R007 | autodetected-relationships | error | yes (unsafe) | A relationship whose id contains 'autodetected' (any case) was invented by Power BI Desktop's relationship autodetection, which turns itself back on after Desktop updates. An active one changes results with no DAX change and can open a second filter path; an inactive one is indistinguishable from a deliberate one. Delete a wrong one in Model view; adopt a right one by removing the marker from its id. The fixer deletes the relationship blocks and runs only when R007 is selected explicitly or fix_autodetected_relationships is true; never in a blanket fix. |
+| R008 | fact-conformed-dimension-join | error | no | Every fact table must actively join a conformed dimension (configure dimension_table and key_column, for example an accounts table and its key): an ACTIVE relationship from the fact to dimension_table[key_column], whatever the fact's column is called. Without it a filter on that dimension silently returns unfiltered data. Offenders are classified 'missing relationship' (the fact has the key column) or 'missing key column'. 'exempt' maps tables to a mandatory reason; 'baseline' ratchets existing offenders per model. Facts follow the shared table-role law. Inert until configured. |
+| R009 | relationships-presence | warning | no (opt-in) | relationships.tmdl must exist and declare at least one complete relationship. A model that lost the file in a merge keeps loading, but every cross-table filter silently stops working. Opt-in: single-table models legitimately have none. |
+| R010 | relationship-cycles | info | no | A cycle of three or more tables over active relationships (A -> B -> C -> A, from table to to table) can make filter propagation ambiguous. Usually resolved with an inactive relationship and USERELATIONSHIP; advisory. A two-table reverse pair is R006's. |
+| R011 | fact-calendar-coverage | warning | no | A fact table with no relationship to the calendar cannot be sliced by date: time slicers return its unfiltered total. A fact counts as covered when it is the from side of any relationship (active or inactive, for USERELATIONSHIP) into the calendar table. One warning lists the uncovered facts when coverage falls under min_fact_coverage_percent (default 90). require_fact_link = false skips the rule; a model without the calendar table is not checked. |
+| R012 | calendar-relationship-cardinality | warning | no | A relationship into the calendar table should be many (fact dates) to one (calendar date). One-to-one or many-to-many usually means duplicate calendar dates or a relationship drawn backwards; totals then double count. |
+| R013 | calendar-standard-columns | info | no (opt-in) | Report authors expect a calendar with the usual levels (Date, Year, Quarter, Month, Week, Day by default). One info finding lists the missing ones. Opt-in. |
+| R014 | dimension-key-columns | info | no (opt-in) | A dimension table (name starts with '_') without a recognisable key column (…_id, date, …_date, …_level, .id, or a z- column) usually cannot be the one side of a relationship. Advisory, opt-in; require_dimension_keys = false skips it. |
+| R015 | cohort-calendar-reach | error | no | A cohort calendar (a table with a plain column whose name ends in 'Cohort Date', whatever the table is called) must reach every fact that carries its cohort subject within max_hops active relationship hops; otherwise every cohort measure on that fact blanks or repeats the total. Subjects are the dimensions the calendar filters; their facts are the many sides of those dimensions. |
+| R016 | dead-anchor-calendar | error | no | An anchor calendar (a table named '__…Calendar') that reaches no table through active relationships filters nothing: every cohort measure written against it renders the grand total or blanks. Calendars the template model also carries (set 'template' to its folder) and tables listed in 'retained' are not anchors. Use the baseline to accept known dead calendars. |
+
+### Field parameters and calculated sources (F)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| F001 | fieldparam-comma-runs | error | yes | Field-parameter files (and every other calculated-table source) must not contain stray structural commas: two or more commas separated only by whitespace, typically left behind when a row was removed but its separator was not. In a field-parameter file the whole file is scanned (rows, calculated columns). **Measured: the model still opens, but every visual that uses the field parameter fails ('Error fetching data for this visual. Failed to move the data reader to the next row.').** Commas inside comments and string literals are exempt. Auto-fix keeps each run's first comma and deletes the orphans. |
+| F002 | fieldparam-missing-separator | error | yes | Rows of a { (...), (...) } table constructor (field parameters, calculated tables) must be separated by commas. A row appended after the previous last row without adding its comma makes the whole source unparseable. The Desktop symptom is expected to match F001 (the model opens, visuals on the table fail), but it has not been observed for this defect on its own. Auto-fix inserts the comma after the previous row. |
+| F003 | fieldparam-trailing-comma | error | yes | The last row of a { (...), (...) } table constructor must not be followed by a comma. A trailing comma before the closing brace, typically left behind when the last row is deleted, makes the source unparseable; the Desktop symptom is expected to match F001 but has not been observed for this defect alone. Auto-fix deletes the comma. |
+| F004 | fieldparam-ragged-rows | error | yes | Every row of a field-parameter table must have the same number of values; the engine refuses to build the table otherwise ('Each tuple in table constructor must have the same number of columns'). The expected width is the most common one. Auto-fix pads a short row with the most common value of each missing position, or drops the one value of a long row no other row uses, and leaves two review comments above every edited row; an ambiguous long row is left for a human. |
+| F005 | fieldparam-category-column | error | no | In field parameters that carry a category column (configure category_column_tables, names or globs), every row needs the category: a 3-field row (label, NAMEOF, order) whose label has no 4-field twin in the same table silently drops out of every category filter. Only fenced calculated sources are read. Not auto-fixable: the category is a business decision. Inert until configured. |
+| F006 | fieldparam-duplicate-rows | error | yes | Two rows of an axis field parameter that agree on every field (label, NAMEOF target, order, group and the remaining values) list the same choice twice in the slicer. Rows that differ in group or order are distinct. Auto-fix keeps the first copy and removes later copies with exactly the same text; a copy written differently (the last row, without its comma) stays and keeps being reported. |
+| F007 | fieldparam-family-consistency | error | yes | The numbered tables of an axis family (x-Selector 1, 2, ...) must offer the same fields, so a field does not vanish when a report swaps slots. On the x axis the second plot-specific table belongs to the group but must not carry a 'date' field; the first plot-specific table may offer a subset, never a field the family lacks. Fields are identified by their NAMEOF target (a measure by name alone). Auto-fix comments out date rows, promotes plot-specific-only rows into the first numbered table, copies missing rows, and annotates every edit. |
+| F008 | fieldparam-arity | error | no | Every row of a field parameter must be as wide as the table's declared columns (the highest sourceColumn [ValueN]). When all rows agree with each other but not with the declared columns (a custom column was dropped while its per-row value stayed, or added without one), the calculated table does not compile and every visual bound to it breaks. Rows of mixed widths are F004's finding. Commas inside quoted labels are not separators. Not auto-fixable: only the author knows which value is wrong. |
+| F009 | fieldparam-level-consistency | error | no | Numbered drilldown levels of one field-parameter family (y-Selector 1, 2, ...) each hold their own copy of the dimension list. They must reference identical sets of NAMEOF targets, or a dimension is offered at some drill depths and vanishes at others. The family's subset tables (y-Plot Specific *) may only use targets the levels offer; rows pointing at the placeholder table are exempt. Configure families as {levels: 'name {n}', range: [lo, hi], subset: glob, placeholder_table: name}. |
+| F010 | fieldparam-retag | error | no (opt-in) | A display name must carry the same category (row value 4) in every sibling table of a field-parameter family. Retagging a row in some siblings and not others makes consumers that read different siblings disagree on what a category holds. Restricted to curated_categories when set; commented and bracket-labelled rows are ignored. Use 'tmdl-preflight fieldparam retag' to retag all siblings at once. |
+| F011 | fieldparam-category-required | error | no (opt-in) | In the numbered axis tables (x-Selector N, y-Selector N) value 4 of each row is its analysis category. A 3-value row (label, NAMEOF, order) belongs to no category and never appears under any analysis (unless the same label also has a categorised row). require_category = false skips the rule. |
+| F012 | fieldparam-coverage | info | no (opt-in) | Advisory audit of what the axis field parameters expose: user-facing measures on no metric axis, helper measures that are on one, dimension tables on no dimension axis, and axis rows that name a table that does not exist. |
+| F013 | field-parameter-table-no-measures | error | no | Field-parameter (axis selector) tables are regenerated from their row list; a measure parked on one is lost the next time the table is rebuilt from the template, breaking everything that calls it. Move the measure to a measures table (and update qualified references). |
+| F014 | selector-branch-resolution | error | yes | A selector measure maps the selected field-parameter key ("'Table'[object]") to a measure call, as a SWITCH branch. When a measure is deleted its axis rows go but the branch keeps calling it; the containing measure then fails when the model is processed, so refresh and deployment are rejected. Every bare [X] in the result part of a branch must name an existing measure; keys and commented (parked) branches are never judged. Auto-fix deletes the dangling branch lines (and a comma left before a closing parenthesis). |
+| F015 | field-parameter-partition-shape | info | no (opt-in) | Advisory shape check of the numbered axis tables: an import-mode calculated partition whose fenced source lists ("label", NAMEOF(...), ...) tuples. A DirectQuery or unknown mode, or a source without such tuples, means the table is not the field parameter the axis visuals expect. validate_field_parameter_pattern = false skips the rule. |
+
+### Analysis-category mapping (A)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| A001 | mapping-table-required-columns | error | no (opt-in) | The category-mapping table (which analysis category each axis group belongs to) must exist and declare its key columns (exact, case-sensitive names). Without them the category slicer and the per-category filter measures silently return nothing. enabled = false skips the rule. |
+| A002 | mapping-table-info-reports | info | no (opt-in) | Inventory for reviewers (never fails): the distinct group ids the axis field-parameter tables use, and how many relationships touch the mapping table (0 means it is used through DAX filtering only). |
+| A003 | mapping-category-required-keys | error | yes (opt-in) | Every analysis category whose data can be filtered by account must list the account groups (required_keys) in the mapping table; otherwise consumers that build per-category filter lists fail with 'filter dimension not found' for multi-account tenants. A category is exempt only when its measures are traced to fact tables and none of them has the account key column (those get a warning instead: the account filter would return unfiltered data). declared_removals lists [category, key] pairs removed on purpose. Auto-fix appends the missing rows to the encoded table; existing rows are untouched. |
+| A004 | category-gate-coverage | error | no (opt-in) | The f-All orchestrator measure gates every analysis category with IF(CONTAINSSTRING(all_cats, "<Category>"), IF([f-<Category>] > 0, ...)) in an AND chain and an OR chain. Six checks, named in each message: unpaired-chains (the chains gate different literals, error), undeclared-gate-measure (a live IF([f-X] > 0 names no declared f- measure, error), coverage-gap (a category with a resolvable f- measure has no gate, warning), ungated-without-measure (warning), inert-literal (a literal matches no registered category, error) and over-broad-literal (a literal matches several categories, warning). Coverage is substring based, as CONTAINSSTRING is. Categories come from the encoded mapping table; without one the last four checks are skipped. The baseline file (option baseline) accepts known findings per model and only shrinks: an entry that no longer applies is reported as stale. |
+| A005 | f-measure-pattern | warning | no (opt-in) | Every f- (visual-filter) measure must have a known shape: an existence check (ISEMPTY, ISINSCOPE or ISFILTERED), an aggregate of two or more f- measures joined by + - or *, a SWITCH(TRUE(), ...) router, or a display string (hosted in a w- table, or built with CONCATENATEX). Anything else usually lacks the existence check, so the visual filter keeps every row or none. |
+
+### Row-level security (L)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| L001 | rls-role-grammar | error | no | Every role needs 'modelPermission: read', and every tablePermission needs a filter expression ('tablePermission T = <DAX>'). A bare tablePermission is not a valid row filter; delete the line to grant the role full access to the table instead. |
+| L002 | rls-username-function | error | no | Row filters must identify the user with USERPRINCIPALNAME(). USERNAME() returns DOMAIN\user in Desktop and the UPN in the Service, so a filter written against one silently matches nothing in the other. |
+| L003 | rls-in-values-bypass | error | no | A row filter of the form '[col] IN VALUES(Mapping[col])' reads the mapping table without restricting it to the signed-in user, so every user sees every mapped value. Restrict it: CALCULATETABLE(VALUES(Mapping[col]), Mapping[UserPrincipalName] = USERPRINCIPALNAME()). |
+| L004 | rls-mapping-table-hidden | error | no | The user-mapping table (a table with a UserPrincipalName column) lists who may see what; left visible, report users can browse every user's e-mail and assignment. Hide the table. |
+| L005 | rls-mapping-table-no-relationship | error | no | The user-mapping table should be read only by the role filter (CALCULATETABLE ... USERPRINCIPALNAME()). A relationship to it makes report filters flow into the mapping and back, and RLS on a related table can block or widen access unexpectedly. Delete the relationship. |
+| L006 | rls-inventory | info | no (opt-in) | Inventory (never fails): the roles, their model permission and table filters, the user-mapping tables, and the resulting posture (no RLS, static, dynamic via a mapping table, or incomplete). |
+
+### Bookmarks and the report layer (B)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
 | B001 | bookmark-int-types | error | yes | Bookmark JSON requires howCreated, ComparisonKind and Version to be JSON integers. String values ('0', 'User', '2') make the report loader reject the bookmark with 'Expected Number but got String'. Auto-fix rewrites only the offending values in place, then proves the edit by parsing both versions of the file. |
 | B002 | bookmark-visual-refs | error | no | Every visualName a bookmark captures must resolve to an actual visual folder under pages/*/visuals/. A dangling reference means the visual was renamed or deleted after the bookmark was authored; the bookmark will silently no-op or break on apply. Not auto-fixable: the right resolution (restore the visual, retarget or delete the bookmark) depends on intent. |
 | B003 | bookmark-options-schema | error | yes | A bookmark's 'options' object may only contain targetVisualNames, applyOnlyToTargetVisuals, suppressData, suppressActiveSection and suppressDisplay. Any other key (a typo, or a key a script invented) fails schema validation and the report is rejected on import. Auto-fix cuts only the illegal members out of the file and proves the edit by parsing both versions. |
 | B004 | report-definition-integrity | error | no | The report definition must hold together: definition.pbir's byPath reference must point at an existing *.SemanticModel folder, every page listed in pages/pages.json (pageOrder, activePageName) must have its folder, and every page.json and visual.json must be valid JSON. Any of these breaks the report on open. |
+| B005 | pages-metadata-schema | error | no (opt-in) | Opt-in pin of the PBIR pages metadata: definition/pages/pages.json must exist, declare an accepted $schema (default: the 1.1.0 URL; accepted_schemas lists the versions your tooling expects) and a pageOrder array. A missing file or a pageOrder that is not a list breaks page navigation; an unexpected schema version means the file was written by a different tool version than the one you validate against. Unparseable JSON is B004's finding. |
+| B006 | hierarchy-level-binding-shape | error | no | A visual field bound to a hierarchy level must be written as HierarchyLevel: {Expression: {Hierarchy: ...}, Level: <name>}: the Level sits next to the Expression, never inside it. Any other shape does not match the report definition schema, so the report can fail to load. Unparseable visual.json files are reported too. |
+
+### Style and documentation (S)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
 | S001 | format-strings | info | no | Visible measures should declare a formatString; without one they render with engine defaults. A measure with its own formatStringDefinition is exempt, and a model whose calculation group items define format strings is exempt as a whole. Advisory only: run with --ignore S001 if formatting lives elsewhere. |
 | S002 | measure-descriptions | info | no | Visible measures should carry a real /// description: report authors see it as the field's tooltip, and it is the only place a measure's intent is written down. A description shorter than min_length characters (default 10) or containing a placeholder word (TODO, TBD, FIXME, ...) does not count. Both are configurable. |
+| S003 | format-inference-naming | info | no (opt-in) | When a calculation group picks formats from the measure name (currency for 'cost', percent for 'rate'), a visible measure in a measures table whose name carries no type indicator falls back to default formatting. Advisory, opt-in. |
+| S004 | comment-ticket-refs | error | no (opt-in) | Ticket numbers in model comments (#365, org/repo#12) mean nothing to the people reading the model and go stale; /// descriptions are the tooltips report users see. Ratcheted per model and class (description, inline) against a 'floors' file: a count above its floor fails, a missing file or entry means a floor of 0, and a count below its floor prints a tighten hint ('tmdl-preflight comment-refs --tighten'). Colours such as #FF00AA and names such as #Report Measures are not references. Opt-in. |
+| S005 | format-min-decimals | error | no | Some measures are only meaningful with decimals (a cost per conversion of 0.53). When a format calculation group picks the format by matching the measure name, a rename can send it to a whole-number arm and the visual shows '1'. For each expectation ({name, label?, min_decimals}) the name is resolved through the calculation group on the measure-name path and on every axis the group branches on; fewer decimals than required is an error. Unresolvable or non-numeric results are not findings. Inert until expectations are configured. |
+
+### Organisation: where measures live (O)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| O001 | user-only-table-purity | warning | no (opt-in) | Tables whose name starts with the user-only prefix (default '#') are meant to hold only measures report authors drag onto visuals. A helper measure there (by name: '-helper ...', 'i-...', '_...', a 'test' measure) pollutes the field list. Opt-in; nothing fails in Power BI. |
+| O002 | helper-measure-placement | warning | no (opt-in) | Each helper measure belongs in a table for its kind: measure helpers in the helper table, visual helpers there or in a w- table, diagnostics in a helper or diagnostic table, slicer helpers in the slicer table, intermediary helpers in a measures table. Profile 'strict' (warnings) also bans helpers from user-only (#) and dimension (_) tables and exempts field-parameter tables; profile 'lenient' (infos) judges only slicer, '-helper', visual and diagnostic helpers. Opt-in; the symptom is a confusing field list. |
+| O003 | user-facing-in-helper-tables | warning | no (opt-in) | A user-facing measure (by name) should not live in a dimension (_) table or a helper table (f-, w-, i- by default): report authors do not find it there, and it often gets hidden with the scaffolding around it. z- tables, user-only tables, measure containers, facts and field-parameter tables may host anything. Opt-in. |
+| O004 | measures-in-fact-tables | warning | no (opt-in) | Fact tables should hold data. A user-facing measure on a fact (one a field parameter surfaces, or a visible measure whose name is not a diagnostic, test, helper or lowercase name) is a warning; any other measure on a fact is listed as info with the reason it was not counted. Facts follow the shared table-role law. Opt-in. |
+| O005 | measures-in-dimension-tables | info | no (opt-in) | Dimension tables (name starts with '_' but not '__') carry attributes; measures on them are hard to find and move with the dimension when it is re-sourced. Advisory, opt-in. |
+| O006 | empty-measure-tables | info | no (opt-in) | A table named as a measures container (its name contains 'Measures') that holds no measures is usually a leftover after a move. Advisory, opt-in. |
+| O007 | dead-fact-tables | error | no (opt-in) | A fact table no measure reads (its only mentions are filter sensors such as ISFILTERED, or comments) is residue of an incomplete removal; sensing makes it look owned, so it is never dropped and keeps loading. Ratcheted: tables recorded in the 'baseline' file (a JSON object of model key to table list) pass, new ones fail, and recorded tables that are alive again print a tighten hint. A configured baseline file that does not exist is an error. Opt-in. |
+| O008 | intermediary-helper-folder | warning | no (opt-in) | Intermediary helper measures ('-Name') are building blocks other measures reuse; each needs a display folder so they stay grouped instead of cluttering the measure list. |
+| O009 | helper-measures-hidden | warning | yes (opt-in) | Helper measures (names classified as helpers) are plumbing and must be hidden, except the ones on the always_visible list that report pages bind directly. Auto-fix adds isHidden to the measure's property section. |
+| O010 | unused-helper-measures | info | no (opt-in) | Inventory (never fails): helper measures no expression in the model and no report file next to it references, and the most used helpers. Check the other models built from the same template before deleting one. |
+| O011 | user-facing-measure-visible | error | no (opt-in) | A measure whose name says it is for report authors (not a helper name) must not be hidden: hidden, it disappears from the field list and from Q&A. Either unhide it or rename it with a helper prefix; decide per measure. |
+| O012 | user-facing-display-folder | info | no (opt-in) | Advisory: user-facing measures without a display folder, with the folder coverage of the model. |
+| O013 | user-facing-measure-description | info | no (opt-in) | Advisory: user-facing measures (by name, hidden or not) whose /// description is missing or shorter than min_length characters (default 10). enabled = false skips the rule. |
+| O014 | table-description-coverage | info | no (opt-in) | Advisory: how many tables carry a /// description. |
+| O015 | fact-table-filter-coverage | error | no (opt-in) | Every fact table a user-facing measure reads (directly or through other measures) must also be read by some visual-filter measure (f- prefix); otherwise visual-level filters never narrow that fact's rows. Facts reached only through the analysis-category mechanism (an axis measure whose group maps to a category) are exempt. pbip-forge can write the missing filter measure. |
+
+### Contracts (C): the rules that encode a house rule
+
+Every C rule is inert until it is configured, and each one is a contract you
+declare: "this table must exist", "this measure must reference that table",
+"this ratio must be guarded". Use them to make a house rule executable
+rather than a habit.
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| C001 | required-model-objects | error | no | Infrastructure every report assumes (a format calculation group, a time-intelligence selector, a helper table) must exist. Configure 'tables' (exact names) and 'measures' (rules: a measure whose name contains all of 'contains', in a table whose name starts with 'table_prefix'; 'advisory' makes a miss a warning). A missing table is an error. With no configuration the rule reports nothing. |
+| C002 | model-contract-objects | error | no | Declared object contracts (contracts.objects): a table, column, calculated column or measure must exist; a column must keep its dataType; a calculated column's or measure's DAX must contain every listed token. Kinds: table_exists, column_exists, column_datatype, calculated_column_exists, calculated_column_contains, measures_exist, measure_contains. |
+| C003 | model-contract-relationships | error | no | Declared relationship contracts. 'axes': every edge touching a dimension is one of the sanctioned (table, column, active) edges, none comes from a forbidden table, and none is reversed. 'reach_guards': guarded tables have no active edge to a fact, control tables do, the graph has at least min_active_edges active edges, and the guard measure names every guarded table. contracts.relationships: 'table_edges' pins how many active edges leave a table and which one; 'edge_to' pins the edges into an endpoint and their state. |
+| C004 | fieldparam-registration-contract | error | no | Declared field-parameter registrations (contracts.fieldparam): rows of group G are the live lines naming "G"; their labels must include the expected ones (group_labels), their ordinals must stay inside the group's free gap (group_ordinal_range, column_registered) and be unique (group_unique_ordinals), and a table must be referenced by exactly N rows (group_table_rows). A field that is in the model but in no field parameter is silently unreachable. |
+| C005 | measure-reference-contract | error | no | Declared scoping contracts between measures: must_not_reference (a helper never names the listed tables), must_reference (a companion helper exists and names them all), co_reference (consumers that blank on one helper's literal also consult its partner) and must_not_divide (ratios divide a masked base, never the raw measure). A table is 'named' by 'Table' or Table[ outside comment lines. A contract applies only to models that hold its anchor. |
+| C006 | guarded-ratio-wrapper | error | no | When an attribution selector re-allocates counts only from a boundary date, a cost-per-count ratio over an earlier window divides all cost by the post-boundary count: plausible and wrong. Every such ratio (DIVIDE([numerator], [count]) where the count measure reads the selector) must start with IF([guard], BLANK(), ...); the guard must be inert on the measured option and use the boundary; the boundary must be derived, never a hard-coded DATE(). A recogniser self-test guards against passing vacuously. Inert until configured. |
+| C007 | typed-flag-predicates | error | no | Flag columns that share a prefix can be counts (int64) or booleans. '= 1' on a count drops every row with two or more events; '> 0' on a boolean is coerced silently. Count flags must be compared with > 0 or = 0 and never to a boolean; boolean flags never to a number. A recogniser self-test (minimum predicates, canaries, both flag types parsed) guards against passing vacuously. Inert until configured. |
+| C008 | measure-arm-scoped-filter | error | no | A measure that blends grains in arms (search term, keyword, ad, campaign) may need a filter on one arm only: KEEPFILTERS(NOT column IN {literals}) must sit on the target arm, the column must not be mentioned in any other arm, the literal set must be exactly the configured one, and a forbidden literal must never appear. The universe is the template plus every model declaring the measure; fewer than two models means discovery is broken. Inert until configured. |
+| C009 | reach-guard-helper-consistency | error | no | Reach-guard helpers blank a fact's measures when the filter cannot reach the fact. Each repeats the per-dimension test ISFILTERED('T') && NOT CALCULATE(..., REMOVEFILTERS(), VALUES('T')[key])); a dimension missing from one helper repeats the total on that family. All configured helpers must exist and list the same (table, key) pairs as the reference helper, cover every '_' dimension table (minus documented exclusions), key each table by the to-column of an active relationship (or its declared natural key), and never use a whole-table VALUES('T'). Inert until configured. |
+| C010 | grain-guard-coverage | error | no | Declared grain guards. 'models' (per model: guard_table, guard_measure, blocked_tables, permitted_tables, permitted_grains, guarded_ratios, reach_guard, reach_guard_overrides, guarded_counts, require_registered_columns): the fenced guard must name ISFILTERED of every blocked table and ISINSCOPE of every axis column of it; a permitted table is never blocked table-wide and its columns only member-conditionally (with SELECTEDVALUE); a permitted grain is never blocked; guarded ratios use the guard and no numeric floor; guarded counts use their reach guard. 'below' (model, host_table, guards {measure: [tables]}): each measure's guard names every axis column of the tables below its grain. Inert until configured. |
+| C011 | grain-policy-exception | error | no | A narrow exception helper may forgive a population filter (a policy slicer) that trips the grain guard, but only if it stays narrow: the shared guard never mentions it; it declares VAR coverageFloor within [floor_min, floor_max_exclusive) and uses it after RETURN; it requires NOT ISINSCOPE(policy column); and it re-checks the guard with the policy filter removed and requires that re-check = 1. Reports nothing when the helper is not declared. |
+| C012 | required-calc-groups | error | no (opt-in) | The calculation-group tables the report's selectors rely on must exist (exact names): by default the format selector (z-Selector Format) and the time-intelligence selector (z-Selector Time Intelligence Function), each switchable, plus any names listed. Without them every visual that applies the selector loses its format or its time logic. All switches off skips the rule. |
+
+### Refresh policy (P)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| P001 | refresh-policy-repair | error | yes (unsafe) | Structure of an existing refreshPolicy: declared before the table's partition and before table-level annotations; policyType basic; granularities day, month, quarter or year; periods whole numbers of at least 1; no unknown properties; a sourceExpression identical, line for line, to the M partition's source (Power BI requires them to match, otherwise refreshes fail or reload the wrong slice); and a windowed source (RangeStart plus a configured window marker, default RangeEnd). The fixer (unsafe: it runs only when this rule is selected) repairs both refresh-policy rules: it copies the partition source into a drifted sourceExpression (fix --only invalid), and adds the missing policy of an eligible fact P002 reports (fix --only missing): metadata only for an already windowed source, a rewrite from refresh_policy.inline_template for a loader call (a full refresh is then required). Other problems need a human. |
+| P002 | refresh-policy-coverage | warning | no (opt-in) | Every fact table eligible for incremental refresh carries a refreshPolicy, or is declared in the project's per-model backlog (refresh_policy.backlog); without one it reloads in full on every scheduled refresh. Eligible: one import M partition whose source is already windowed, or that calls the configured date-filter loader (refresh_policy.loader_function) with a date column and filtering on. Hand-written sources are listed as info. Backlog entries that are no longer eligible are stale and reported. The repair belongs to P001's fixer (fix --select refresh-policy-repair --only missing). |
+
+### Cross-fact and naming floors (X, N)
+
+| ID | Name | Severity | Fix | What it checks |
+|---|---|---|---|---|
+| X001 | cross-fact-multirow-key-join | error | no | Some dimensions carry several rows per real-world entity (a page dimension grained by URL x domain x source). Two facts loaded from different sources key the same entity to different rows, so 'A'[key] IN VALUES('B'[key]) intersects key spaces that never overlap: the measure returns blank and nothing errors. Lists the keys in multi_row_keys (empty by default: add a key only with row-count evidence); a comparison of the same table is not flagged. |
+| N020 | dimension-prefix-floor | warning | no (opt-in, off by default) | Opt-in and disabled by default (select it and set enabled = true): count the tables whose name starts with the dimension prefix and warn when there are fewer than min_dimension_tables. Useful for a template whose convention is a fixed set of dimensions; a copy that lost some fails here before anything is published. |
+
+## The configuration file and the profiles
+
+The project configuration lives in `[tool.tmdl-preflight]` in `pyproject.toml`,
+or in `.tmdl-preflight.toml` / `.tmdl-preflight.json`. The tool's own source
+names the top-level keys:
+
+`select`, `ignore`, `strict`, `severity_overrides`, `exclude`, `rules`,
+`exemptions`, `profiles` — plus the project-level sections `contracts`,
+`refresh_policy`, `live`, `advisory`, `table_roles`, `measure_classes`,
+`bookmarks`.
+
+A profile is a table of the same keys, merged over the base with `--profile
+NAME`. `--profile` without a configuration file, or with a name that does not
+exist, is an error, never a silent no-op. Unknown keys, unknown rule ids and
+wrongly typed options are errors too.
+
+```toml
+[tool.tmdl-preflight.profiles.ci]
+strict = true
+[tool.tmdl-preflight.profiles.ci.rules.S002]
+min_length = 20
+```
+
+An exemption needs a `reason` and can carry an `until` date, after which the
+rule is reported again. `severity_overrides` makes a rule bite harder in one
+project without editing the rule: `R007 = "error"`.
+
+## The live check (the only command that talks to the service)
+
+`live` is **opt-in** and the only command that reaches the Power BI REST API.
+It checks the published dataset: do the tables hold rows (a row-limit
+parameter left at `LIMIT 1` imports one row per table), do the measures
+evaluate, did the last refresh succeed and is the data fresh, plus a
+best-practice pass over the published metadata.
+
+- It signs in as a service principal (`PBI_TENANT_ID`, `PBI_CLIENT_ID`,
+  `PBI_CLIENT_SECRET`) or, with the optional `msal` package, interactively.
+  Credentials are never stored.
+- It refuses to run when the dataset name does not match the local model.
+  `--no-coupling-check` overrides; `--expect-name TEXT` accepts a workspace
+  name instead.
+- `--record DIR` saves every response and `--replay DIR` answers from such a
+  folder with no network access: use `--replay` to rehearse the check.
+- `--non-interactive` never opens a sign-in prompt (service principal only).
+- `--cache-ttl` sets the metadata cache lifetime (default 300 seconds).
+
+**Get the user's explicit yes before running it, and never let it run as a
+side effect of a lint.** Without a terminal, a service principal and
+`--non-interactive` are the only safe combination.
+
+## What the tool does not do
+
+- It does not prove the numbers are right. A ratio at the wrong grain passes
+  every rule here. For measure logic, use the `power-bi-definitions` skill's
+  audit reference and the `grain` command.
+- It does not open the model in Power BI Desktop. Only the Windows bench
+  measured that, and only for the defects listed above.
+- It does not judge a report's visuals against a brand. That is
+  `pbi-plot-styler`.
+- It does not apply the template's truth to a fleet of copies. That is
+  `tmdl-drift-doctor`.
