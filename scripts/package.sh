@@ -1,7 +1,7 @@
 #!/bin/sh
 # Build the release assets into dist/ (attach them to a GitHub Release).
 #
-#   swift-pbi-plugin.zip          Claude plugin: .claude-plugin/plugin.json,
+#   swift-pbi-plugin.zip          Claude plugin: .claude-plugin/plugin.json and icon.png,
 #                                 skills/, hooks/ at the zip root. Upload under
 #                                 Customize > Plugins in Claude (web or Desktop).
 #   swift-pbi-<skill>-skill.zip   one skill folder each, for Customize > Skills
@@ -67,6 +67,7 @@ zip_dir() { # zip the contents of directory $1 into $2
 P="$STAGE/plugin"
 mkdir -p "$P/.claude-plugin" "$P/hooks"
 cp "$ROOT/.claude-plugin/plugin.json" "$P/.claude-plugin/"
+cp "$ROOT/.claude-plugin/icon.png" "$P/.claude-plugin/"
 cp -R "$ROOT/skills" "$P/"
 cp "$ROOT/hooks/claude-hooks.json" "$ROOT/hooks/core.md" "$P/hooks/"
 cp "$ROOT/LICENSE" "$ROOT/README.md" "$P/"
