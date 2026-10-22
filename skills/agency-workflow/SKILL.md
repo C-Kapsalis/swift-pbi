@@ -31,7 +31,7 @@ fleet shares.
 
 The tool inventories this skill relies on (read from each tool's own
 listing): `skills/preflight/references/rules.md` (119 rules, 25 fixers),
-`skills/fleet-drift/references/drift-kinds.md` (41 remediable kinds),
+`skills/fleet-drift/references/drift-kinds.md` (47 remediable kinds),
 `skills/chart-style/references/canvas-rules.md` (44 check ids) and
 `skills/prototype-model/references/forge-rules.md` (22 spec rules).
 

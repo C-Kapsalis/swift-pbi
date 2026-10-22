@@ -35,10 +35,19 @@ claude.ai chat.
 ```
 DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor"
 PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
-$DRIFT --version          # prints: drift-doctor, version 1.1.0
+$DRIFT --version          # prints: drift-doctor, version 1.2.0
 ```
 
-In PowerShell, type the full `uvx ...` command instead of the variable. Run
+PowerShell (Windows):
+
+```powershell
+$DRIFT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0', 'drift-doctor')
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0', 'tmdl-preflight')
+uvx @DRIFT --version       # prints: drift-doctor, version 1.2.0
+```
+
+`uvx --from git+...` needs Git installed. In PowerShell, write `uvx @DRIFT`
+wherever this page writes `$DRIFT`. Run
 every `drift-doctor` command from the folder that holds `fleet.yml`, or pass
 `--fleet <path>`.
 
