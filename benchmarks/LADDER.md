@@ -49,9 +49,8 @@ legitimate, and the report must say so rather than call it drift.
 
 These are the tools' own output on the ladder, and they are what the
 graders check. They were produced by running the tools, not written from
-memory. They were measured at the `v1.1.0` tag; the ladder is a set of
-fixtures and expected verdicts, so re-running the tools at `v1.2.0` must
-reproduce them.
+memory. They were measured at the `v1.1.0` tag and re-measured at the
+pinned `v1.2.1` tag on 2026-10-22, with the same four lines as the result.
 
 | Rung | Tool | Output |
 |---|---|---|

@@ -1,5 +1,5 @@
 #!/bin/sh
-# pbi-plot-styler v1.2.0 on the coffee-roastery example it ships with
+# pbi-plot-styler v1.2.1 on the coffee-roastery example it ships with
 # (fictional, deliberately unstyled): integrity check, style preview, style,
 # re-run for idempotence. The fixture is read from the tool's own repo at the tag.
 . "$(dirname -- "$0")/lib.sh"

@@ -44,10 +44,10 @@ uvx --version            # any version prints: you can build
 ```
 
 ```
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
-FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge"
-DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor"
-STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight"
+FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.1 pbip-forge"
+DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor"
+STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler"
 ```
 
 In PowerShell, type the full `uvx ...` command instead of the variable.

@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
   <img src="https://img.shields.io/badge/Power%20BI-PBIP%20%C2%B7%20TMDL-111111?style=flat-square" alt="Power BI PBIP and TMDL">
-  <img src="https://img.shields.io/badge/tools-pinned%20v1.2.0-111111?style=flat-square" alt="Tools pinned to v1.2.0">
+  <img src="https://img.shields.io/badge/tools-pinned%20v1.2.1-111111?style=flat-square" alt="Tools pinned to v1.2.1">
   <img src="https://img.shields.io/badge/demo-reproducible-111111?style=flat-square" alt="Reproducible demo">
 </p>
 
@@ -54,7 +54,7 @@ from what the tools printed.
 <p align="center">
   <strong>A broken model: <!--PF_ERR_BEFORE-->2<!--/PF_ERR_BEFORE--> errors before, <!--PF_ERR_AFTER-->0<!--/PF_ERR_AFTER--> after one <code>fix</code>, each repair a one-line edit.</strong><br>
   <strong><!--CLIENTS-->4<!--/CLIENTS--> spinout models drifted from their template: <!--DRIFT_BEFORE-->8<!--/DRIFT_BEFORE--> findings before, <!--DRIFT_AFTER-->0<!--/DRIFT_AFTER--> after remediation.</strong><br>
-  <sub>Every number is copied from <a href="benchmarks/demo/output/">recorded tool output</a> at v1.2.0 on macOS, last re-recorded on 2026-10-22. All models and spinouts are fictional. <code>sh benchmarks/demo/run-all.sh</code> reproduces them.</sub>
+  <sub>Every number is copied from <a href="benchmarks/demo/output/">recorded tool output</a> at v1.2.1 on macOS, last re-recorded on 2026-10-22. All models and spinouts are fictional. <code>sh benchmarks/demo/run-all.sh</code> reproduces them.</sub>
 </p>
 
 The part I care most about is restraint. A measure that only one spinout has
@@ -92,8 +92,8 @@ winget install astral-sh.uv
 git clone https://github.com/C-Kapsalis/swift-pbi
 cd swift-pbi
 Copy-Item -Recurse examples\bike-shop-broken "$env:TEMP\bike-shop"
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check "$env:TEMP\bike-shop"
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix "$env:TEMP\bike-shop"
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight check "$env:TEMP\bike-shop"
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight fix "$env:TEMP\bike-shop"
 ```
 
 macOS, Linux (bash):
@@ -101,8 +101,8 @@ macOS, Linux (bash):
 ```sh
 git clone https://github.com/C-Kapsalis/swift-pbi && cd swift-pbi
 cp -R examples/bike-shop-broken /tmp/bike-shop
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check /tmp/bike-shop
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix /tmp/bike-shop
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight check /tmp/bike-shop
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight fix /tmp/bike-shop
 ```
 
 Or install the plugin and ask your agent: *"Lint the model in this folder and
@@ -152,10 +152,9 @@ block only on M003.
 
 ```
 fixed  M006: model.tmdl: + ref table Stores
-fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-…' -> '48d8ee70-…'
-fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '2d10f041-…'
+fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-…' -> '1294da3a-…'
+fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> 'd9fd07b2-…'
 fixed  F001: Metric Selector.tmdl: removed 1 orphan comma(s)
-not fixed  R007: its fixer can change data, so a blanket fix skips it; run 'fix --select R007' to apply it
 ```
 
 The new lineage tags are random, so they differ on every run.
@@ -173,7 +172,7 @@ person should decide those, so no fixer touches them. A second `fix` changes not
 
 ## What it does
 
-| Skill | Does | Tool (v1.2.0) |
+| Skill | Does | Tool (v1.2.1) |
 |---|---|---|
 | `prototype-model` | Interview, spec, build, validate, hand-off package | [pbip-model-forge], [tmdl-preflight] |
 | `preflight` | Lint, explain findings, fix with consent, re-check | [tmdl-preflight] |
@@ -196,7 +195,7 @@ history, row-level security).
 
 **For practitioners.** 119 lint rules on TMDL, 25 of them with a mechanical
 fixer, plus `baseline`, GitHub and SARIF output and a pre-commit hook for CI.
-(Those are the counts the pinned v1.2.0 release prints in its own
+(Those are the counts the pinned v1.2.1 release prints in its own
 `tmdl-preflight rules --json`; four of the 25 fixers, D004, R007, P001 and
 F016, run only when their rule is selected.) Spinout models kept in line with one template, with an
 allowlist of what may be auto-fixed and a ledger of what was retired. Reports
@@ -224,7 +223,7 @@ ever fixed automatically, and an override that names an object the template
 never had is an error, so stale exceptions cannot pile up.
 
 The skills run each tool with
-`uvx --from git+https://github.com/C-Kapsalis/<tool>@v1.2.0 <command>`, so
+`uvx --from git+https://github.com/C-Kapsalis/<tool>@v1.2.1 <command>`, so
 nothing is installed globally and every run uses the same tagged release.
 
 ## How it works
@@ -243,11 +242,11 @@ nothing is installed globally and every run uses the same tagged release.
 The rules live in [`AGENTS.md`](AGENTS.md); each skill is in
 [`skills/`](skills/).
 
-## Demo: real runs at v1.2.0
+## Demo: real runs at v1.2.1
 
 Every number below is copied from
 [benchmarks/demo/output/](benchmarks/demo/output/), last recorded on
-2026-10-22 on macOS with the v1.2.0 tools.
+2026-10-22 on macOS with the v1.2.1 tools.
 `sh benchmarks/demo/run-all.sh` reproduces them, and
 `python3 benchmarks/demo/hero.py` redraws the chart and refills the numbers in
 this README from that output. All models and spinouts are fictional.
@@ -263,12 +262,9 @@ first-draft spec for a bike repair workshop failed the hand-off profile with
 key (FM005), a per-customer ratio counted from the dimension instead of the
 fact (FM015), and a measure with no description (FM017). The corrected spec
 passed with 0 P0, <!--FORGE_P1_AFTER-->0<!--/FORGE_P1_AFTER--> P1, 0 P2. On
-the build (6 tables, 29 columns, 6 measures, 4 relationships) tmdl-preflight
-printed `2 error(s), 0 warning(s), 1 info(s)`: both errors are on the
-minimal report stub the forge writes (B007 `Missing report.json`, B005
-`pages.json` missing), and the info is R013 (calendar columns). With those
-two rules left out by name (`--ignore B005,B007`) it printed `0 error(s),
-0 warning(s), 1 info(s)`. The build wrote `handoff/SPEC.md` with a
+the build (6 tables, 29 columns, 6 measures, 4 relationships, and a PBIR
+report with one empty page) tmdl-preflight printed `0 error(s), 0 warning(s),
+1 info(s)` and exited 0; the info is R013 (calendar columns). The build wrote `handoff/SPEC.md` with a
 Mermaid diagram. Rebuilding gave byte-identical files.
 
 **One template, four spinout models** ([output](benchmarks/demo/output/03-drift.txt)).

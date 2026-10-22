@@ -17,14 +17,14 @@ Never state a count that is not in this file or in a fresh run of the tool.
 
 | Build | Rules | With a fixer | How it was measured |
 |---|---|---|---|
-| the pinned `v1.2.0` the plugin installs | **119** | **25** | `tmdl-preflight rules --json` at the `v1.2.0` tag; the same numbers the tool prints at the top of its markdown catalog: `Rules: 119 · auto-fixable: 25 · baselinable: 113` |
+| the pinned `v1.2.1` the plugin installs | **119** | **25** | `tmdl-preflight rules --json` at the `v1.2.1` tag (byte-identical to the `v1.2.0` catalog); the same numbers the tool prints at the top of its markdown catalog: `Rules: 119 · auto-fixable: 25 · baselinable: 113` |
 
-The 25 fixers in `v1.2.0` are A003, B001, B003, B007, D004, F001, F002,
+The 25 fixers in `v1.2.1` are A003, B001, B003, B007, D004, F001, F002,
 F003, F004, F006, F007, F014, F016, F017, M003, M004, M006, M011, M013,
 M019, M021, M022, O009, P001, R007.
 
 The `v1.1.0` tag is still on the repository, and it carried 37 rules with
-10 fixers. The plugin's pins are on `v1.2.0`, so quote the 119 and the 25
+10 fixers. The plugin's pins are on `v1.2.1`, so quote the 119 and the 25
 unless the user says otherwise.
 
 Prefixes: M model structure, D DAX, R relationships, F field parameters and
@@ -70,7 +70,7 @@ because …" — never "Power BI will refuse to open this model".
 
 ## The commands
 
-`tmdl-preflight --help` at `v1.2.0` lists 16 commands:
+`tmdl-preflight --help` at `v1.2.1` lists 16 commands:
 
 | Command | What it does |
 |---|---|
@@ -140,7 +140,7 @@ because …" — never "Power BI will refuse to open this model".
 
 ## The catalog
 
-Generated from `tmdl-preflight rules --json` at the pinned `v1.2.0` tag
+Generated from `tmdl-preflight rules --json` at the pinned `v1.2.1` tag
 (119 rules). `fix`: yes = the rule has a fixer; `yes (unsafe)` = the
 fixer runs only when the rule is selected explicitly, never in a blanket fix.
 `opt-in` = the rule is off unless it is selected. Regenerate this section

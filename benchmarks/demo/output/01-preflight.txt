@@ -1,8 +1,8 @@
 
 # Tool version
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight --version
-tmdl-preflight 1.2.0
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight --version
+tmdl-preflight 1.2.1
 [exit 0]
 
 # Rule catalog: rules and fixers
@@ -12,7 +12,7 @@ fixable ids: M006, M003, M004, M011, M013, M019, P001, M021, M022, D004, R007, F
 
 # Check the clean copy
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check bike-shop-clean
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight check bike-shop-clean
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
@@ -99,7 +99,7 @@ tmdl-preflight: 0 error(s), 0 warning(s), 7 info(s)
 
 # Check the broken copy (read-only)
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check bike-shop-broken
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight check bike-shop-broken
 BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl:45  F001 error: 1 orphan comma(s). Power BI Desktop still opens the model, but every visual that uses this table fails ('Error fetching data for this visual'). Delete the orphan comma(s) (the auto-fix does). [Metric Selector (field-parameter file)] (auto-fixable)
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
@@ -201,12 +201,11 @@ findings: 12
 
 # Fix a copy, then the tool re-checks from disk
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix bike-shop-fixed
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight fix bike-shop-fixed
 fixed  M006: model.tmdl: + ref table Stores
-fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' -> '48d8ee70-1682-4e1a-893d-24b0b43872eb'
-fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> '2d10f041-9390-471c-8a59-b39ac1ef2959'
+fixed  M003: Stores.tmdl:3 (table Stores): 'e689596a-59ea-4b2c-a14d-48596a7b8c9d' -> '1294da3a-5d35-44aa-b7db-de9f058d0562'
+fixed  M004: __Calendar.tmdl:4 (table __Calendar): 'calendar-tag-TODO' -> 'd9fd07b2-8ec6-46e8-bd8f-53c690da61f0'
 fixed  F001: Metric Selector.tmdl: removed 1 orphan comma(s)
-not fixed  R007: its fixer can change data, so a blanket fix skips it; run 'fix --select R007' to apply it
 
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
@@ -297,7 +296,7 @@ Removed 1 orphan comma(s) across 1 file(s). Commit the changes and re-sync the a
 
 # Independent re-check of the fixed copy
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check bike-shop-fixed
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight check bike-shop-fixed
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]
@@ -391,16 +390,16 @@ findings: 8
 
 # What the fixers changed (unified diff, broken vs fixed)
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 18:04:40
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 18:04:50
+--- bike-shop-broken/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 19:24:13
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/model.tmdl	2026-10-22 19:24:23
 @@ -19,3 +19,4 @@
  ref table 'Sales Measures'
  ref table 'Metric Selector'
  
 +ref table Stores
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 18:04:40
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 18:04:50
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 19:24:13
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Metric Selector.tmdl	2026-10-22 19:24:23
 @@ -43,7 +43,7 @@
  				{
  				    ( "Revenue", NAMEOF ( [Revenue] ), 0 ),
@@ -411,25 +410,25 @@ diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Metric Select
  				}
  
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 18:04:40
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 18:04:50
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 19:24:13
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/Stores.tmdl	2026-10-22 19:24:23
 @@ -1,6 +1,6 @@
  /// One row per retail store.
  table Stores
 -	lineageTag: e689596a-59ea-4b2c-a14d-48596a7b8c9d
-+	lineageTag: 48d8ee70-1682-4e1a-893d-24b0b43872eb
++	lineageTag: 1294da3a-5d35-44aa-b7db-de9f058d0562
  
  	column store_id
  		dataType: int64
 diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl
---- bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 18:04:40
-+++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 18:04:50
+--- bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 19:24:13
++++ bike-shop-fixed/BikeShop.SemanticModel/definition/tables/__Calendar.tmdl	2026-10-22 19:24:23
 @@ -1,7 +1,7 @@
  /// Central date dimension. Self-contained calculated table so it always
  /// populates without an external source.
  table __Calendar
 -	lineageTag: calendar-tag-TODO
-+	lineageTag: 2d10f041-9390-471c-8a59-b39ac1ef2959
++	lineageTag: d9fd07b2-8ec6-46e8-bd8f-53c690da61f0
  	dataCategory: Time
  
  	column Date
@@ -440,9 +439,7 @@ diff -ru bike-shop-broken/BikeShop.SemanticModel/definition/tables/__Calendar.tm
 
 # Second fix run: should apply nothing
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix bike-shop-fixed
-not fixed  R007: its fixer can change data, so a blanket fix skips it; run 'fix --select R007' to apply it
-
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight fix bike-shop-fixed
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:5  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Revenue]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:9  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Orders #]]
 BikeShop.SemanticModel/definition/tables/Sales Measures.tmdl:13  S002 info: visible measure has no /// description, so report authors get no tooltip explaining it. Add a /// line directly above the measure saying what it calculates. [Sales Measures[Average Order Value]]

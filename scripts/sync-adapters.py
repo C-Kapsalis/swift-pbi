@@ -36,23 +36,24 @@ def knowledge_copies():
         if ref.name in seen:
             raise SystemExit(f"duplicate reference name {ref.name}: {seen[ref.name]} and {ref}")
         seen[ref.name] = ref
-        yield KNOWLEDGE / ref.name, ref.read_text()
+        yield KNOWLEDGE / ref.name, ref.read_text(encoding="utf-8")
 
 
 def main() -> int:
     check = "--check" in sys.argv
-    body = (REPO / "AGENTS.md").read_text()
+    body = (REPO / "AGENTS.md").read_text(encoding="utf-8")
     targets = list(knowledge_copies())
     targets += [(REPO / rel, head + body) for rel, head in ADAPTERS.items()]
     stale = []
     for path, want in targets:
         rel = path.relative_to(REPO)
         if check:
-            if not path.exists() or path.read_text() != want:
+            if not path.exists() or path.read_text(encoding="utf-8") != want:
                 stale.append(str(rel))
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(want)
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(want)
         print(f"wrote {rel}")
     if check:
         expected = {p.name for p, _ in knowledge_copies()}

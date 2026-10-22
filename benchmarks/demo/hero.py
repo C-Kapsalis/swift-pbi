@@ -3,10 +3,12 @@
 Every number comes from benchmarks/demo/output/*.txt, so the README cannot
 drift from what the tools printed. Run after run-all.sh:
 
-    python3 benchmarks/demo/hero.py
+    python3 benchmarks/demo/hero.py          # write
+    python3 benchmarks/demo/hero.py --check  # exit 1 if a file is stale
 
 Writes assets/demo-hero-{light,dark}.svg and replaces each
-<!--KEY-->value<!--/KEY--> marker in README.md.
+<!--KEY-->value<!--/KEY--> marker in README.md. The tag in the title is
+read from output/00-environment.txt.
 """
 import re
 import sys
@@ -33,9 +35,9 @@ def num(pattern, text, what):
 
 
 def read_numbers():
-    pf = (OUT / "01-preflight.txt").read_text()
-    fg = (OUT / "02-forge.txt").read_text()
-    dr = (OUT / "03-drift.txt").read_text()
+    pf = (OUT / "01-preflight.txt").read_text(encoding="utf-8")
+    fg = (OUT / "02-forge.txt").read_text(encoding="utf-8")
+    dr = (OUT / "03-drift.txt").read_text(encoding="utf-8")
     broken = section(pf, "Check the broken copy")
     recheck = section(pf, "Independent re-check")
     p1 = [int(x) for x in re.findall(r"pbip-forge check \(handoff\): \d+ P0, (\d+) P1", fg)]
@@ -95,7 +97,16 @@ def chart(rows, title, desc, theme):
     return "\n".join(p) + "\n"
 
 
+def tag():
+    env = (OUT / "00-environment.txt").read_text(encoding="utf-8")
+    m = re.search(r"^tag: (\S+)$", env, re.M)
+    if not m:
+        sys.exit("hero.py: no 'tag:' line in output/00-environment.txt")
+    return m.group(1)
+
+
 def main():
+    check = "--check" in sys.argv
     n = read_numbers()
     rows = [
         ("Preflight errors in a broken model", n["PF_ERR_BEFORE"], n["PF_ERR_AFTER"]),
@@ -103,22 +114,36 @@ def main():
         (f"Drift findings across {n['CLIENTS']} spinout models", n["DRIFT_BEFORE"], n["DRIFT_AFTER"]),
         ("Spinout models failing preflight", n["CLIENT_ERR_BEFORE"], n["CLIENT_ERR_AFTER"]),
     ]
-    title = "Recorded runs at v1.2.0, fictional models"
+    title = f"Recorded runs at {tag()}, fictional models"
     desc = "Before and after one swift-pbi pass. " + "; ".join(
         f"{lab}: {a} before, {b} after" for lab, a, b in rows) + "."
     assets = ROOT / "assets"
-    assets.mkdir(exist_ok=True)
-    for theme in THEMES:
-        (assets / f"demo-hero-{theme}.svg").write_text(chart(rows, title, desc, theme))
+    targets = {assets / f"demo-hero-{theme}.svg": chart(rows, title, desc, theme)
+               for theme in THEMES}
     readme = ROOT / "README.md"
-    text = readme.read_text()
+    text = readme.read_text(encoding="utf-8")
     for key, value in n.items():
         text = re.sub(rf"<!--{key}-->.*?<!--/{key}-->", f"<!--{key}-->{value}<!--/{key}-->", text)
-    readme.write_text(text)
+    targets[readme] = text
+    if check:
+        stale = [str(p.relative_to(ROOT)) for p, want in targets.items()
+                 if not p.exists() or p.read_text(encoding="utf-8") != want]
+        for s in stale:
+            print(f"stale: {s}")
+        if stale:
+            print("run: python3 benchmarks/demo/hero.py")
+            return 1
+        print("hero assets and README numbers match benchmarks/demo/output/")
+        return 0
+    assets.mkdir(exist_ok=True)
+    for path, want in targets.items():
+        with open(path, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(want)
     print("wrote assets/demo-hero-{light,dark}.svg and README numbers:")
     for key, value in n.items():
         print(f"  {key}={value}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

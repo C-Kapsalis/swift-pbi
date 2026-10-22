@@ -33,17 +33,17 @@ Claude Desktop, Codex or another agent with a terminal). It does not run in
 claude.ai chat.
 
 ```
-DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor"
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
-$DRIFT --version          # prints: drift-doctor, version 1.2.0
+DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 drift-doctor"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight"
+$DRIFT --version          # prints: drift-doctor, version 1.2.1
 ```
 
 PowerShell (Windows):
 
 ```powershell
-$DRIFT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0', 'drift-doctor')
-$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0', 'tmdl-preflight')
-uvx @DRIFT --version       # prints: drift-doctor, version 1.2.0
+$DRIFT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1', 'drift-doctor')
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1', 'tmdl-preflight')
+uvx @DRIFT --version       # prints: drift-doctor, version 1.2.1
 ```
 
 `uvx --from git+...` needs Git installed. In PowerShell, write `uvx @DRIFT`

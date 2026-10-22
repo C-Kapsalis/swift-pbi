@@ -7,8 +7,8 @@ change, so re-read their pages before submitting.
 ## Before any submission
 
 1. The four tool repositories (tmdl-preflight, pbip-model-forge,
-   tmdl-drift-doctor, pbi-plot-styler) are public, with tag `v1.2.0`. Until
-   then `uvx --from git+https://...@v1.2.0` fails for anyone without access,
+   tmdl-drift-doctor, pbi-plot-styler) are public, with tag `v1.2.1`. Until
+   then `uvx --from git+https://...@v1.2.1` fails for anyone without access,
    and every skill fails with it.
 2. This repository is public.
 3. Validate the Claude plugin and the skills:

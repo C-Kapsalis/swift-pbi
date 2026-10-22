@@ -1,14 +1,14 @@
 
 # Tool version and rule count
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge --version
-pbip-forge 1.2.0
+$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.1 pbip-forge --version
+pbip-forge 1.2.1
 [exit 0]
 modeling rules: 22
 
 # Gate 1 on the first draft (dimension-side count, orphan key, empty description)
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge check bike-repair-draft.json --profile handoff
+$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.1 pbip-forge check bike-repair-draft.json --profile handoff
 P1 FM005 'Repairs'[customer_id]: value(s) -1 not found in Customers[customer_id]
     fix: Add an 'Unknown' row (for example key -1) to the dimension and point unmatched or null foreign keys at it.
 P1 FM015 'Workshop Measures'[Billed per Customer]: DIVIDE denominator counts dimension table 'Customers', so filters from other dimensions do not reach it
@@ -20,107 +20,19 @@ pbip-forge check (handoff): 0 P0, 3 P1, 0 P2
 
 # Gate 1 on the corrected spec
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge check bike-repair.json --profile handoff
+$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.1 pbip-forge check bike-repair.json --profile handoff
 pbip-forge check (handoff): 0 P0, 0 P1, 0 P2
 [exit 0]
 
 # Build (refuses to write if gate 1 finds a P0 or P1)
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge build bike-repair.json out/BikeRepair --check --profile handoff
+$ uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.1 pbip-forge build bike-repair.json out/BikeRepair --check --profile handoff
 Built PBIP: out/BikeRepair/BikeRepair.pbip
 [exit 0]
 
 # Gate 2: structural validation of the generated files
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check out/BikeRepair
-BikeRepair.Report  B007 error: BikeRepair.Report: Missing report.json (neither at root nor in definition/)
-BikeRepair.Report/definition/pages/pages.json  B005 error: definition/pages/pages.json is missing; the report has no pages metadata. Save the report again from Power BI Desktop (PBIR format). [BikeRepair.Report]
-BikeRepair.SemanticModel/definition/tables/__Calendar.tmdl  R013 info: calendar __Calendar has no Year, Month, Week, Day column(s). [__Calendar]
-
-scanned: 1 model, 6 tables, 29 columns, 6 measures, 4 relationships, 7 DAX expressions, 1 report
-DAX Validation Summary:
-   Total expressions: 6
-   Valid: 6 (100.0%)
-   Invalid: 0 (0.0%)
-R001: BikeRepair.SemanticModel
-Validated 4 relationships
-   Errors: 0
-   Warnings (inactive): 0
-   Success rate: 100.0%
-R002: BikeRepair.SemanticModel
-Cardinality Distribution:
-   many_to_one            4
-R004: BikeRepair.SemanticModel
-Cross-filtering Analysis:
-   Unidirectional: 4
-   Bidirectional: 0
-Bidirectional count is acceptable (<=3)
-R005: BikeRepair.SemanticModel
-Total tables: 6
-With relationships: 5
-Orphans: 1
-
-Orphan Categories:
-   - Plot Specific tables: 0
-   - Selector tables: 0
-   - Measure tables: 1
-   - Other: 0
-
-Expected orphans (Plot Specific/Selector/Measure): 1
-Unexpected orphans: 0
-R009: BikeRepair.SemanticModel
-Found 4 relationships (4 active, 0 inactive)
-R010: BikeRepair.SemanticModel
-Circular Dependency Analysis:
-   Active relationships checked: 4
-   Tables in graph: 1
-   Cycles detected: 0
-R012: BikeRepair.SemanticModel
-Calendar Relationship Cardinality:
-Total calendar relationships: 1
-Valid (many-to-one): 1
-Invalid cardinality: 0
-R013: BikeRepair.SemanticModel
-Calendar Table Completeness:
-Total columns: 11
-Standard columns present: 2/6
-
-Present standard columns:
-  - Date
-  - Quarter
-
-Advisory - Missing standard columns:
-  - Year
-  - Month
-  - Week
-  - Day
-
-These columns are recommended for complete date hierarchies.
-
-Additional columns (9):
-  - Calendar Month
-  - Calendar Month Name
-  - Calendar Quarter
-  - Calendar Year
-  - Day of Week
-  - Day of Week Number
-  - Month Start
-  - Week Start
-  - Year-Month
-R014: BikeRepair.SemanticModel
-Total dimension tables (_prefix): 1
-With key columns: 1 (100.0%)
-Without apparent keys: 0
-
-All dimension tables have key columns matching the canonical patterns.
-No x-/y-Selector field-parameter files found under out/BikeRepair/BikeRepair.SemanticModel/definition
-No .bookmark.json files found under out/BikeRepair
-tmdl-preflight: 2 error(s), 0 warning(s), 1 info(s)
-[exit 1]
-
-# Gate 2 on the model, without the two report-stub rules (B005, B007)
-
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check out/BikeRepair --ignore B005,B007
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight check out/BikeRepair
 BikeRepair.SemanticModel/definition/tables/__Calendar.tmdl  R013 info: calendar __Calendar has no Year, Month, Week, Day column(s). [__Calendar]
 
 scanned: 1 model, 6 tables, 29 columns, 6 measures, 4 relationships, 7 DAX expressions, 1 report
@@ -204,8 +116,8 @@ No .bookmark.json files found under out/BikeRepair
 tmdl-preflight: 0 error(s), 0 warning(s), 1 info(s)
 [exit 0]
 
-$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight stats out/BikeRepair
-files                        10
+$ uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1 tmdl-preflight stats out/BikeRepair
+files                        14
 models                       1
 tables                       6
 columns                      29
@@ -216,7 +128,7 @@ calculation groups           0
 expressions                  0
 tmdl files                   9
 reports                      1
-pages                        0
+pages                        1
 visuals                      0
 bookmarks                    0
 hidden tables                1
@@ -241,6 +153,10 @@ tables with refresh policy   0
 # Generated files
 ./BikeRepair.Report/.platform
 ./BikeRepair.Report/definition.pbir
+./BikeRepair.Report/definition/pages/72a5b55625ab596a8d05/page.json
+./BikeRepair.Report/definition/pages/pages.json
+./BikeRepair.Report/definition/report.json
+./BikeRepair.Report/definition/version.json
 ./BikeRepair.SemanticModel/.platform
 ./BikeRepair.SemanticModel/definition.pbism
 ./BikeRepair.SemanticModel/definition/database.tmdl
@@ -259,7 +175,7 @@ tables with refresh policy   0
 # Hand-off pack: SPEC.md (first 60 lines)
 # BikeRepair: model spec
 
-Generated by pbip-model-forge 1.2.0 from the model's spec dict. Regenerate it rather than editing it by hand.
+Generated by pbip-model-forge 1.2.1 from the model's spec dict. Regenerate it rather than editing it by hand.
 
 ## Diagram
 

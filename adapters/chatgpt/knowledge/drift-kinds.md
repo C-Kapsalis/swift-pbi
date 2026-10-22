@@ -14,12 +14,12 @@ Never state a count that is not in this file or in a fresh run of the tool.
 
 | Build | Commands | How it was measured |
 |---|---|---|
-| the pinned `v1.2.0` the plugin installs | **20** | `drift-doctor --help` at the `v1.2.0` tag |
+| the pinned `v1.2.1` the plugin installs | **20** | `drift-doctor --help` at the `v1.2.1` tag (the same 20 as `v1.2.0`) |
 
 The older `v1.1.0` tag is still on the repository, and it carried 7
 commands (`drift-doctor --help` at that tag): `audit`, `capture`, `detect`,
 `ledger`, `ratchet`, `remediate`, `review`.
-The plugin's pins are on `v1.2.0`, so quote the 20 unless the user says
+The plugin's pins are on `v1.2.1`, so quote the 20 unless the user says
 otherwise.
 
 ## The commands
@@ -193,7 +193,7 @@ Remove the column; a source-cleanup notice follows.
 The ratchet's `INTRINSIC` list names `ifilter`, `visibility` and
 `ffilter.coverage_gap`: those kinds never count towards a floor. One kind the
 remediation writer list names, `selector.dangling_branch`, has no detection
-pass at `v1.2.0`, so a run will not report it. Do not promise a finding the
+pass at `v1.2.1`, so a run will not report it. Do not promise a finding the
 tool cannot produce.
 
 ## Result words in `remediate`

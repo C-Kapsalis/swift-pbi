@@ -1,5 +1,5 @@
 #!/bin/sh
-# pbip-model-forge v1.2.0: judge a flawed first draft of a spec, judge the
+# pbip-model-forge v1.2.1: judge a flawed first draft of a spec, judge the
 # corrected spec, build the PBIP, validate it with tmdl-preflight, and show
 # the hand-off pack an engineer receives. The spec is fictional.
 . "$(dirname -- "$0")/lib.sh"
@@ -24,11 +24,6 @@ run $FORGE build bike-repair.json out/BikeRepair --check --profile handoff
 
 note "Gate 2: structural validation of the generated files"
 run $PREFLIGHT check out/BikeRepair
-
-# v1.2.0: the two errors above are B007 and B005 on the forge's report stub
-# (definition.pbir only). The model gate leaves those two out, by name.
-note "Gate 2 on the model, without the two report-stub rules (B005, B007)"
-run $PREFLIGHT check out/BikeRepair --ignore B005,B007
 run $PREFLIGHT stats out/BikeRepair
 
 note "Generated files"

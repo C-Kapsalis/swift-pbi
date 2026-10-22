@@ -1,13 +1,13 @@
 
 # Tool version
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler --version
-pbi-plot-styler, version 1.2.0
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler --version
+pbi-plot-styler, version 1.2.1
 [exit 0]
 
 # Integrity check (bindings, bookmarks, field parameters, themes)
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler check Roastery.Report
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler check Roastery.Report
 
 Checked 1 report(s): 0 error(s), 0 warning(s).
 [exit 0]
@@ -20,7 +20,7 @@ diff lines in preview: 0
 
 # Style for real
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler Roastery.Report
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler Roastery.Report
   5dd25eb672a72da45096: dataPoint 0 -> 5, labels 0 -> 6 (5 line measures each; 1 columns-role measure(s) excluded; 1 bar-side entry preserved)
 
 Models resolved: 1
@@ -29,13 +29,13 @@ rebuilt 1/1 combo chart(s).
 
 # Run again: nothing should change
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler Roastery.Report
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler Roastery.Report
 
 Models resolved: 1
 rebuilt 0/1 combo chart(s).
 [exit 0]
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler Roastery.Report --dry-run
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler Roastery.Report --dry-run
 
 Models resolved: 1
 All 1 combo chart(s) already in sync.
@@ -43,7 +43,7 @@ All 1 combo chart(s) already in sync.
 
 # Integrity check after styling
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler check Roastery.Report
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler check Roastery.Report
 
 Checked 1 report(s): 0 error(s), 0 warning(s).
 [exit 0]
@@ -51,7 +51,7 @@ Checked 1 report(s): 0 error(s), 0 warning(s).
 # Break a binding on purpose: rename a measure in the model only
 renamed Revenue -> Net Revenue in Sales Measures.tmdl
 
-$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler check Roastery.Report
+$ uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler check Roastery.Report
 ERROR    BND001  Roastery.Report/definition/pages/a1f935c9ad3918c55c49/visuals/5dd25eb672a72da45096/visual.json: measure 'Revenue' is not declared on table 'Sales Measures'
 ERROR    BND002  Roastery.Report/definition/pages/a1f935c9ad3918c55c49/visuals/5dd25eb672a72da45096/visual.json: queryRef 'Sales Measures.Revenue' does not resolve
 

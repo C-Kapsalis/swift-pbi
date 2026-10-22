@@ -1,5 +1,5 @@
-date: 2026-10-22T15:04Z
+date: 2026-10-22T16:24Z
 os: Darwin 27.0.0
 uv: uv 0.11.20 (Homebrew 2026-06-10 aarch64-apple-darwin)
-python3: Python 3.14.5
-tag: v1.2.0
+python3: Python 3.9.6
+tag: v1.2.1

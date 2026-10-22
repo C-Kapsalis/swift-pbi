@@ -41,15 +41,15 @@ Claude Desktop, Codex or another agent with a terminal). It does not run in
 claude.ai chat.
 
 ```
-STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
-$STYLER --version         # prints: pbi-plot-styler, version 1.2.0
+STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler"
+$STYLER --version         # prints: pbi-plot-styler, version 1.2.1
 ```
 
 PowerShell (Windows):
 
 ```powershell
-$STYLER = @('--from', 'git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0', 'pbi-plot-styler')
-uvx @STYLER --version      # prints: pbi-plot-styler, version 1.2.0
+$STYLER = @('--from', 'git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1', 'pbi-plot-styler')
+uvx @STYLER --version      # prints: pbi-plot-styler, version 1.2.1
 ```
 
 `uvx --from git+...` needs Git installed. In PowerShell, write `uvx @STYLER`
@@ -110,7 +110,7 @@ agrees; it repairs BMK001 and BMK002 alone and verifies each edit.
 | PLH001 | A visual binds a placeholder its axis does not offer: the legend shows a blank column. |
 | YCG001, YCG002 | The y-combo group is misnamed or a member is outside it: the report's own tooling cannot find the group. |
 | POS001 | A visual has no position: it lands on top of another. |
-| ABK000, ABK001, ABK003 to ABK010, PGW001, PGW002 (there is no ABK002 at `v1.2.0`) | An answer bookmark shows the wrong answer: the matrix capture holds another question's fields, the category is not pinned, a picker selects nothing, a row field has no dropdown, a raw measure sits in the parameter well, or the navigator points at a bookmark with no file. |
+| ABK000, ABK001, ABK003 to ABK010, PGW001, PGW002 (there is no ABK002 at `v1.2.1`) | An answer bookmark shows the wrong answer: the matrix capture holds another question's fields, the category is not pinned, a picker selects nothing, a row field has no dropdown, a raw measure sits in the parameter well, or the navigator points at a bookmark with no file. |
 | BML001, BML002 | A saved selection names a field the axis does not offer: the bookmark applies a filter that resolves to nothing. |
 
 ### Which fixes are mechanical, and which need a person
@@ -149,7 +149,7 @@ $STYLER check <path> --rule slicer-gates --rule slicer-mode-gates --rule categor
 $STYLER check <path> --rule theme --rule visual-position --rule y-combo
 $STYLER check <path> --rule filter-panel --rule format-selector --rule stale-placeholders
 $STYLER check <path> --rule answer-bookmarks --rule bookmark-literals
-$STYLER check <path> --summary          # compliance with the four foundation rules; never fails
+$STYLER check <path> --summary          # the four foundation rules, only their scored ids; never fails
 ```
 
 | Slug | What it protects | Ids |
