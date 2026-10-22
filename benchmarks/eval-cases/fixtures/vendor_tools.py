@@ -20,7 +20,7 @@ Each repo root defaults to the one under `~/Documents/GitHub/`:
     pbip-model-forge/pbip-model-forge
     pbi-plot-styler/pbi-plot-styler
 
-Each repo is exported at its pinned `v1.1.0` tag, so the sandbox runs
+Each repo is exported at its pinned `v1.2.0` tag, so the sandbox runs
 exactly what the plugin's pins install. Git, uv and the standard library
 only.
 """
@@ -35,7 +35,7 @@ import sys
 import tarfile
 from pathlib import Path
 
-TAG = "v1.1.0"
+TAG = "v1.2.0"
 
 DEFAULT_REPOS = [
     "tmdl-preflight/tmdl-preflight",

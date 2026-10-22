@@ -52,12 +52,12 @@ The expected counts in the graders are not written from memory. They were
 produced by running the pinned tools on the fixtures:
 
 ```
-tmdl-preflight check  ->  3 error(s), 1 warning(s), 5 info(s)   (preflight-broken-model)
+tmdl-preflight check  ->  2 error(s), 2 warning(s), 7 info(s)   (preflight-broken-model)
 tmdl-preflight check  ->  0 error(s), 1 warning(s), 0 info(s)   (rung 1)
-tmdl-preflight check  ->  2 error(s), 0 warning(s), 5 info(s)   (rung 2)
-drift-doctor detect   ->  actionable=2 advisory=0   (drifted-fleet, one finding per client)
-drift-doctor detect   ->  actionable=3 advisory=1   (rungs 3 and 4)
-pbip-forge check      ->  1 P0, 2 P1, 2 P2
+tmdl-preflight check  ->  1 error(s), 1 warning(s), 7 info(s)   (rung 2)
+drift-doctor detect   ->  actionable=4 advisory=0   (drifted-fleet)
+drift-doctor detect   ->  actionable=5 advisory=1   (rungs 3 and 4)
+pbip-forge check      ->  1 P0, 3 P1, 1 P2
 pbi-plot-styler check ->  2 error(s), 2 warning(s) over 1 report
 ```
 
@@ -98,7 +98,7 @@ would measure the harness instead of the skills.
 So the scaffold does the installing, while the real package cache is still
 available:
 
-- `fixtures/vendor_tools.py` exports each tool's **pinned `v1.1.0` tag**
+- `fixtures/vendor_tools.py` exports each tool's **pinned `v1.2.0` tag**
   from the local checkout, builds one virtual environment with all four
   tools in it, and copies that environment into the sandbox;
 - `tools/tools.sh` points `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER` at
@@ -116,6 +116,11 @@ Five suite runs of nine cases, three runs per arm per case, on 2026-10-21
 with Claude Code 2.1.304 and `claude-haiku-5-5`. The table is what
 `benchmarks/aggregate_eval.py` prints from the runs' own
 `aggregate-result.json` files:
+
+**These runs measured the plugin against the `v1.1.0` tools**, which is
+what the plugin pinned on 2026-10-21. The plugin now pins `v1.2.0`, so
+these numbers describe the skills and the older tools. Re-run the suite
+before quoting them as a measurement of the current pin.
 
 ```
 case                            n    with  without   delta

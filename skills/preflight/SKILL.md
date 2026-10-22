@@ -30,7 +30,7 @@ Claude Desktop, Codex or another agent with a terminal). It does not run in
 claude.ai chat. Check once:
 
 ```
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
 $PREFLIGHT --version      # prints: tmdl-preflight 1.1.0
 ```
 
@@ -74,9 +74,8 @@ $PREFLIGHT rules --json          # every id, severity, fixer, options
 $PREFLIGHT rules --format markdown --out rules.md --check   # regenerate, and fail when stale
 ```
 
-**Which build am I talking about?** The pinned `v1.1.0` the plugin installs
-carries **37 rules, 10 with fixers**. The tool on `master` carries **114
-rules, 22 with fixers**. Run `$PREFLIGHT rules --json` and quote what it
+**Which build am I talking about?** The pinned `v1.2.0` the plugin installs
+carries **119 rules, 25 with fixers**. Run `$PREFLIGHT rules --json` and quote what it
 prints; the catalog in [references/rules.md](references/rules.md) is the
 `master` one, and it says which is which. Never mix the two counts in one
 sentence.
@@ -149,7 +148,7 @@ two lists and say so.
 
 - **Mechanical (the fixer, after a yes):** every rule marked "yes" in
   [references/rules.md](references/rules.md). 22 on `master`, 10 in the
-  pinned `v1.1.0`.
+  pinned `v1.2.0`.
 - **Unsafe fixers (never in a blanket fix):** D004, R007, P001. They run only
   when their rule is selected explicitly, one at a time, with their own
   confirmation.
@@ -197,7 +196,7 @@ The catalog holds **22 rules with a fixer** on `master`: M003, M004, M006,
 M011, M013, M019, M021, M022, P001, D004, R007, F001, F002, F003, F004, F006,
 F007, F014, A003, B001, B003, O009. Three of them are **unsafe**: D004, R007
 and P001 run their fixer only when the rule is selected explicitly, never in
-a blanket fix. The pinned `v1.1.0` has **10 fixers**: M003, M004, M006,
+a blanket fix. The pinned `v1.2.0` has **10 fixers**: M003, M004, M006,
 M011, M013, F001, F002, F003, B001, B003 — D004 and R007 are in that catalog
 but have no fixer there, and P001 is not in it at all, so nothing in that
 build is unsafe. Each fixer rewrites a single line or JSON value and the tool

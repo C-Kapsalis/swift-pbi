@@ -1,17 +1,17 @@
 # pbip-model-forge: the rules and the model commands
 
-Everything here was read from the tool's own listing on its `master` branch
+Everything here was read from the tool's own listing at the `v1.2.0` tag
 (`pbip-forge --help`, `pbip-forge rules`, the sub-command help of every
 command, and `docs/model-commands.md` in the tool's repository).
 
-**Which build this describes.** The commands below are the tool on `master`.
-The pinned `v1.1.0` tag carries **3 commands** (`check`, `build`, `rules`) —
-verified by running the tag's own `pbip-forge --help`. The other 5 commands
-here need the new tag. The **22 rules are the same in both**: `pbip-forge
-rules` at the `v1.1.0` tag prints the same 22 rule ids with the same
-mockup and hand-off severities. So the rule catalog below holds whichever
-build is installed; the command list does not. Say which build you are
-talking about; never mix the two.
+**Which build this describes.** The commands below are the tool at the
+`v1.2.0` tag, which is what the plugin's pins install. The `v1.2.0` tag is
+still on the repository and carried **3 commands** (`check`, `build`,
+`rules`) — verified by running that tag's own `pbip-forge --help`. The
+**22 rules are the same in both**: `pbip-forge rules` at either tag prints
+the same 22 rule ids with the same mockup and hand-off severities. So the
+rule catalog below holds whichever build is installed; the command list
+does not.
 
 ## The commands
 

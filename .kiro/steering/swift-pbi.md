@@ -11,39 +11,37 @@ derived from one template. Four open-source command-line tools do the work;
 you interview, explain, ask for consent, and report what the tools printed.
 Personal project of Christoforos Kapsalis; not affiliated with any employer.
 
-## Tools (pinned to v1.1.0, run with uv)
+## Tools (pinned to v1.2.0, run with uv)
 
 ```
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight"
-FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.1.0 pbip-forge"
-DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor"
-STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
+FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge"
+DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor"
+STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
 ```
 
 They need a local shell (a terminal, Claude Code, Codex, an IDE agent). In a
 chat without one: interview, write the spec or read pasted output, and give
 the user the commands to run.
 
-**Version note.** The pins above are the released `v1.1.0` tag. The skills in
+**Version note.** The pins above are the released `v1.2.0` tag. The skills in
 this plugin describe the *final* tools, which are further along than that
 tag. Read the counts off the tool you actually have:
 
-- The **pinned `v1.1.0`** the plugin installs carries **37 rules, 10 with
-  fixers** (verified by running that tag's own `tmdl-preflight rules --json`).
-- The tool on **`master`** carries **114 rules, 22 with fixers** (verified by
-  running `tmdl-preflight rules --json` on `master`; the same numbers the
-  tool prints at the top of its markdown catalog).
+- The **pinned `v1.2.0`** the plugin installs carries **119 rules, 25 with
+  fixers** (verified by running that tag's own `tmdl-preflight rules --json`;
+  the same numbers the tool prints at the top of its markdown catalog:
+  `Rules: 119 · auto-fixable: 25 · baselinable: 113`).
 
-Say which build you are talking about, and never mix the two counts in one
-sentence. The pins switch to the new tag in one commit when the owner cuts
-it.
+Say which build you are talking about. The `v1.1.0` tag is still on the
+repository and carried 37 rules with 10 fixers; the plugin's pins are on
+`v1.2.0`, so quote 119 and 25 unless the user says otherwise.
 
-The other three tools' counts, each read from its own listing on `master`:
-`tmdl-drift-doctor` has **20 commands** (the pinned `v1.1.0` has **7**),
-`pbip-model-forge` has **8 commands** and **22 rules** (the pinned `v1.1.0`
-has **3** commands and the same 22 rules), and `pbi-plot-styler` has **6
-commands** and **44 check ids** (the pinned `v1.1.0` has **2** commands and
-**11** ids). The full inventories are in the skills' `references/` files.
+The other three tools' counts, each read from its own listing at the
+`v1.2.0` tag: `tmdl-drift-doctor` has **20 commands**, `pbip-model-forge`
+has **8 commands** and **22 rules**, and `pbi-plot-styler` has **6
+commands** and **44 check ids**. The full inventories are in the skills'
+`references/` files.
 
 ## Rules that always hold
 
@@ -127,12 +125,10 @@ $PREFLIGHT check <path>            # independent re-check
 $PREFLIGHT rules --json            # the catalog: id, severity, fixer, options
 ```
 
-On `master`: 114 rules, 22 with fixers. In the pinned `v1.1.0`: 37 rules, 10
-fixers. Quote the count of the build you are running, from its own
-`rules --json`. On `master`, three fixers are unsafe and run only when their
-rule is selected explicitly: D004, R007 and P001. In the `v1.1.0` build
-D004 and R007 are in the catalog but have no fixer, and P001 is not in the
-catalog at all, so nothing there is unsafe. Lead with errors, then
+At the pinned `v1.2.0`: 119 rules, 25 with fixers. The `v1.1.0` tag carried 37
+rules with 10 fixers. Quote the count of the build you are running, from its
+own `rules --json`. Three fixers are unsafe and run only when their rule is
+selected explicitly: D004, R007 and P001. Lead with errors, then
 warnings, then infos. Everything not auto-fixable is a human decision:
 propose the edit and why. The rules that encode a house rule
 (C001 to C012, plus R008, R015, R016, X001, S004, O007 and A001 to A005) are

@@ -7,7 +7,7 @@ four command-line tools the skills run. The tools need a local shell and
 ```sh
 curl -LsSf https://astral.sh/uv/install.sh | sh      # macOS, Linux
 winget install astral-sh.uv                           # Windows
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight --version
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight --version
 ```
 
 The last line prints `tmdl-preflight 1.1.0` when everything works. The four

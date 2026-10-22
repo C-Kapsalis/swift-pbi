@@ -41,7 +41,7 @@ Claude Desktop, Codex or another agent with a terminal). It does not run in
 claude.ai chat.
 
 ```
-STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler"
+STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
 $STYLER --version         # prints: pbi-plot-styler, version 1.1.0
 ```
 

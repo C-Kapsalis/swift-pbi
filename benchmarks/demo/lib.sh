@@ -1,13 +1,13 @@
 # Shared helpers for the demo scripts. Sourced, not run.
 #
-# Every tool runs through uvx from its v1.1.0 tag, exactly as the skills do.
+# Every tool runs through uvx from its v1.2.0 tag, exactly as the skills do.
 # The four repositories are private at the time of writing: uvx needs git
 # credentials that can read them (for example `gh auth setup-git`).
 
 set -u
 
 REPO_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
-TAG=${SWIFT_PBI_TAG:-v1.1.0}
+TAG=${SWIFT_PBI_TAG:-v1.2.0}
 GH=${SWIFT_PBI_GH:-git+https://github.com/C-Kapsalis}
 
 PREFLIGHT="uvx --from $GH/tmdl-preflight@$TAG tmdl-preflight"

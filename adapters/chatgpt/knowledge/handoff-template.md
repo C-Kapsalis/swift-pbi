@@ -1,6 +1,6 @@
 # <Domain> model: hand-off
 
-Prototype built with pbip-model-forge v1.1.0 from a conversation with
+Prototype built with pbip-model-forge v1.2.0 from a conversation with
 <team or role>. Sample rows are fictional. Built on <date>.
 
 ## Purpose

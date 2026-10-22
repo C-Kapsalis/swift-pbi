@@ -55,7 +55,7 @@ graders:
     weight: 3
     criteria: |
       The response quotes counts that match the tool's own output. The tool
-      reports actionable=2 advisory=0, one finding per client. The response
+      reports actionable=4 advisory=0, one finding per client. The response
       may give the two findings as "2 actionable" and 1 per client, or as
       "2 findings, 1 in each client". FAIL if it states a different number of
       findings, or gives no count at all, or says "several" / "a few".

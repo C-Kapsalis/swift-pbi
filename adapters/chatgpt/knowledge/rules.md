@@ -17,16 +17,15 @@ Never state a count that is not in this file or in a fresh run of the tool.
 
 | Build | Rules | With a fixer | How it was measured |
 |---|---|---|---|
-| `master` (this file, and the next tag) | **114** | **22** | `tmdl-preflight rules --json` on `master`; the same numbers the tool prints at the top of its markdown catalog: `Rules: 114 · auto-fixable: 22 · baselinable: 109` |
-| the pinned `v1.1.0` the plugin installs | **37** | **10** | `tmdl-preflight rules --json` at the `v1.1.0` tag |
+| the pinned `v1.2.0` the plugin installs | **119** | **25** | `tmdl-preflight rules --json` at the `v1.2.0` tag; the same numbers the tool prints at the top of its markdown catalog: `Rules: 119 · auto-fixable: 25 · baselinable: 113` |
 
-The 10 fixers in `v1.1.0` are M003, M004, M006, M011, M013, F001, F002, F003,
-B001, B003. The 22 on `master` are those ten plus D004, R007, P001, M019,
-M021, M022, F004, F006, F007, F014, A003, O009.
+The 25 fixers in `v1.2.0` are A003, B001, B003, B007, D004, F001, F002,
+F003, F004, F006, F007, F014, F016, F017, M003, M004, M006, M011, M013,
+M019, M021, M022, O009, P001, R007.
 
-Quote the count of the build you are actually running, and never mix the two
-in one sentence. The plugin's pins stay on `v1.1.0` until the owner cuts a new
-tag; when the tag appears, the pins switch in one commit.
+The `v1.1.0` tag is still on the repository, and it carried 37 rules with
+10 fixers. The plugin's pins are on `v1.2.0`, so quote the 119 and the 25
+unless the user says otherwise.
 
 Prefixes: M model structure, D DAX, R relationships, F field parameters and
 calculated-table sources, B report and bookmarks, S style, O organisation

@@ -1,5 +1,5 @@
 # fleet.yml for tmdl-drift-doctor. All paths are relative to this file.
-# The keys below work in the pinned v1.1.0 tag; the newer ones
+# The keys below work in the pinned v1.2.0 tag; the newer ones
 # (source_identity, incremental_refresh, fieldparam.families, purge,
 # renames) need the next tag. See references/drift-kinds.md.
 version: 1

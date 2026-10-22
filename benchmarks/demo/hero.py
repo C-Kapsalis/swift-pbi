@@ -103,7 +103,7 @@ def main():
         (f"Drift findings across {n['CLIENTS']} spinout models", n["DRIFT_BEFORE"], n["DRIFT_AFTER"]),
         ("Spinout models failing preflight", n["CLIENT_ERR_BEFORE"], n["CLIENT_ERR_AFTER"]),
     ]
-    title = "Recorded runs at v1.1.0, fictional models"
+    title = "Recorded runs at v1.2.0, fictional models"
     desc = "Before and after one swift-pbi pass. " + "; ".join(
         f"{lab}: {a} before, {b} after" for lab, a, b in rows) + "."
     assets = ROOT / "assets"

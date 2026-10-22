@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
   <img src="https://img.shields.io/badge/Power%20BI-PBIP%20%C2%B7%20TMDL-111111?style=flat-square" alt="Power BI PBIP and TMDL">
-  <img src="https://img.shields.io/badge/tools-pinned%20v1.1.0-111111?style=flat-square" alt="Tools pinned to v1.1.0">
+  <img src="https://img.shields.io/badge/tools-pinned%20v1.2.0-111111?style=flat-square" alt="Tools pinned to v1.2.0">
   <img src="https://img.shields.io/badge/demo-reproducible-111111?style=flat-square" alt="Reproducible demo">
 </p>
 
@@ -54,7 +54,7 @@ from what the tools printed.
 <p align="center">
   <strong>A broken model: <!--PF_ERR_BEFORE-->3<!--/PF_ERR_BEFORE--> errors before, <!--PF_ERR_AFTER-->0<!--/PF_ERR_AFTER--> after one <code>fix</code>, each repair a one-line edit.</strong><br>
   <strong><!--CLIENTS-->4<!--/CLIENTS--> spinout models drifted from their template: <!--DRIFT_BEFORE-->6<!--/DRIFT_BEFORE--> findings before, <!--DRIFT_AFTER-->0<!--/DRIFT_AFTER--> after remediation.</strong><br>
-  <sub>Every number is copied from <a href="benchmarks/demo/output/">recorded tool output</a> at v1.1.0 on macOS, re-run on 2026-10-18 with identical counts. All models and spinouts are fictional. <code>sh benchmarks/demo/run-all.sh</code> reproduces them.</sub>
+  <sub>Every number is copied from <a href="benchmarks/demo/output/">recorded tool output</a> at v1.2.0 on macOS, re-run on 2026-10-18 with identical counts. All models and spinouts are fictional. <code>sh benchmarks/demo/run-all.sh</code> reproduces them.</sub>
 </p>
 
 The part I care most about is restraint. A measure that only one spinout has
@@ -85,8 +85,8 @@ a copy (`fix` edits files in place):
 ```sh
 git clone https://github.com/C-Kapsalis/swift-pbi && cd swift-pbi
 cp -R examples/bike-shop-broken /tmp/bike-shop
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check /tmp/bike-shop
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight fix /tmp/bike-shop
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check /tmp/bike-shop
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix /tmp/bike-shop
 ```
 
 Or install the plugin and ask your agent: *"Lint the model in this folder and
@@ -128,7 +128,7 @@ the table list from `model.tmdl` miss the table), but it does not stop
 Desktop. The preflight skill says the same thing and tells the agent to
 block only on M003.
 
-The block above is the pinned `v1.1.0` output, so it carries the old M006
+The block above is the pinned `v1.2.0` output, so it carries the old M006
 wording and the old severities (M006 as an error). The tool on `master`
 already prints the corrected message and M006 as a warning; the pins switch
 to that tag in one commit when the owner cuts it.
@@ -154,7 +154,7 @@ those, so no fixer touches them. A second `fix` changes nothing.
 
 ## What it does
 
-| Skill | Does | Tool (v1.1.0) |
+| Skill | Does | Tool (v1.2.0) |
 |---|---|---|
 | `prototype-model` | Interview, spec, build, validate, hand-off package | [pbip-model-forge], [tmdl-preflight] |
 | `preflight` | Lint, explain findings, fix with consent, re-check | [tmdl-preflight] |
@@ -175,10 +175,10 @@ questions mapped to measures, the diagram, every table, column and measure,
 and the open questions only they can answer (source of truth, refresh,
 history, row-level security).
 
-**For practitioners.** 114 lint rules on TMDL, 22 of them with a mechanical
+**For practitioners.** 119 lint rules on TMDL, 25 of them with a mechanical
 fixer, plus `baseline`, GitHub and SARIF output and a pre-commit hook for CI.
 (Those are the counts the final tools print on their `master` branch. The
-pinned v1.1.0 release the skills install still carries the earlier 37 rules
+pinned v1.2.0 release the skills install carries the full 119 rules
 and 10 fixers; the pins switch to the new tag in one commit when the owner
 cuts it.) Spinout models kept in line with one template, with an
 allowlist of what may be auto-fixed and a ledger of what was retired. Reports
@@ -206,7 +206,7 @@ ever fixed automatically, and an override that names an object the template
 never had is an error, so stale exceptions cannot pile up.
 
 The skills run each tool with
-`uvx --from git+https://github.com/C-Kapsalis/<tool>@v1.1.0 <command>`, so
+`uvx --from git+https://github.com/C-Kapsalis/<tool>@v1.2.0 <command>`, so
 nothing is installed globally and every run uses the same tagged release.
 
 ## How it works
@@ -225,7 +225,7 @@ nothing is installed globally and every run uses the same tagged release.
 The rules live in [`AGENTS.md`](AGENTS.md); each skill is in
 [`skills/`](skills/).
 
-## Demo: real runs at v1.1.0
+## Demo: real runs at v1.2.0
 
 Every number below is copied from
 [benchmarks/demo/output/](benchmarks/demo/output/), recorded on 2026-10-17 on
@@ -281,7 +281,7 @@ welcome.
 | [ALM Toolkit](https://github.com/microsoft/Analysis-Services/tree/master/AlmToolkit) | No | No | No | Compare and merge two models at a time, TMDL included | No | Metadata-only deploys |
 | [PBI Inspector / Fab Inspector](https://github.com/NatVanG/fab-inspector) | Report and Fabric items, declarative JSON rules | No | No | No | Yes, PBIR | No |
 | [fabric-cicd](https://github.com/microsoft/fabric-cicd), [Fabric CLI](https://github.com/microsoft/fabric-cli) | No | No | No | No | No | Yes, git to Fabric workspaces |
-| swift-pbi (four tools) | Yes, 114 rules on TMDL files (22 with a fixer) | 22 mechanical fixers, 3 of them unsafe | Yes, with sample data and a hand-off pack | Yes: detect, allowlist, ledger, double-gated deletion | Combo-chart bindings, bookmarks, canvas conventions, styling | No |
+| swift-pbi (four tools) | Yes, 119 rules on TMDL files (25 with a fixer) | 25 mechanical fixers, 3 of them unsafe | Yes, with sample data and a hand-off pack | Yes: detect, allowlist, ledger, double-gated deletion | Combo-chart bindings, bookmarks, canvas conventions, styling | No |
 
 Where swift-pbi is weaker: Tabular Editor's rule sets are larger and far more
 widely used; ALM Toolkit compares and deploys to live models; Fab Inspector

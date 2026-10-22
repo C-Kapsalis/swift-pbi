@@ -68,8 +68,8 @@ graders:
     weight: 3
     criteria: |
       The response quotes error/warning/info counts that match the tool's own
-      output for this model. The tool reports 3 error(s), 1 warning(s),
-      5 info(s). The counts stated in the response must be exactly these
+      output for this model. The tool reports 2 error(s), 2 warning(s),
+      7 info(s). The counts stated in the response must be exactly these
       (a finding count of 9 total is also acceptable if broken down
       correctly). FAIL if the response states a different count, or gives no
       count at all, or says "several" / "a few" instead of a number.

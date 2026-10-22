@@ -49,8 +49,8 @@ where they have a terminal. Install uv: `curl -LsSf https://astral.sh/uv/install
 Use these two commands throughout:
 
 ```
-FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.1.0 pbip-forge"
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight"
+FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
 ```
 
 In PowerShell, type the full `uvx ...` command instead of the variable.

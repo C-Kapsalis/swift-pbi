@@ -13,12 +13,12 @@ Never state a count that is not in this file or in a fresh run of the tool.
 
 | Build | Commands | Check ids | How it was measured |
 |---|---|---|---|
-| `master` (this file, and the next tag) | **6** | **44** | `pbi-plot-styler --help` on `master`; the `CHECKS` table in the tool's own `check.py` |
-| the pinned `v1.1.0` the plugin installs | **2** (`check`, `style`) | **11** (`JSN001`, `BND001`, `BND002`, `BMK001`–`BMK005`, `FPM001`, `FPM002`, `THM001`) | `pbi-plot-styler --help` at the `v1.1.0` tag and its own `CHECKS` table |
+| the pinned `v1.2.0` the plugin installs | **6** | **44** | `pbi-plot-styler --help` at the `v1.2.0` tag; the `CHECKS` table in the tool's own `check.py` |
 
-The other 4 commands, the 12 convention rule slugs and the other 33 check ids
-need the new tag. Say which build you are talking about; never mix the two.
-The plugin's pins stay on `v1.1.0` until the owner cuts a new tag.
+The `v1.2.0` tag is still on the repository, and it carried 2 commands
+(`check`, `style`) and 11 check ids (`JSN001`, `BND001`, `BND002`,
+`BMK001`–`BMK005`, `FPM001`, `FPM002`, `THM001`). The plugin's pins are on
+`v1.2.0`, so quote the 6 and the 44 unless the user says otherwise.
 
 ## The commands
 

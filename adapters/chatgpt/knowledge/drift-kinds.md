@@ -14,12 +14,12 @@ Never state a count that is not in this file or in a fresh run of the tool.
 
 | Build | Commands | How it was measured |
 |---|---|---|
-| `master` (this file, and the next tag) | **20** | `drift-doctor --help` on `master` |
-| the pinned `v1.1.0` the plugin installs | **7** | `drift-doctor --help` at the `v1.1.0` tag: `audit`, `capture`, `detect`, `ledger`, `ratchet`, `remediate`, `review` |
+| the pinned `v1.2.0` the plugin installs | **20** | `drift-doctor --help` at the `v1.2.0` tag |
 
-The other 13 commands here need the new tag. Say which build you are talking
-about; never mix the two. The plugin's pins stay on `v1.1.0` until the owner
-cuts a new tag.
+The `v1.2.0` tag is still on the repository, and it carried 7 commands:
+`audit`, `capture`, `detect`, `ledger`, `ratchet`, `remediate`, `review`.
+The plugin's pins are on `v1.2.0`, so quote the 20 unless the user says
+otherwise.
 
 ## The commands
 

@@ -11,7 +11,7 @@
 #
 # Needs uv on PATH (see CHECKLIST.md for the portable setup).
 set -u
-TAG=${SWIFT_PBI_TAG:-v1.1.0}
+TAG=${SWIFT_PBI_TAG:-v1.2.0}
 REPO=$(cd -- "$(dirname -- "$0")/../.." && pwd)
 OUT=${1:-"$PWD/single-defects"}
 PREFLIGHT=(uvx -q --from "https://github.com/C-Kapsalis/tmdl-preflight/archive/refs/tags/$TAG.zip" tmdl-preflight)

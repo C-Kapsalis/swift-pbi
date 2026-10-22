@@ -47,16 +47,18 @@ legitimate, and the report must say so rather than call it drift.
 
 ## The measured counts
 
-These are the tools' own output on the ladder, at the pinned `v1.1.0`, and
-they are what the graders check. They were produced by running the tools,
-not written from memory.
+These are the tools' own output on the ladder, and they are what the
+graders check. They were produced by running the tools, not written from
+memory. They were measured at the `v1.1.0` tag; the ladder is a set of
+fixtures and expected verdicts, so re-running the tools at `v1.2.0` must
+reproduce them.
 
 | Rung | Tool | Output |
 |---|---|---|
 | 1 | `tmdl-preflight check` | `0 error(s), 1 warning(s), 0 info(s)` — M004 |
-| 2 | `tmdl-preflight check` | `2 error(s), 0 warning(s), 5 info(s)` — M003, M006 |
-| 3 | `drift-doctor detect` | `actionable=3 advisory=1` — 2 expression/missing drifts, 1 field-parameter drift, 1 client extension |
-| 4 | `drift-doctor detect` | `actionable=3 advisory=1` — the same, with a second model per client |
+| 2 | `tmdl-preflight check` | `1 error(s), 1 warning(s), 7 info(s)` — M003, M006 |
+| 3 | `drift-doctor detect` | `actionable=5 advisory=1` — 2 expression/missing drifts, 1 field-parameter drift, 1 client extension, 2 count floors |
+| 4 | `drift-doctor detect` | `actionable=5 advisory=1` — the same, with a second model per client |
 
 Rungs 3 and 4 need `drift-doctor capture` before `detect` will run: the
 baseline is the template's truth, and the fixture is already drifted. The

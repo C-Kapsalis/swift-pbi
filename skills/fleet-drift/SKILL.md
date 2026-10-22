@@ -33,8 +33,8 @@ Claude Desktop, Codex or another agent with a terminal). It does not run in
 claude.ai chat.
 
 ```
-DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor"
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight"
+DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
 $DRIFT --version          # prints: drift-doctor, version 1.1.0
 ```
 

@@ -63,7 +63,7 @@ graders:
     weight: 3
     criteria: |
       The response quotes counts that match the tool's own output. The tool
-      reports actionable=3 and advisory=1 over four models. The response may
+      reports actionable=5 and advisory=1 over four models. The response may
       give those numbers, or the total of four findings, or name the
       severities per kind. FAIL if it states a different count, gives no
       count at all, or says "several" / "a few" instead of a number.

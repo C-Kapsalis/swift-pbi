@@ -110,6 +110,10 @@ def build_rung1() -> Path:
     edit(tables / "Sales.tmdl",
          "lineageTag: 5d0f6071-c051-4293-9eb4-5f6071829304",
          "lineageTag: sales-tag-TODO")
+    # A one-table model legitimately has no relationships, so the check that
+    # wants the file is switched off here, as its own description says.
+    write(case / ".tmdl-preflight.json", json.dumps(
+        {"rules": {"R009": {"enabled": False}}}, indent=2) + "\n")
     return case
 
 

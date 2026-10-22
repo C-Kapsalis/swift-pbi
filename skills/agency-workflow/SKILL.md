@@ -30,7 +30,7 @@ the order, the handover between phases, and the naming conventions the whole
 fleet shares.
 
 The tool inventories this skill relies on (read from each tool's own
-listing): `skills/preflight/references/rules.md` (114 rules, 22 fixers),
+listing): `skills/preflight/references/rules.md` (119 rules, 25 fixers),
 `skills/fleet-drift/references/drift-kinds.md` (41 remediable kinds),
 `skills/chart-style/references/canvas-rules.md` (44 check ids) and
 `skills/prototype-model/references/forge-rules.md` (22 spec rules).
@@ -44,10 +44,10 @@ uvx --version            # any version prints: you can build
 ```
 
 ```
-PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight"
-FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.1.0 pbip-forge"
-DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.1.0 drift-doctor"
-STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.1.0 pbi-plot-styler"
+PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
+FORGE="uvx --from git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.0 pbip-forge"
+DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 drift-doctor"
+STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
 ```
 
 In PowerShell, type the full `uvx ...` command instead of the variable.

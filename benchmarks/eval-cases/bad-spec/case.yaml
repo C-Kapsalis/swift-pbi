@@ -70,7 +70,7 @@ graders:
     weight: 3
     criteria: |
       The response quotes counts that match the tool's own output. The tool
-      reports 1 P0, 2 P1, 2 P2 (five findings in all). The response may give
+      reports 1 P0, 3 P1, 1 P2 (five findings in all). The response may give
       the breakdown by priority, or the total of five findings, or name the
       severities per rule. FAIL if it states a different count, gives no
       count at all, or says "several" / "a few" instead of a number.
