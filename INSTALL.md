@@ -4,20 +4,32 @@ swift-pbi has two parts: the skills (instructions for your agent) and the
 four command-line tools the skills run. The tools need a local shell and
 [uv](https://docs.astral.sh/uv/):
 
+macOS, Linux (bash):
+
 ```sh
-curl -LsSf https://astral.sh/uv/install.sh | sh      # macOS, Linux
-winget install astral-sh.uv                           # Windows
+curl -LsSf https://astral.sh/uv/install.sh | sh
 uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight --version
 ```
 
-The last line prints `tmdl-preflight 1.1.0` when everything works. The four
-tool repositories are public, so no GitHub credentials are needed.
+Windows (PowerShell):
+
+```powershell
+winget install Git.Git          # uvx --from git+... clones with Git
+winget install astral-sh.uv
+# close this terminal and open a new one, so git and uvx are on the PATH
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight --version
+```
+
+The last line prints `tmdl-preflight 1.2.0` when everything works. Git must
+be installed on every platform, because `uvx --from git+https://...` clones
+the tool. The four tool repositories are public, so no GitHub credentials
+are needed.
 
 ## What I have tested
 
 | Agent | Adapter | Status |
 |---|---|---|
-| Claude Code (CLI, Desktop Code tab) | `.claude-plugin/`, `skills/`, `hooks/` | `claude plugin validate` passes; the tools ran through uvx on macOS (see `benchmarks/demo/`). The skills have not been evaluated yet |
+| Claude Code (CLI, Desktop Code tab) | `.claude-plugin/`, `skills/`, `hooks/` | `claude plugin validate` passes; the tools ran through uvx on macOS (see `benchmarks/demo/`). The skills were run with and without the plugin on the fictional cases in `benchmarks/eval-cases/` (method: `benchmarks/METHOD.md`, results: `benchmarks/results/eval-runs.json`) |
 | Claude (web and Desktop chat) | `dist/swift-pbi-plugin.zip`, skill zips | Zip structure built locally; upload untested. No tool runs in chat |
 | ChatGPT | `adapters/chatgpt/`, `dist/swift-pbi-chatgpt.zip` | Untested. No tool runs in ChatGPT |
 | Codex | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json` | Untested |

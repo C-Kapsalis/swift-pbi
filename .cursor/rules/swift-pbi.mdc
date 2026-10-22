@@ -21,6 +21,16 @@ DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.0 dri
 STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
 ```
 
+PowerShell (Windows) holds each one as an argument list and splats it:
+
+```powershell
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0', 'tmdl-preflight')
+uvx @PREFLIGHT check <path>        # likewise $FORGE, $DRIFT, $STYLER
+```
+
+`uvx --from git+...` clones the tool, so Git must be installed. After
+`winget install astral-sh.uv`, open a new terminal so `uvx` is on the PATH.
+
 They need a local shell (a terminal, Claude Code, Codex, an IDE agent). In a
 chat without one: interview, write the spec or read pasted output, and give
 the user the commands to run.
@@ -91,12 +101,20 @@ Write `<domain>-spec.json`, then:
 ```
 $FORGE check <domain>-spec.json --profile handoff         # need 0 P0, 0 P1
 $FORGE build <domain>-spec.json out/<Domain> --check --profile handoff
-$PREFLIGHT check out/<Domain>                             # need 0 errors
+$PREFLIGHT check out/<Domain>                             # v1.2.0: 2 errors, both on the report stub
+$PREFLIGHT check out/<Domain> --ignore B005,B007          # the model gate: need 0 errors
 ```
 
+At `v1.2.0` the build writes a minimal report stub, and preflight reports
+B007 (`Missing report.json`) and B005 (`pages.json` missing) on it; on the
+demo spec the first check prints `2 error(s), 0 warning(s), 1 info(s)` and
+the second `0 error(s), 0 warning(s), 1 info(s)`. Report both lines and name
+the two stub findings; never present the `--ignore` run alone as clean.
+`report blank` does not clear them (it skips an existing report folder).
+
 `pbip-forge rules` prints the 22 spec rules. The report layer is
-`pbip-forge report blank --client out --model <Domain>` (a complete PBIR
-report bound to the model) and `pbip-forge clone-report <template.Report>
+`pbip-forge report blank --client out/<Domain> --model <Domain>` (a PBIR
+report bound to the model; it never overwrites an existing report folder) and `pbip-forge clone-report <template.Report>
 <Name> <target>` (a copy under a new identity). `pbip-forge f-filters` writes
 the `f-<Category>` measures and the `f-All` gates; `pbip-forge i-filters`
 regenerates the `i-Applied Filters` caption. `pbip-forge table dump` reads
@@ -128,8 +146,8 @@ $PREFLIGHT rules --json            # the catalog: id, severity, fixer, options
 
 At the pinned `v1.2.0`: 119 rules, 25 with fixers. The `v1.1.0` tag carried 37
 rules with 10 fixers. Quote the count of the build you are running, from its
-own `rules --json`. Three fixers are unsafe and run only when their rule is
-selected explicitly: D004, R007 and P001. Lead with errors, then
+own `rules --json`. Four fixers are unsafe (`safe: false`) and run only when
+their rule is selected explicitly: D004, R007, P001 and F016. Lead with errors, then
 warnings, then infos. Everything not auto-fixable is a human decision:
 propose the edit and why. The rules that encode a house rule
 (C001 to C012, plus R008, R015, R016, X001, S004, O007 and A001 to A005) are

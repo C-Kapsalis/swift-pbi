@@ -16,8 +16,9 @@ Never state a count that is not in this file or in a fresh run of the tool.
 |---|---|---|
 | the pinned `v1.2.0` the plugin installs | **20** | `drift-doctor --help` at the `v1.2.0` tag |
 
-The `v1.2.0` tag is still on the repository, and it carried 7 commands:
-`audit`, `capture`, `detect`, `ledger`, `ratchet`, `remediate`, `review`.
+The older `v1.1.0` tag is still on the repository, and it carried 7
+commands (`drift-doctor --help` at that tag): `audit`, `capture`, `detect`,
+`ledger`, `ratchet`, `remediate`, `review`.
 The plugin's pins are on `v1.2.0`, so quote the 20 unless the user says
 otherwise.
 
@@ -95,10 +96,10 @@ otherwise.
 
 ## Drift kinds
 
-`REMEDIABLE_KINDS` is the tool's own list of **41** kinds that remediation may
+`REMEDIABLE_KINDS` is the tool's own list of **47** kinds that remediation may
 apply, subject to the allowlist. `ADVISORY_KINDS` (**4**) only inform, never
-get remediated. `SYNC_ONLY_KINDS` (**7**) are offered only under `--sync`.
-`RETIREMENT_FINDING_KINDS` (**8**) are the deletions. `ALWAYS_GATING` (**2**)
+get remediated. `SYNC_ONLY_KINDS` (**8**) are offered only under `--sync`.
+`RETIREMENT_FINDING_KINDS` (**9**) are the deletions. `ALWAYS_GATING` (**2**)
 fail a gate whatever the allowlist says. `BATCH_SAFE_KINDS` (**24**) are the
 kinds a non-interactive `--yes` run may apply.
 
@@ -129,6 +130,10 @@ kinds a non-interactive `--yes` run may apply.
 | `fieldparam.schema_modernize` | A field-parameter table's columns differ from the template's | Rewrite the column blocks and remap the rows | allowlist |
 | `fieldparam.dangling_row` | Live rows whose NAMEOF points at nothing (the calculated table fails to process) | Remove exactly those rows | allowlist |
 | `fieldparam.dangling_selector` | A selector SWITCH arm calls a measure the model does not have (the whole selector measure fails to process) | Remove the arm line (and a separator left before `)`) | allowlist |
+| `visibility.hidden_user_facing` | A measure whose name says user-facing is hidden | Remove the hidden flag (or rename it as a helper, a person's call) | allowlist; never batch-safe |
+| `visibility.helper_visible` | A measure whose name says helper is visible and not on `visibility.always_visible` | Hide it | allowlist; never batch-safe |
+| `ifilter.coverage_gap` | A visible y-Selector dimension the `i-Applied Filters` measure does not expose | Regenerate the measure from the full visible dimension set (needs pbip-model-forge installed) | allowlist; never batch-safe |
+| `ffilter.coverage_gap` | A fact a user-facing measure reads has no `f-` measure, or a mapped category has no gate line in `f-All` | Add the missing measures and gate lines (needs pbip-model-forge installed) | allowlist; never batch-safe |
 | `refresh_policy.missing` | A fact table lacks the template's incremental-refresh policy | Add the policy built from the model's OWN partition source; records "full refresh owed" | allowlist; never batch-safe |
 | `refresh_policy.window_drift` | The policy's window differs from the template's | Rewrite the window | allowlist; never batch-safe |
 | `refresh_policy.invalid` | The policy is malformed | Copy the partition source into `sourceExpression` | allowlist; never batch-safe |
@@ -150,8 +155,10 @@ stop. Derived-only *tables* and mapping rows are not findings at all.
 
 `retire.table`, `retire.column`, `retire.measure`, `retire.mapping_row`,
 `retire.mapping_category`, `retire.relationship`, `retire.source_view`,
-`retire.fieldparam_entry`: an object retired from the template (ledger-proven)
-still carried by a derived model. Removal needs the allowlist entry **and**
+`retire.fieldparam_entry`, `retire.ifilter_regen`: an object retired from the template (ledger-proven)
+still carried by a derived model (`retire.ifilter_regen`: the
+`i-Applied Filters` measure names an object this run retires, so it is
+regenerated from the post-retirement dimension set). Removal needs the allowlist entry **and**
 `--sync`. A removal that derived-only work still depends on is refused
 (`blocked`, with the reason).
 
@@ -161,7 +168,8 @@ never backlog.
 ### Sync-only (the purge channel)
 
 `purge.fieldparam_entry`, `purge.measure`, `purge.column`,
-`purge.relationship`, `purge.zmap_row`, `purge.table`: model-only content of
+`purge.relationship`, `purge.zmap_row`, `purge.table`, `purge.ifilter_regen`
+(the applied-filters measure names a purged object and is rebuilt): model-only content of
 an analysis category the model never customised (customised = it reads one
 of the category's tables through its own source view AND wires it to a table
 of its own). Protected names, override retentions and data extensions are
@@ -180,12 +188,13 @@ Remove the column; a source-cleanup notice follows.
 | `fieldparam.category_missing` | A field-parameter table has no category for one of its rows. Report-only. |
 | `category_annotation.orphaned` | An annotation names no category. Report-only. |
 | `refresh_policy.client_only` | The model has a policy the template's table does not. Report-only. |
+| `ffilter.uncategorized` | A fact the generator cannot categorise, so no gate can be written for it. Report-only. |
 
-Two kinds the tool's own code names but does not yet emit: the ratchet's
-`INTRINSIC` list names `ifilter`, `visibility` and `ffilter.coverage_gap`
-(the kinds that never count towards a floor), and the remediation writer list
-names `selector.dangling_branch`. No detection pass produces them yet, so a
-run will not report them. Do not promise a finding the tool cannot produce.
+The ratchet's `INTRINSIC` list names `ifilter`, `visibility` and
+`ffilter.coverage_gap`: those kinds never count towards a floor. One kind the
+remediation writer list names, `selector.dangling_branch`, has no detection
+pass at `v1.2.0`, so a run will not report it. Do not promise a finding the
+tool cannot produce.
 
 ## Result words in `remediate`
 

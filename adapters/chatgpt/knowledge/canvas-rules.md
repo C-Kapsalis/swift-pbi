@@ -15,7 +15,7 @@ Never state a count that is not in this file or in a fresh run of the tool.
 |---|---|---|---|
 | the pinned `v1.2.0` the plugin installs | **6** | **44** | `pbi-plot-styler --help` at the `v1.2.0` tag; the `CHECKS` table in the tool's own `check.py` |
 
-The `v1.2.0` tag is still on the repository, and it carried 2 commands
+The older `v1.1.0` tag is still on the repository, and it carried 2 commands
 (`check`, `style`) and 11 check ids (`JSN001`, `BND001`, `BND002`,
 `BMK001`–`BMK005`, `FPM001`, `FPM002`, `THM001`). The plugin's pins are on
 `v1.2.0`, so quote the 6 and the 44 unless the user says otherwise.

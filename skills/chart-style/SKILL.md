@@ -42,10 +42,18 @@ claude.ai chat.
 
 ```
 STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0 pbi-plot-styler"
-$STYLER --version         # prints: pbi-plot-styler, version 1.1.0
+$STYLER --version         # prints: pbi-plot-styler, version 1.2.0
 ```
 
-In PowerShell, type the full `uvx ...` command instead of the variable. Seeing
+PowerShell (Windows):
+
+```powershell
+$STYLER = @('--from', 'git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.0', 'pbi-plot-styler')
+uvx @STYLER --version      # prints: pbi-plot-styler, version 1.2.0
+```
+
+`uvx --from git+...` needs Git installed. In PowerShell, write `uvx @STYLER`
+wherever this page writes `$STYLER`. Seeing
 the result needs Power BI Desktop (Windows); the tool itself runs anywhere.
 
 ## 1. Is this report in scope?
@@ -102,7 +110,7 @@ agrees; it repairs BMK001 and BMK002 alone and verifies each edit.
 | PLH001 | A visual binds a placeholder its axis does not offer: the legend shows a blank column. |
 | YCG001, YCG002 | The y-combo group is misnamed or a member is outside it: the report's own tooling cannot find the group. |
 | POS001 | A visual has no position: it lands on top of another. |
-| ABK000 to ABK010, PGW001, PGW002 | An answer bookmark shows the wrong answer: the matrix capture holds another question's fields, the category is not pinned, a picker selects nothing, a row field has no dropdown, a raw measure sits in the parameter well, or the navigator points at a bookmark with no file. |
+| ABK000, ABK001, ABK003 to ABK010, PGW001, PGW002 (there is no ABK002 at `v1.2.0`) | An answer bookmark shows the wrong answer: the matrix capture holds another question's fields, the category is not pinned, a picker selects nothing, a row field has no dropdown, a raw measure sits in the parameter well, or the navigator points at a bookmark with no file. |
 | BML001, BML002 | A saved selection names a field the axis does not offer: the bookmark applies a filter that resolves to nothing. |
 
 ### Which fixes are mechanical, and which need a person
@@ -155,7 +163,7 @@ $STYLER check <path> --summary          # compliance with the four foundation ru
 | `filter-panel` | The filter slicers live in one master group | PNL001, PNL002 |
 | `format-selector` | A hidden, locked report filter selects the `Format` item of `z-Selector Format` | FMT001 |
 | `stale-placeholders` | A visual binds the blank-dimension placeholder its y-axis selector actually offers | PLH001 |
-| `answer-bookmarks` | The whole-page answer bookmarks: scope, category, submenu, matrix capture, slot map, row filters, picker selections | ABK000 to ABK010, PGW001, PGW002 |
+| `answer-bookmarks` | The whole-page answer bookmarks: scope, category, submenu, matrix capture, slot map, row filters, picker selections | ABK000, ABK001, ABK003 to ABK010, PGW001, PGW002 |
 | `bookmark-literals` | Every saved picker selection is a row of the field parameter behind that slicer | BML001, BML002 |
 
 Which rules apply is a setting, not a guess: put the sections you need in
@@ -237,10 +245,10 @@ picker field parameter. `colors sync` stamps that color into every visual and
 bookmark override in scope; `colors reset` reverts exactly those entries.
 
 ```
-$STYLER colors sync --report <X.Report> --dry-run     # a dry run unless --apply
-$STYLER colors sync --report <X.Report> --apply
-$STYLER colors reset --report <X.Report> --dry-run
-$STYLER colors reset --report <X.Report> --apply
+$STYLER colors sync --report <X.Report>              # a dry run: there is no --dry-run flag
+$STYLER colors sync --report <X.Report> --apply      # after a yes
+$STYLER colors reset --report <X.Report>             # a dry run
+$STYLER colors reset --report <X.Report> --apply     # after a yes
 ```
 
 `sync` never touches the line (`Y2`) entries of a visual. It prints the
