@@ -31,12 +31,23 @@ claude.ai chat. Check once:
 
 ```
 PREFLIGHT="uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight"
-$PREFLIGHT --version      # prints: tmdl-preflight 1.1.0
+$PREFLIGHT --version      # prints: tmdl-preflight 1.2.0
 ```
 
+PowerShell (Windows):
+
+```powershell
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0', 'tmdl-preflight')
+uvx @PREFLIGHT --version   # prints: tmdl-preflight 1.2.0
+```
+
+`uvx --from git+...` clones the tool, so Git must be installed (`winget
+install Git.Git`). After `winget install astral-sh.uv`, open a new terminal
+so `uvx` is on the PATH.
+
 No shell: ask the user to run the check command in step 2 and paste the
-output, then continue from step 3. In PowerShell, type the full `uvx ...`
-command instead of the variable.
+output, then continue from step 3. In PowerShell, write `uvx @PREFLIGHT`
+wherever this page writes `$PREFLIGHT`.
 
 ## 1. Find the model
 
@@ -59,7 +70,9 @@ $PREFLIGHT check <path> --format markdown           # a report page
 ```
 
 Exit codes: `0` no errors, `1` violations remain, `2` usage or path problem.
-The last line is a `scanned:` summary; if it says 0 tables, the path is wrong.
+Near the top the tool prints a `scanned:` line; if it says 0 tables, the path
+is wrong. The last line is the count, for example
+`tmdl-preflight: 2 error(s), 2 warning(s), 8 info(s)`.
 
 `--strict` is the CI switch: without it a warning is reported but does not
 fail the run; with it, warnings fail too. `check --strict` and `fix --strict`
@@ -75,10 +88,11 @@ $PREFLIGHT rules --format markdown --out rules.md --check   # regenerate, and fa
 ```
 
 **Which build am I talking about?** The pinned `v1.2.0` the plugin installs
-carries **119 rules, 25 with fixers**. Run `$PREFLIGHT rules --json` and quote what it
-prints; the catalog in [references/rules.md](references/rules.md) is the
-`master` one, and it says which is which. Never mix the two counts in one
-sentence.
+carries **119 rules, 25 with fixers** (its own `rules --json`; the markdown
+catalog prints `Rules: 119 · auto-fixable: 25 · baselinable: 113`). The
+catalog in [references/rules.md](references/rules.md) is generated from that
+same tag. The older `v1.1.0` tag carried 37 rules with 10 fixers; never mix
+the two builds' counts in one sentence.
 
 ## 3. Explain
 
@@ -103,9 +117,9 @@ bench (benchmarks/windows/RESULTS.md), each defect alone gave:
 So say "blocks opening" only for M003. For F001 say "the model opens, but
 every visual that uses that field parameter fails". For M006 and M004 say
 "opens, but …". For any other rule, do not claim what Desktop does: the
-rule text is the tool's prediction, not a measurement. Thirty rules assert
-Desktop behaviour in their own text (19 name Power BI or Desktop, 11 more say
-a model will be refused, rejected, fail to load or fail to evaluate: F001,
+rule text is the tool's prediction, not a measurement. Thirty-one rules assert
+Desktop behaviour in their own text (20 name Power BI or Desktop, 11 more say
+a model will be refused, rejected, fail to load or fail to evaluate: B008, F001,
 F002, F003, L002, M006, M007, M008, M009, M010, M011, M013, M014, M015, M017,
 M022, O001, P001, R001, R007, B003, B006, D005, F004, F014, L001, M003, M012,
 M020, R002, R006); report those as what the tool says, never as what Desktop
@@ -147,11 +161,11 @@ because only a person knows which value is right. Split the report into the
 two lists and say so.
 
 - **Mechanical (the fixer, after a yes):** every rule marked "yes" in
-  [references/rules.md](references/rules.md). 22 on `master`, 10 in the
-  pinned `v1.2.0`.
-- **Unsafe fixers (never in a blanket fix):** D004, R007, P001. They run only
-  when their rule is selected explicitly, one at a time, with their own
-  confirmation.
+  [references/rules.md](references/rules.md): 25 at the pinned `v1.2.0`.
+- **Unsafe fixers (never in a blanket fix):** the tool marks four fixers
+  `safe: false` in `rules --json`: D004, R007, P001 and F016 (F016 deletes
+  field-parameter rows that carry `//`). They run only when their rule is
+  selected explicitly, one at a time, with their own confirmation.
 - **A human decision:** a broken DAX reference (D004), a relationship to a
   missing column (R001), two active paths (R006), a table with no partition
   (M007), a duplicate name (M012), a category column (F005), an arity
@@ -169,7 +183,8 @@ and let the user choose. Never write the fix yourself.
 
 1. Ask: "Apply the N mechanical fixes (rule ids)? Nothing else is touched."
 2. If the folder is not in git, or has uncommitted changes, offer to copy it
-   first (`cp -R <path> <path>-fixed`) and fix the copy.
+   first (`cp -R <path> <path>-fixed`; PowerShell: `Copy-Item -Recurse <path>
+   <path>-fixed`) and fix the copy.
 
 ```
 $PREFLIGHT fix <path>                    # all fixable rules
@@ -192,15 +207,14 @@ the old tags in the model's `.pbi/cache.abf` and can reuse them, so a fixed
 model still looks broken in Desktop. Ask before deleting the cache folder.
 `--keep-cache` keeps it even on a single-model run.
 
-The catalog holds **22 rules with a fixer** on `master`: M003, M004, M006,
-M011, M013, M019, M021, M022, P001, D004, R007, F001, F002, F003, F004, F006,
-F007, F014, A003, B001, B003, O009. Three of them are **unsafe**: D004, R007
-and P001 run their fixer only when the rule is selected explicitly, never in
-a blanket fix. The pinned `v1.2.0` has **10 fixers**: M003, M004, M006,
-M011, M013, F001, F002, F003, B001, B003 — D004 and R007 are in that catalog
-but have no fixer there, and P001 is not in it at all, so nothing in that
-build is unsafe. Each fixer rewrites a single line or JSON value and the tool
-then re-checks from disk. Never edit the files yourself to make a rule pass.
+The pinned `v1.2.0` holds **25 rules with a fixer** (`rules --json`): A003,
+B001, B003, B007, D004, F001, F002, F003, F004, F006, F007, F014, F016, F017,
+M003, M004, M006, M011, M013, M019, M021, M022, O009, P001, R007. Four of them
+are **unsafe** (`safe: false`): D004, R007, P001 and F016 run their fixer
+only when the rule is selected explicitly, never in a blanket fix; a blanket
+`fix` prints `not fixed  R007: its fixer can change data, so a blanket fix
+skips it`. The tool re-checks from disk after every fix. Never edit the files
+yourself to make a rule pass.
 
 ## 5. Re-check and show the diff
 
@@ -209,8 +223,9 @@ $PREFLIGHT check <path>
 git -C <path> diff --stat && git -C <path> diff     # or: diff -ru <orig> <copy>
 ```
 
-Report before and after as counts copied from the two runs, for example
-"3 errors, 1 warning, 6 infos -> 0 errors, 0 warnings, 6 infos; 4 fixes".
+Report before and after as counts copied from the two runs. On the
+`examples/bike-shop-broken` copy, `v1.2.0` prints
+"2 errors, 2 warnings, 8 infos -> 0 errors, 0 warnings, 8 infos; 4 fixes".
 
 ## 6. What is left is a human decision
 
@@ -360,15 +375,17 @@ logic, use the `power-bi-definitions` skill's audit reference and the
 
 ```
 ## Preflight: <model name>
-Before: 3 errors, 1 warning, 6 infos (10 findings)
+Before: 2 errors, 2 warnings, 8 infos (12 findings)
 Blocks opening:
 1. M003 Stores.tmdl: lineage tag duplicated from Products (has a fixer)
 Other errors:
+1. F001 Metric Selector.tmdl: orphan comma; opens, but its visuals fail (has a fixer)
+Warnings:
 1. M006 Stores.tmdl: table not referenced in model.tmdl (has a fixer)
-...
+2. M004 __Calendar.tmdl: placeholder lineage tag (has a fixer)
 Fixed (with your OK): 4 (M006, M003, M004, F001)
-After: 0 errors, 0 warnings, 6 infos
-Left for you: S001 x1, S002 x5 (descriptions and formats, optional)
+After: 0 errors, 0 warnings, 8 infos
+Left for you: S002 x5, S001 x1, M017 x1, R013 x1 (optional)
 Not proven: correct numbers; opening in Power BI Desktop.
 ```
 
@@ -384,7 +401,7 @@ and act on a failure before moving on.
 | Explain | "Did I claim Desktop refused to open for a rule that does not block?" | only M003 is called a blocker | re-read the evidence table |
 | Fix | "Did the user agree, and is there a way back?" | explicit yes; git or a copy | ask; copy first |
 | Fix | "Did I edit a file by hand to silence a rule?" | the diff shows only fixer edits | revert the hand edit |
-| Fix | "Did a blanket fix run an unsafe fixer?" | only D004, R007 and P001 are unsafe, and only when selected | select them explicitly, one at a time |
+| Fix | "Did a blanket fix run an unsafe fixer?" | only D004, R007, P001 and F016 are unsafe, and only when selected | select them explicitly, one at a time |
 | Re-check | "Is 'clean' coming from the re-check, not from the fixer's own claim?" | a separate `check` run after `fix` | run it |
 | Live | "Did I talk to the Power BI service without being asked?" | an explicit yes for `live` | do not run it |
 | Report | "Did I imply the model opens in Desktop or that numbers are right?" | the "Not proven" line is present | add it |
