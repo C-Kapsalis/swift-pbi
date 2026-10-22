@@ -50,7 +50,19 @@ DRIFT="uvx --from git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1 dri
 STYLER="uvx --from git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1 pbi-plot-styler"
 ```
 
-In PowerShell, type the full `uvx ...` command instead of the variable.
+PowerShell (Windows):
+
+```powershell
+$PREFLIGHT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.1', 'tmdl-preflight')
+$FORGE = @('--from', 'git+https://github.com/C-Kapsalis/pbip-model-forge@v1.2.1', 'pbip-forge')
+$DRIFT = @('--from', 'git+https://github.com/C-Kapsalis/tmdl-drift-doctor@v1.2.1', 'drift-doctor')
+$STYLER = @('--from', 'git+https://github.com/C-Kapsalis/pbi-plot-styler@v1.2.1', 'pbi-plot-styler')
+uvx @PREFLIGHT --version   # prints: tmdl-preflight 1.2.1
+```
+
+`uvx --from git+...` needs Git installed. In PowerShell, write `uvx
+@PREFLIGHT`, `uvx @FORGE`, `uvx @DRIFT` and `uvx @STYLER` wherever this page
+writes `$PREFLIGHT`, `$FORGE`, `$DRIFT` and `$STYLER`.
 
 ## 1. The shape of the estate
 
@@ -261,7 +273,19 @@ read-only:
 - name: The report is on the standard canvas
   run: pbi-plot-styler check clients/ --baseline styler-baseline.json
 - name: The charts are styled
-  run: pbi-plot-styler style clients/ --dry-run
+  shell: bash
+  run: |
+    rc=0
+    for r in clients/*/*.Report; do
+      out=$(pbi-plot-styler style "$r" --dry-run 2>&1) && s=0 || s=$?
+      printf '%s\n' "$out"
+      if [ "$s" = 2 ] && printf '%s' "$out" | grep -q 'no targeted visuals found'; then
+        echo "skip $r: no combo chart to style"
+      elif [ "$s" != 0 ]; then
+        rc=1
+      fi
+    done
+    exit "$rc"
 ```
 
 - `tmdl-preflight check` exits 1 on a violation, 2 on a usage or path
@@ -275,7 +299,16 @@ read-only:
 - `drift-doctor audit` exits 4 when an applied fix was reverted.
 - `pbi-plot-styler check` exits 1 on a new error; `--baseline` accepts the
   known ones.
-- `pbi-plot-styler style --dry-run` exits 1 when a chart is out of style.
+- `pbi-plot-styler style --dry-run` exits 0 when every combo chart is in
+  sync (`All N combo chart(s) already in sync.`), 1 when a chart is out of
+  style (`N/M combo chart(s) need rebuild`), and 2 on a setup problem. A
+  report with no combo chart is a setup problem at `v1.2.1`: it prints
+  `Error: no targeted visuals found in 1 report(s) under <path>` and exits
+  2, and so does `style clients/ --dry-run` when no report under `clients/`
+  has one (a folder where at least one report has a combo chart exits 0 or 1
+  as usual). The gate above runs each report on its own, skips exactly that
+  error, and still fails on any other exit 2 (no `*.Report` folder, an
+  unreadable model).
 
 Keep the remediation on a maintainer's machine, where the diffs get reviewed,
 and let CI only read. If the pipeline must fix up, post the `remediate

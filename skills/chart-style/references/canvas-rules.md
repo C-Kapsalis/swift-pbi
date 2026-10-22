@@ -386,7 +386,7 @@ The tool's own constants: `EXIT_OK = 0`, `EXIT_DRIFT = 1`, `EXIT_ERROR = 2`.
 | `check --fix` | The exit code comes from the re-check after the fix: 0 clean, 1 findings left. |
 | `style` | 0 nothing to change, 1 drift (`--dry-run` only), 2 setup problem. |
 | `colors sync` / `colors reset` | 0 written or nothing to change, 1 a dry run found changes, 2 invalid input. |
-| `bookmarks build` | 0 written, 1 a dry run found work (never writes), 2 an invalid entry. |
+| `bookmarks build` | 0 written (dry run included, which never writes), 2 an invalid entry. |
 | `rename-measure` | 0 rewritten (or nothing to rewrite), 2 a setup problem (the model folder does not exist). |
 | `rename-label` | 0, 2 a setup problem. The rename is all or nothing. |
 

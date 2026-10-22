@@ -6,6 +6,7 @@ it shows a number: every measure's name, DAX, format string and description,
 every table's columns, and the relationships that decide how filters flow.
 
     python3 metric_contract.py <model path> [--format json|markdown] [--out FILE]
+    python3 metric_contract.py --self-test
 
 <model path> may be a folder holding a *.SemanticModel, the *.SemanticModel
 folder itself, or its definition/ folder. Standard library only, Python 3.9+.
@@ -279,6 +280,47 @@ def build_contract(path: Path) -> Dict[str, Any]:
     }
 
 
+def _code_span(text: str) -> str:
+    """One line of DAX as a Markdown code span, with table pipes escaped."""
+    text = text.replace("|", "\\|")
+    if "`" in text:
+        return f"`` {text} ``"
+    return f"`{text}`"
+
+
+def dax_cell(expression: str) -> str:
+    """A measure's DAX for one Markdown table cell. Each source line becomes
+    its own code span, joined with <br>, so a `--` or `//` comment ends at its
+    line instead of swallowing the rest of the expression. A one-line
+    expression renders as a single code span, as before."""
+    lines = [ln.strip() for ln in expression.splitlines() if ln.strip()]
+    return "<br>".join(_code_span(ln) for ln in lines) if lines else "``"
+
+
+def self_test() -> int:
+    """Check that a multiline measure with a line comment keeps every line in
+    the Markdown table, and that a one-line measure is unchanged."""
+    contract = {"model": "Self-test", "tables": [], "relationships": [], "measures": [
+        {"name": "Revenue per Store", "format": "$ #,0.00", "description": "", "hidden": False,
+         "expression": "VAR store_count =\n    DISTINCTCOUNT(Sales[store_id]) -- stores that sold\n"
+                       "RETURN\n    DIVIDE([Revenue], store_count)"},
+        {"name": "Revenue", "format": "#,0", "description": "", "hidden": False,
+         "expression": "SUM(Sales[amount])"},
+    ]}
+    md = to_markdown(contract)
+    row = next(ln for ln in md.splitlines() if ln.startswith("| Revenue per Store |"))
+    want = ("`VAR store_count =`<br>`DISTINCTCOUNT(Sales[store_id]) -- stores that sold`"
+            "<br>`RETURN`<br>`DIVIDE([Revenue], store_count)`")
+    checks = [
+        (want in row, "multiline DAX keeps each line in its own code span"),
+        (row.count("`DIVIDE([Revenue], store_count)`") == 1, "the line after the comment survives"),
+        ("| Revenue | `#,0` |  | `SUM(Sales[amount])` |" in md, "one-line DAX renders as before"),
+    ]
+    for ok, what in checks:
+        print(("ok   " if ok else "FAIL ") + what)
+    return 0 if all(ok for ok, _ in checks) else 1
+
+
 def to_markdown(c: Dict[str, Any]) -> str:
     out = [f"# Metric contract: {c['model']}", ""]
     visible = [m for m in c["measures"] if not m["hidden"]]
@@ -286,8 +328,7 @@ def to_markdown(c: Dict[str, Any]) -> str:
             f"{len(c['relationships'])} relationships.", "", "## Measures", "",
             "| Measure | Format | Definition | DAX |", "| --- | --- | --- | --- |"]
     for m in visible:
-        dax = m["expression"].replace("\n", " ").replace("|", "\\|")
-        out.append(f"| {m['name']} | `{m['format']}` | {m['description']} | `{dax}` |")
+        out.append(f"| {m['name']} | `{m['format']}` | {m['description']} | {dax_cell(m['expression'])} |")
     out += ["", "## Tables", ""]
     for t in c["tables"]:
         cols = ", ".join(col["name"] for col in t["columns"] if not col["hidden"]) or "(no visible columns)"
@@ -313,10 +354,16 @@ def to_markdown(c: Dict[str, Any]) -> str:
 
 def main(argv: Optional[List[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("path", type=Path)
+    ap.add_argument("path", type=Path, nargs="?")
     ap.add_argument("--format", choices=["json", "markdown"], default="json")
     ap.add_argument("--out", type=Path)
+    ap.add_argument("--self-test", action="store_true",
+                    help="check the Markdown rendering of multiline DAX and exit")
     a = ap.parse_args(argv)
+    if a.self_test:
+        return self_test()
+    if a.path is None:
+        ap.error("the model path is required")
     contract = build_contract(a.path)
     text = json.dumps(contract, indent=2) + "\n" if a.format == "json" else to_markdown(contract)
     if a.out:

@@ -175,7 +175,9 @@ Which rules apply is a setting, not a guess: put the sections you need in
 A rule that cannot judge a report says so in a `skipped` list instead of
 passing silently: no y-combo groups, no selector slicer, an ambiguous
 placeholder, no paired model. Report the skipped rules; do not count them as
-passes.
+passes. Two do not skip: `slicer-mode-gates` exits 2 when no table in
+the paired model declares both gate measures, and `answer-bookmarks`
+exits 2 when there is no paired model.
 
 Some conventions have a fixer: `slicer-gates`, `slicer-mode-gates`,
 `filter-panel`, `format-selector` and `stale-placeholders`. `--fix` writes
@@ -212,8 +214,18 @@ $STYLER style <X.Report> --dry-run --color "Sales Measures.Revenue=#2E7D32"
 $STYLER style <X.Report> --dry-run --rebind-stale-line
 ```
 
-Show the first lines (`Measures: N drive the styling`) and how many visuals
-would change. The styler owns two arrays per chart (`dataPoint` and `labels`
+Show what the preview printed. On the `coffee-roastery` example that ships
+with the tool, `v1.2.1` prints, per visual, `<visual id>: WOULD CHANGE` with
+the entries it would rebuild (`objects.dataPoint[]: 0 -> 5 entries`,
+`objects.labels[]: 0 -> 6 entries`), then `Models resolved: 1` and
+`1/1 combo chart(s) need rebuild (re-run without --dry-run).`, and exits 1.
+When every chart is already styled it prints `All 1 combo chart(s) already
+in sync.` and exits 0. When it detected the field parameters itself, the
+first line names them: `Field parameters: x-Plot Specific 1, x-Plot Specific
+2, y-Plot Specific (dimension: y-Plot Specific; metric: x-Plot Specific 1,
+x-Plot Specific 2)`. A report with no combo chart is not "nothing to do": it
+prints `Error: no targeted visuals found in 1 report(s) under <path>` and
+exits 2. The styler owns two arrays per chart (`dataPoint` and `labels`
 entries per measure). Everything else in the file stays as it was, including
 formatting set by hand. Settings can live in `plotstyler.toml` next to where
 you run it.
@@ -230,12 +242,15 @@ does not, that is a model problem and belongs to `tmdl-preflight` (D004) or
 
 ```
 $STYLER style <X.Report> [same flags]
-$STYLER style <X.Report> [same flags]      # second run: "Restyled 0/N"
+$STYLER style <X.Report> [same flags]      # second run: "rebuilt 0/N combo chart(s)."
 $STYLER check <X.Report>
 ```
 
-Report the line `Restyled A/N visual(s); B already styled.` from both runs.
-The second run must restyle 0. Then show `git diff --stat`.
+Report the line `rebuilt A/N combo chart(s).` from both runs; on the
+`coffee-roastery` example the first run prints `rebuilt 1/1 combo
+chart(s).` (after a per-visual line such as `dataPoint 0 -> 5, labels 0 -> 6`)
+and the second prints `rebuilt 0/1 combo chart(s).`. The second run must
+rebuild 0. Then show `git diff --stat`.
 
 ## 6. Palette colours: sync and reset
 
@@ -329,7 +344,7 @@ measure is correct. It does not prove the report opens in Desktop.
 ## Report check and style: <X.Report>
 Check before: 0 errors, 0 warnings
 Canvas: slicer-gates 4/4, category-filter 2/2, theme 1/1, filter-panel 1/1 (skipped: y-combo - no groups)
-Style: 6 measures drive the styling; restyled 1/1 visuals; second run restyled 0/1
+Style: rebuilt 1/1 combo chart(s); second run rebuilt 0/1
 Check after: 0 errors
 Colors: line #118DFF for all (no brand colors given)
 Not done: opening in Power BI Desktop (Windows, manual)

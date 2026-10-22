@@ -70,8 +70,9 @@ $PREFLIGHT check <path> --format markdown           # a report page
 ```
 
 Exit codes: `0` no errors, `1` violations remain, `2` usage or path problem.
-Near the top the tool prints a `scanned:` line; if it says 0 tables, the path
-is wrong. The last line is the count, for example
+After the findings the tool prints a `scanned:` line (for example
+`scanned: 1 model, 6 tables, 22 columns, 6 measures, 4 relationships, 8 DAX
+expressions, 1 report`); if it says 0 tables, the path is wrong. The last line is the count, for example
 `tmdl-preflight: 2 error(s), 2 warning(s), 8 info(s)`.
 
 `--strict` is the CI switch: without it a warning is reported but does not
