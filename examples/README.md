@@ -22,8 +22,8 @@ Try it on a copy, because `fix` edits files in place:
 
 ```sh
 cp -R examples/bike-shop-broken /tmp/bike-shop
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight check /tmp/bike-shop
-uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.1.0 tmdl-preflight fix /tmp/bike-shop
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight check /tmp/bike-shop
+uvx --from git+https://github.com/C-Kapsalis/tmdl-preflight@v1.2.0 tmdl-preflight fix /tmp/bike-shop
 ```
 
 The recorded run is in [../benchmarks/demo/output/01-preflight.txt](../benchmarks/demo/output/01-preflight.txt).
