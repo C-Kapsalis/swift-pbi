@@ -1,6 +1,6 @@
 {
   "name": "swift-pbi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Power BI as code, in conversation. Prototype a semantic model for your own data and hand engineers an openable PBIP spec; lint and fix TMDL; bring a fleet of client models back in line with one template; keep combo charts on one style. Runs four open-source command-line tools pinned to v1.2.1. Personal project.",
   "author": {
     "name": "Christoforos Kapsalis",

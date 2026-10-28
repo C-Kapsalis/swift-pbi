@@ -4,6 +4,22 @@ How swift-pbi would get into public plugin directories. Nothing has been
 submitted. Each step is done by hand by the maintainer; vendor requirements
 change, so re-read their pages before submitting.
 
+## ClawHub OpenClaw plugin bundle
+
+The repository's root `package.json` supplies npm metadata for the ClawHub
+bundle and is included in `swift-pbi-plugin.zip` by `scripts/package.sh`. Keep
+its name lowercase and npm-safe, and keep its version aligned with
+`.claude-plugin/plugin.json` when cutting a release. The skills remain
+self-contained and make no network calls except when their documented local
+CLI tools fetch their pinned releases.
+
+Build and validate the archive before submission:
+
+```sh
+sh scripts/package.sh
+clawhub package validate dist/swift-pbi-plugin.zip --openclaw-version 2026.10.8
+```
+
 ## Before any submission
 
 1. The four tool repositories (tmdl-preflight, pbip-model-forge,
