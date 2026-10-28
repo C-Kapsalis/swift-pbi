@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "swift-pbi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Power BI as code, in conversation. Prototype a semantic model for your own data and hand engineers a spec; explain TMDL lint findings; plan how to bring client models in line with one template. Running the four command-line tools needs a local shell; in ChatGPT the skills interview, write specs and read pasted tool output.",
   "author": {
     "name": "Christoforos Kapsalis",
@@ -10,5 +10,26 @@
   "homepage": "https://github.com/C-Kapsalis/swift-pbi",
   "repository": "https://github.com/C-Kapsalis/swift-pbi",
   "license": "MIT",
-  "keywords": ["power-bi", "pbip", "tmdl", "semantic-model", "data-modeling"]
+  "keywords": ["power-bi", "pbip", "tmdl", "semantic-model", "data-modeling"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "swift-pbi",
+        "shortDescription": "Power BI model workflows",
+        "longDescription": "Prototype a Power BI semantic model in conversation, lint TMDL, bring client models back in line with a template, and keep report charts consistent. Command-line tools run in a local shell; in ChatGPT, the skills interview, write specifications and explain tool output you provide.",
+        "developerName": "Christoforos Kapsalis",
+        "category": "Development",
+        "capabilities": ["Instructions", "Power BI", "Data modeling"],
+        "websiteURL": "https://github.com/C-Kapsalis/swift-pbi",
+        "supportURL": "https://github.com/C-Kapsalis/swift-pbi/issues",
+        "defaultPrompt": [
+          "Help me prototype a data model for our repair bookings.",
+          "Lint this PBIP folder and tell me why it will not open.",
+          "Which client models drifted from the template?"
+        ],
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png"
+      }
+    }
+  }
 }

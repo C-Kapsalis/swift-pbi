@@ -2,7 +2,7 @@
 
 How swift-pbi would get into public plugin directories. Nothing has been
 submitted. Each step is done by hand by the maintainer; vendor requirements
-change, so re-read their pages before submitting.
+change, so re-read their pages before submitting. Last checked 2026-10-28.
 
 ## Before any submission
 
@@ -35,11 +35,16 @@ answers for swift-pbi: it reads the model folders the user points it at,
 stores nothing outside them, sends no data to any service except fetching
 the pinned tool releases from GitHub through uv, and is not aimed at minors.
 
-## ChatGPT plugin directory
+## OpenAI plugin directory (ChatGPT and Codex)
 
-Package: `dist/swift-pbi-chatgpt.zip` (a `plugin.json`, `skills/`, `LICENSE`,
-no hooks). Say plainly in the listing that the tools need a local shell and
-that in ChatGPT the skills interview, write specs and explain pasted output.
+Package: `dist/swift-pbi-chatgpt.zip` (a portable `plugin.json`, listing icon,
+`skills/`, and `LICENSE`; no lifecycle hooks or MCP server). The archive
+contains OpenAI listing metadata. The public directory is shared by ChatGPT
+and Codex. The maintainer still needs a verified publisher identity, must
+review automated checks and complete policy attestations, then submit for
+review and publish after approval. State plainly that the command-line tools
+need a local shell and that in ChatGPT the skills interview, write specs and
+explain pasted output.
 
 ## Codex
 
