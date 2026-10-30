@@ -3,6 +3,7 @@
 <p align="center">
   <a href="https://github.com/C-Kapsalis/swift-pbi/stargazers"><img src="https://img.shields.io/github/stars/C-Kapsalis/swift-pbi?style=flat-square&label=Stars" alt="GitHub stars"></a>
   <a href="https://github.com/C-Kapsalis"><img src="https://img.shields.io/github/followers/C-Kapsalis?style=flat-square&label=Follow%20C-Kapsalis" alt="Follow C-Kapsalis on GitHub"></a>
+  <a href="https://skills.sh/C-Kapsalis/swift-pbi"><img src="https://skills.sh/b/C-Kapsalis/swift-pbi" alt="skills.sh installs"></a>
   <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
   <img src="https://img.shields.io/badge/Power%20BI-PBIP%20%C2%B7%20TMDL-111111?style=flat-square" alt="Power BI PBIP and TMDL">
   <img src="https://img.shields.io/badge/tools-pinned%20v1.2.1-111111?style=flat-square" alt="Tools pinned to v1.2.1">
