@@ -10,6 +10,11 @@
   <img src="https://img.shields.io/badge/demo-reproducible-111111?style=flat-square" alt="Reproducible demo">
 </p>
 
+<p align="center">
+  <a href="https://youtu.be/1UToRmBcaOM"><img src="https://img.youtube.com/vi/1UToRmBcaOM/maxresdefault.jpg" width="640" alt="Video walkthrough: Automating Power BI Semantic Models and TMDL with AI Agents"></a><br>
+  <sub>▶ <a href="https://youtu.be/1UToRmBcaOM">Watch the video walkthrough</a></sub>
+</p>
+
 The people who know what a business should measure are rarely the people
 who build the Power BI model. A marketing or operations team writes its
 questions down, the request joins a data-engineering backlog, and weeks
