@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">MCP reference Git server read-only git_status vulnerability</title>
+<desc id="desc">The vulnerability required an imported untrusted workspace with its Git metadata intact. A malicious .git/config could set core.fsmonitor, which Git invokes during a read-only git_status call. The command ran with the MCP server's privileges. Version 2026.11.11 overrides command-bearing settings and refuses Git older than 2.31.</desc>
+<rect width="1200" height="675" fill="#F4F1E9"/>
+<rect x="54" y="44" width="1092" height="587" rx="26" fill="#FBFAF6" stroke="#D9D3C8" stroke-width="2"/>
+<text x="92" y="92" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="2.2" fill="#3E7778">MCP REFERENCE SERVER · 11 NOV 2026</text>
+<text x="92" y="151" font-family="Inter,Arial,sans-serif" font-size="42" font-weight="800" fill="#182B38">Read-only is not side-effect-free</text>
+<text x="92" y="190" font-family="Inter,Arial,sans-serif" font-size="21" fill="#52616A">A specific precondition: an imported untrusted workspace with its Git metadata intact.</text>
+<rect x="92" y="238" width="220" height="118" rx="16" fill="#E9EEF4" stroke="#8BA2BC" stroke-width="2"/>
+<text x="202" y="281" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="750" fill="#182B38">Imported</text>
+<text x="202" y="310" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="19" fill="#344954">workspace</text>
+<text x="202" y="338" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#52616A">.git intact</text>
+<path d="M322 297 H358" stroke="#7C8A8E" stroke-width="3"/><path d="M348 287 L360 297 L348 307" stroke="#7C8A8E" stroke-width="3" fill="none"/>
+<rect x="368" y="238" width="220" height="118" rx="16" fill="#F1E8E4" stroke="#C98A77" stroke-width="2"/>
+<text x="478" y="281" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="750" fill="#182B38">Malicious</text>
+<text x="478" y="310" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="19" fill="#344954">.git/config</text>
+<text x="478" y="338" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#52616A">core.fsmonitor</text>
+<path d="M598 297 H634" stroke="#7C8A8E" stroke-width="3"/><path d="M624 287 L636 297 L624 307" stroke="#7C8A8E" stroke-width="3" fill="none"/>
+<rect x="644" y="238" width="220" height="118" rx="16" fill="#F6ECDD" stroke="#D5A35C" stroke-width="2"/>
+<text x="754" y="281" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="750" fill="#182B38">git_status</text>
+<text x="754" y="310" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="19" fill="#344954">read-only call</text>
+<text x="754" y="338" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="15" fill="#52616A">Git refreshes index</text>
+<path d="M874 297 H910" stroke="#7C8A8E" stroke-width="3"/><path d="M900 287 L912 297 L900 307" stroke="#7C8A8E" stroke-width="3" fill="none"/>
+<rect x="920" y="238" width="188" height="118" rx="16" fill="#182B38"/>
+<text x="1014" y="281" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="19" font-weight="750" fill="#FFFFFF">Command</text>
+<text x="1014" y="310" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="19" fill="#FFFFFF">runs as</text>
+<text x="1014" y="338" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="19" fill="#FFFFFF">server user</text>
+<rect x="92" y="392" width="1016" height="154" rx="18" fill="#E8F0ED" stroke="#78A49B" stroke-width="2"/>
+<text x="124" y="435" font-family="Inter,Arial,sans-serif" font-size="19" font-weight="800" letter-spacing="1.2" fill="#28615D">PATCH · MCP SERVER 2026.11.11</text>
+<text x="124" y="478" font-family="Inter,Arial,sans-serif" font-size="23" font-weight="700" fill="#182B38">Override command-bearing Git settings for every invocation.</text>
+<text x="124" y="513" font-family="Inter,Arial,sans-serif" font-size="21" fill="#344954">Refuse Git older than 2.31, which would ignore those overrides.</text>
+<text x="92" y="590" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700" fill="#182B38">Vulnerability in the reference-server implementation — not the MCP protocol itself.</text>
+</svg>
