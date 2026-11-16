@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="t d">
+<title id="t">AnalogLayoutWorld benchmark: GDS output and an internal acceptance-rate discrepancy</title>
+<desc id="d">The 12 November arXiv preprint reports 91.1 percent of attempts produced GDS layouts. Its abstract reports 23.0 percent met acceptance criteria, while the introduction reports 21.3 percent. Both figures appear in the same current preprint. The benchmark contains 40 expert-reviewed tasks and 13 model-harness configurations. This is a preprint result, not production-silicon evidence.</desc>
+<rect width="1200" height="675" fill="#F5F7F8"/>
+<text x="64" y="62" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#52616B">ANALOG LAYOUTWORLD · ARXIV PREPRINT · 12 NOV 2026</text>
+<text x="64" y="120" font-family="Arial,sans-serif" font-size="42" font-weight="700" fill="#182B38">A generated file is not an accepted design</text>
+<rect x="64" y="170" width="330" height="300" rx="20" fill="#FFFFFF" stroke="#9CB5C2" stroke-width="2"/>
+<text x="100" y="224" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#245A78">GDS OUTPUT</text>
+<text x="100" y="330" font-family="Arial,sans-serif" font-size="76" font-weight="700" fill="#245A78">91.1%</text>
+<text x="100" y="374" font-family="Arial,sans-serif" font-size="21" fill="#182B38">of attempts produced</text>
+<text x="100" y="405" font-family="Arial,sans-serif" font-size="21" fill="#182B38">a GDS layout file</text>
+<rect x="430" y="170" width="330" height="300" rx="20" fill="#FFFFFF" stroke="#C9B18E" stroke-width="2"/>
+<text x="466" y="224" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#8B5D2E">ABSTRACT</text>
+<text x="466" y="330" font-family="Arial,sans-serif" font-size="76" font-weight="700" fill="#8B5D2E">23.0%</text>
+<text x="466" y="374" font-family="Arial,sans-serif" font-size="21" fill="#182B38">met all acceptance</text>
+<text x="466" y="405" font-family="Arial,sans-serif" font-size="21" fill="#182B38">criteria</text>
+<rect x="796" y="170" width="340" height="300" rx="20" fill="#FFFFFF" stroke="#C9B18E" stroke-width="2"/>
+<text x="832" y="224" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#8B5D2E">INTRODUCTION</text>
+<text x="832" y="330" font-family="Arial,sans-serif" font-size="76" font-weight="700" fill="#8B5D2E">21.3%</text>
+<text x="832" y="374" font-family="Arial,sans-serif" font-size="21" fill="#182B38">met all acceptance</text>
+<text x="832" y="405" font-family="Arial,sans-serif" font-size="21" fill="#182B38">criteria</text>
+<rect x="64" y="500" width="1072" height="72" rx="16" fill="#F6EBDD" stroke="#D5B17C"/>
+<text x="96" y="545" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#744B22">The same preprint contains both acceptance figures; the discrepancy is unresolved here.</text>
+<text x="64" y="620" font-family="Arial,sans-serif" font-size="17" fill="#667780">40 expert-reviewed tasks · 13 model–harness configurations · preprint, not production-silicon results</text>
+</svg>
