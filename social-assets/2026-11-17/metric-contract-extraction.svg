@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="t d">
+<title id="t">Make the metric definition travel</title><desc id="d">swift-pbi reads a PBIP or TMDL semantic model and extracts measures, DAX, formats, descriptions, table columns, warehouse sources and relationships into a reusable contract.</desc>
+<rect width="1200" height="675" fill="#f8fafc"/>
+<text x="64" y="78" font-family="Inter,Arial,sans-serif" font-size="40" font-weight="700" fill="#0f172a">Make the metric definition travel</text>
+<text x="64" y="118" font-family="Inter,Arial,sans-serif" font-size="21" fill="#475569">swift-pbi · Power BI definitions</text>
+<rect x="64" y="190" width="260" height="220" rx="18" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/>
+<text x="94" y="238" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700" fill="#312e81">PBIP / TMDL</text>
+<text x="94" y="286" font-family="Inter,Arial,sans-serif" font-size="20" fill="#1e293b">Semantic model</text>
+<text x="94" y="330" font-family="Inter,Arial,sans-serif" font-size="18" fill="#475569">Measures · tables</text>
+<text x="94" y="362" font-family="Inter,Arial,sans-serif" font-size="18" fill="#475569">Relationships</text>
+<path d="M324 300 H390" stroke="#64748b" stroke-width="4"/><path d="M380 289 L392 300 L380 311" stroke="#64748b" stroke-width="4" fill="none"/>
+<rect x="394" y="190" width="330" height="220" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="3"/>
+<text x="424" y="238" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700" fill="#065f46">Extract contract</text>
+<text x="424" y="286" font-family="Inter,Arial,sans-serif" font-size="19" fill="#0f172a">Measure name + DAX</text>
+<text x="424" y="322" font-family="Inter,Arial,sans-serif" font-size="19" fill="#0f172a">Format + description</text>
+<text x="424" y="358" font-family="Inter,Arial,sans-serif" font-size="19" fill="#0f172a">Columns + source + relationships</text>
+<path d="M724 300 H790" stroke="#64748b" stroke-width="4"/><path d="M780 289 L792 300 L780 311" stroke="#64748b" stroke-width="4" fill="none"/>
+<rect x="794" y="190" width="342" height="220" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+<text x="824" y="238" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700" fill="#9a3412">Reuse downstream</text>
+<text x="824" y="286" font-family="Inter,Arial,sans-serif" font-size="19" fill="#0f172a">Dashboard / SQL / analysis</text>
+<text x="824" y="322" font-family="Inter,Arial,sans-serif" font-size="19" fill="#0f172a">Same named definition</text>
+<text x="824" y="358" font-family="Inter,Arial,sans-serif" font-size="18" fill="#9a3412">Reconcile one number</text>
+<rect x="64" y="464" width="1072" height="108" rx="16" fill="#fff1f2" stroke="#e11d48" stroke-width="2"/>
+<text x="96" y="508" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="700" fill="#9f1239">Source mapping is a starting point to verify.</text>
+<text x="96" y="545" font-family="Inter,Arial,sans-serif" font-size="19" fill="#4c0519">Power Query filters and row transformations after navigation are not fully inferred.</text>
+</svg>
