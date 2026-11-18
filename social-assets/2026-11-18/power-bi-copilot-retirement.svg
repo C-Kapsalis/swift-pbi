@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+<rect width="1200" height="675" fill="#0b1220"/>
+<rect x="32" y="32" width="1136" height="611" rx="28" fill="#101b2d" stroke="#2b3d55" stroke-width="2"/>
+<text x="76" y="100" fill="#f4f7fb" font-family="Inter,Arial,sans-serif" font-size="48" font-weight="700">Power BI Copilot: what changes in Jan 2027</text>
+<text x="78" y="145" fill="#a9b9ce" font-family="Inter,Arial,sans-serif" font-size="23">Microsoft's November 2026 update distinguishes three experiences.</text>
+<g font-family="Inter,Arial,sans-serif">
+   <line x1="150" y1="340" x2="1050" y2="340" stroke="#49617f" stroke-width="5"/>
+   <circle cx="230" cy="340" r="15" fill="#f3c46b"/>
+   <circle cx="620" cy="340" r="15" fill="#f28b82"/>
+   <circle cx="1010" cy="340" r="15" fill="#69d6c4"/>
+   <text x="230" y="250" text-anchor="middle" fill="#f3c46b" font-size="23" font-weight="700">NOV 2026</text>
+   <text x="230" y="290" text-anchor="middle" fill="#b9c7d8" font-size="19">Notice published</text>
+   <text x="620" y="250" text-anchor="middle" fill="#f28b82" font-size="23" font-weight="700">JAN 2027</text>
+   <text x="620" y="290" text-anchor="middle" fill="#b9c7d8" font-size="19">Standalone + app-scoped</text>
+   <text x="1010" y="250" text-anchor="middle" fill="#69d6c4" font-size="23" font-weight="700">REMAINS</text>
+   <text x="1010" y="290" text-anchor="middle" fill="#b9c7d8" font-size="19">Copilot in eligible reports</text>
+   <text x="620" y="405" text-anchor="middle" fill="#f4f7fb" font-size="22">Planned retirement / removal</text>
+  </g>
+<line x1="76" y1="590" x2="1124" y2="590" stroke="#2b3d55" stroke-width="2"/>
+<text x="78" y="625" fill="#a9b9ce" font-family="Inter,Arial,sans-serif" font-size="19">Check which Copilot experience your users actually rely on. Source: Microsoft Learn, Nov 2026 update.</text>
+</svg>
