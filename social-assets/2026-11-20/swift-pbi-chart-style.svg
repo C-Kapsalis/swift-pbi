@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">Why a measure rename can break a Power BI chart style</title>
+<desc id="desc">The semantic model contains a measure name, while each combo chart visual stores its series colour keyed by that name. Renaming the measure can leave a stale style reference. The swift-pbi chart-style workflow checks the report and restyles combo charts from field-parameter tables.</desc>
+<rect width="1200" height="675" fill="#F4F2EC"/>
+<text x="64" y="78" fill="#14283F" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3">SWIFT-PBI · CHART STYLE</text>
+<text x="64" y="145" fill="#14283F" font-family="Arial, sans-serif" font-size="46" font-weight="700">A measure rename can break a chart's style.</text>
+<text x="64" y="188" fill="#526273" font-family="Arial, sans-serif" font-size="24">The colour mapping lives in the visual, keyed by measure name.</text>
+<rect x="64" y="250" width="270" height="175" rx="16" fill="#FFFFFF" stroke="#CBD3D8" stroke-width="2"/>
+<text x="88" y="293" fill="#6B7886" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="2">SEMANTIC MODEL</text>
+<text x="88" y="350" fill="#14283F" font-family="Arial, sans-serif" font-size="27" font-weight="700">Revenue per</text>
+<text x="88" y="383" fill="#14283F" font-family="Arial, sans-serif" font-size="27" font-weight="700">Store</text>
+<path d="M350 337 H390" stroke="#81909D" stroke-width="4" stroke-linecap="round"/><path d="M378 325 L392 337 L378 349" fill="none" stroke="#81909D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="408" y="250" width="270" height="175" rx="16" fill="#DCECE9" stroke="#2C7A7B" stroke-width="3"/>
+<text x="432" y="293" fill="#2C7A7B" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="2">VISUAL JSON</text>
+<text x="432" y="350" fill="#14283F" font-family="Arial, sans-serif" font-size="27" font-weight="700">Series colour</text>
+<text x="432" y="383" fill="#14283F" font-family="Arial, sans-serif" font-size="27" font-weight="700">keyed by name</text>
+<path d="M694 337 H734" stroke="#81909D" stroke-width="4" stroke-linecap="round"/><path d="M722 325 L736 337 L722 349" fill="none" stroke="#81909D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="752" y="250" width="384" height="175" rx="16" fill="#FFFFFF" stroke="#D28B46" stroke-width="2"/>
+<text x="776" y="293" fill="#D28B46" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="2">AFTER RENAME</text>
+<text x="776" y="350" fill="#14283F" font-family="Arial, sans-serif" font-size="27" font-weight="700">Revenue per Location</text>
+<text x="776" y="390" fill="#A45D2B" font-family="Arial, sans-serif" font-size="21" font-weight="700">Old style key can remain.</text>
+<rect x="64" y="475" width="1072" height="100" rx="16" fill="#14283F"/>
+<text x="96" y="516" fill="#DCECE9" font-family="Arial, sans-serif" font-size="19" font-weight="700" letter-spacing="2">SWIFT-PBI CHART-STYLE WORKFLOW</text>
+<text x="96" y="550" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="25">Check PBIP bindings, then restyle combo charts from field-parameter tables.</text>
+<text x="64" y="627" fill="#526273" font-family="Arial, sans-serif" font-size="18">pbi-plot-styler v1.2.1: 6 commands · 44 convention checks</text>
+</svg>
