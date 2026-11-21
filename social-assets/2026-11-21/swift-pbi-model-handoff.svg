@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">A prototype is a handoff, not a finished report</title>
+<desc id="desc">A workflow from business questions through grain, dimensions, dates and measure definitions to a model specification with fictional sample rows, validation, a PBIP with a blank report, and an engineering handoff.</desc>
+<rect width="1200" height="675" fill="#F6F5F1"/>
+<rect x="54" y="48" width="8" height="76" rx="4" fill="#4B75A8"/>
+<text x="86" y="82" font-family="Arial, sans-serif" font-size="20" letter-spacing="3" fill="#667384">SWIFT-PBI · PROTOTYPE MODEL</text>
+<text x="86" y="142" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#1E2B3A">A prototype is a handoff, not a finished report</text>
+<text x="86" y="184" font-family="Arial, sans-serif" font-size="21" fill="#5B6673">The deliverable makes assumptions visible before engineering begins.</text>
+<g font-family="Arial, sans-serif">
+  <rect x="54" y="266" width="170" height="142" rx="16" fill="#FFFFFF" stroke="#CAD5E0" stroke-width="2"/>
+  <text x="139" y="307" text-anchor="middle" font-size="18" font-weight="700" fill="#4B75A8">01</text>
+  <text x="139" y="348" text-anchor="middle" font-size="21" font-weight="700" fill="#1E2B3A">Business</text>
+  <text x="139" y="376" text-anchor="middle" font-size="21" font-weight="700" fill="#1E2B3A">questions</text>
+  <path d="M230 337 H263" stroke="#8A98A6" stroke-width="3" fill="none"/><path d="M252 326 L263 337 L252 348" stroke="#8A98A6" stroke-width="3" fill="none"/>
+  <rect x="270" y="266" width="170" height="142" rx="16" fill="#FFFFFF" stroke="#CAD5E0" stroke-width="2"/>
+  <text x="355" y="307" text-anchor="middle" font-size="18" font-weight="700" fill="#4B75A8">02</text>
+  <text x="355" y="348" text-anchor="middle" font-size="21" font-weight="700" fill="#1E2B3A">Grain, keys,</text>
+  <text x="355" y="376" text-anchor="middle" font-size="21" font-weight="700" fill="#1E2B3A">dates, measures</text>
+  <path d="M446 337 H479" stroke="#8A98A6" stroke-width="3" fill="none"/><path d="M468 326 L479 337 L468 348" stroke="#8A98A6" stroke-width="3" fill="none"/>
+  <rect x="486" y="266" width="170" height="142" rx="16" fill="#FFFFFF" stroke="#CAD5E0" stroke-width="2"/>
+  <text x="571" y="307" text-anchor="middle" font-size="18" font-weight="700" fill="#4B75A8">03</text>
+  <text x="571" y="348" text-anchor="middle" font-size="21" font-weight="700" fill="#1E2B3A">Spec +</text>
+  <text x="571" y="376" text-anchor="middle" font-size="21" font-weight="700" fill="#1E2B3A">fictional rows</text>
+  <path d="M662 337 H695" stroke="#8A98A6" stroke-width="3" fill="none"/><path d="M684 326 L695 337 L684 348" stroke="#8A98A6" stroke-width="3" fill="none"/>
+  <rect x="702" y="266" width="170" height="142" rx="16" fill="#FFF6E0" stroke="#E8C36A" stroke-width="2"/>
+  <text x="787" y="307" text-anchor="middle" font-size="18" font-weight="700" fill="#A66C23">04</text>
+  <text x="787" y="348" text-anchor="middle" font-size="21" font-weight="700" fill="#5C451F">Forge check +</text>
+  <text x="787" y="376" text-anchor="middle" font-size="21" font-weight="700" fill="#5C451F">TMDL preflight</text>
+  <path d="M878 337 H911" stroke="#8A98A6" stroke-width="3" fill="none"/><path d="M900 326 L911 337 L900 348" stroke="#8A98A6" stroke-width="3" fill="none"/>
+  <rect x="918" y="266" width="228" height="142" rx="16" fill="#E7F2EB" stroke="#9BC7A8" stroke-width="2"/>
+  <text x="1032" y="307" text-anchor="middle" font-size="18" font-weight="700" fill="#3F7D58">05</text>
+  <text x="1032" y="348" text-anchor="middle" font-size="21" font-weight="700" fill="#234B34">PBIP + blank</text>
+  <text x="1032" y="376" text-anchor="middle" font-size="21" font-weight="700" fill="#234B34">report</text>
+</g>
+<rect x="76" y="474" width="1048" height="112" rx="16" fill="#EAF0F6"/>
+<text x="108" y="514" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#1E2B3A">Engineering handoff</text>
+<text x="108" y="550" font-family="Arial, sans-serif" font-size="19" fill="#526273">Diagram · data dictionary · measures · validation summaries · open questions</text>
+<text x="108" y="576" font-family="Arial, sans-serif" font-size="16" fill="#647384">Opening the PBIP in Power BI Desktop remains a separate manual step.</text>
+<text x="76" y="651" font-family="Arial, sans-serif" font-size="15" fill="#82909D">Fictional sample rows are labelled as such; source systems and refresh rules remain engineering questions.</text>
+</svg>
