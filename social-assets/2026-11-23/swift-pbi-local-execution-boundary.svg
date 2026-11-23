@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="t d">
+<title id="t">Chat reasoning is not local model inspection</title>
+<desc id="d">A diagram contrasts what an agent can do in chat with what requires a local shell to inspect and lint PBIP and TMDL files.</desc>
+<rect width="1200" height="675" fill="#101820"/>
+<text x="72" y="82" fill="#F3F6F8" font-family="Inter,Arial,sans-serif" font-size="40" font-weight="700">Chat reasoning is not local model inspection</text>
+<text x="72" y="126" fill="#A9B8C5" font-family="Inter,Arial,sans-serif" font-size="21">The execution boundary matters when a Power BI project lives on disk.</text>
+<rect x="72" y="190" width="500" height="300" rx="20" fill="#1D2A35" stroke="#4C6070" stroke-width="2"/>
+<text x="112" y="245" fill="#9DB3C3" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">CHAT-ONLY</text>
+<text x="112" y="302" fill="#F3F6F8" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700">Can help with</text>
+<text x="112" y="351" fill="#C5D0D8" font-family="Inter,Arial,sans-serif" font-size="20">• requirements and model spec</text>
+<text x="112" y="390" fill="#C5D0D8" font-family="Inter,Arial,sans-serif" font-size="20">• explain pasted command output</text>
+<text x="112" y="429" fill="#C5D0D8" font-family="Inter,Arial,sans-serif" font-size="20">• review decisions and open questions</text>
+<text x="112" y="466" fill="#F09A9F" font-family="Inter,Arial,sans-serif" font-size="16">Cannot read local PBIP files by itself</text>
+<rect x="628" y="190" width="500" height="300" rx="20" fill="#17362F" stroke="#63C8B4" stroke-width="2"/>
+<text x="668" y="245" fill="#83DCCB" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">LOCAL SHELL</text>
+<text x="668" y="302" fill="#F3F6F8" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700">Can run the tools</text>
+<text x="668" y="351" fill="#C5D0D8" font-family="Inter,Arial,sans-serif" font-size="20">• uv + Git</text>
+<text x="668" y="390" fill="#C5D0D8" font-family="Inter,Arial,sans-serif" font-size="20">• inspect PBIP / TMDL on disk</text>
+<text x="668" y="429" fill="#C5D0D8" font-family="Inter,Arial,sans-serif" font-size="20">• run checks and review findings</text>
+<text x="668" y="466" fill="#83DCCB" font-family="Inter,Arial,sans-serif" font-size="16">The environment must provide a terminal</text>
+<text x="72" y="560" fill="#F3F6F8" font-family="Inter,Arial,sans-serif" font-size="23" font-weight="700">No shell? Run the documented command yourself and paste the output.</text>
+<text x="72" y="635" fill="#718596" font-family="Inter,Arial,sans-serif" font-size="14">swift-pbi preflight documentation • local execution requirement</text>
+</svg>
