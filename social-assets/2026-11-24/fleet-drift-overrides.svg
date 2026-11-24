@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">A difference is not automatically a defect</title><desc id="desc">Classify client-specific drift before changing a model.</desc>
+<rect width="1200" height="675" fill="#0B1422"/>
+<rect x="54" y="48" width="8" height="82" rx="4" fill="#7BD3C6"/>
+<text x="86" y="70" fill="#7BD3C6" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">FIELD NOTES / 24 NOV 2026</text>
+<text x="86" y="119" fill="#F4F7FB" font-family="Inter,Arial,sans-serif" font-size="42" font-weight="700">A difference is not automatically a defect</text>
+<text x="86" y="159" fill="#B9C5D4" font-family="Inter,Arial,sans-serif" font-size="21">Classify client-specific drift before changing a model.</text>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#71839A"/></marker></defs>
+      <rect x="60" y="245" width="240" height="220" rx="18" fill="#162338" stroke="#334963" stroke-width="2"/>
+<rect x="60" y="245" width="8" height="220" rx="4" fill="#7BD3C6"/>
+<text x="86" y="299" fill="#7BD3C6" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="1.2">TEMPLATE</text><text x="86" y="340" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">Shared model</text><text x="86" y="374" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">defines the baseline</text>
+      <line x1="305" y1="355" x2="350" y2="355" stroke="#71839A" stroke-width="3" marker-end="url(#arrow)"/>
+      <rect x="360" y="245" width="240" height="220" rx="18" fill="#162338" stroke="#334963" stroke-width="2"/>
+<rect x="360" y="245" width="8" height="220" rx="4" fill="#7BD3C6"/>
+<text x="386" y="299" fill="#7BD3C6" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="1.2">DETECT</text><text x="386" y="340" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">Compare each</text><text x="386" y="374" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">client copy</text>
+      <line x1="605" y1="355" x2="650" y2="355" stroke="#71839A" stroke-width="3" marker-end="url(#arrow)"/>
+      <rect x="660" y="245" width="480" height="220" rx="18" fill="#162338" stroke="#334963" stroke-width="2"/>
+<rect x="660" y="245" width="8" height="220" rx="4" fill="#E8C36A"/>
+<text x="686" y="299" fill="#E8C36A" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700" letter-spacing="1.2">CLASSIFY</text><text x="686" y="340" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">Accident → allowlisted fix</text><text x="686" y="374" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">Intentional → reasoned override</text><text x="686" y="408" fill="#D6DFE9" font-family="Inter,Arial,sans-serif" font-size="21">Unsure → human review</text>
+      <text x="600" y="548" text-anchor="middle" fill="#F4F7FB" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="600">Preserve the differences someone can explain.</text>
+<line x1="54" y1="612" x2="1146" y2="612" stroke="#314157" stroke-width="2"/>
+<text x="60" y="646" fill="#91A0B3" font-family="Inter,Arial,sans-serif" font-size="15" letter-spacing="1.1">SWIFT-PBI · FLEET-DRIFT WORKFLOW</text>
+</svg>
