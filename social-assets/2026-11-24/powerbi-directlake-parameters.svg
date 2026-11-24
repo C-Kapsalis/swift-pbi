@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">Direct Lake deployment environments</title><desc id="desc">M parameters and deployment rules can switch OneLake sources in preview.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7F9FC"/><stop offset="1" stop-color="#EEF2F7"/></linearGradient>
+  <style>
+    .h{font:700 42px Inter,Arial,sans-serif;fill:#152238}
+    .sub{font:400 23px Inter,Arial,sans-serif;fill:#536176}
+    .k{font:700 17px Inter,Arial,sans-serif;letter-spacing:2px;fill:#60718A}
+    .label{font:700 24px Inter,Arial,sans-serif;fill:#17263C}
+    .body{font:400 20px Inter,Arial,sans-serif;fill:#4D5C70}
+    .small{font:400 16px Inter,Arial,sans-serif;fill:#65758B}
+    .mono{font:600 18px ui-monospace,Menlo,Consolas,monospace;fill:#24364E}
+  </style>
+</defs>
+<rect width="1200" height="675" fill="url(#bg)"/>
+<rect x="48" y="42" width="8" height="86" rx="4" fill="#2C7A78"/>
+<text x="82" y="83" class="h">Direct Lake deployment environments</text>
+<text x="82" y="122" class="sub">M parameters and deployment rules can switch OneLake sources in preview.</text>
+
+ <rect x="64" y="212" width="300" height="245" rx="18" fill="#FFFFFF" stroke="#C9D5E3" stroke-width="2"/>
+ <text x="96" y="254" class="k">ONE SEMANTIC MODEL</text><text x="96" y="312" class="label">M parameters</text><text x="96" y="354" class="body">Source expression stays</text><text x="96" y="384" class="body">parameterized</text>
+ <path d="M380 334 H450" stroke="#7E91A8" stroke-width="4"/><path d="M438 322 L452 334 L438 346" stroke="#7E91A8" stroke-width="4" fill="none"/>
+ <rect x="462" y="212" width="674" height="245" rx="18" fill="#EEF4FF" stroke="#9DB8F2" stroke-width="2"/>
+ <text x="494" y="254" class="k">DEPLOYMENT PIPELINE RULES</text>
+ <rect x="494" y="292" width="180" height="112" rx="14" fill="#FFFFFF" stroke="#C9D5E3"/><text x="584" y="334" text-anchor="middle" class="label">Development</text><text x="584" y="372" text-anchor="middle" class="small">OneLake source A</text>
+ <rect x="708" y="292" width="180" height="112" rx="14" fill="#FFFFFF" stroke="#C9D5E3"/><text x="798" y="334" text-anchor="middle" class="label">Test</text><text x="798" y="372" text-anchor="middle" class="small">OneLake source B</text>
+ <rect x="922" y="292" width="180" height="112" rx="14" fill="#E7F6F1" stroke="#8BCBBA"/><text x="1012" y="334" text-anchor="middle" class="label">Production</text><text x="1012" y="372" text-anchor="middle" class="small">OneLake source C</text>
+ <text x="64" y="526" class="small">Preview feature · Different source bindings without manually rewriting expressions</text>
+ 
+<line x1="64" y1="615" x2="1136" y2="615" stroke="#D7DFE9" stroke-width="2"/>
+<text x="66" y="649" class="k">MICROSOFT POWER BI · NOVEMBER 2026 UPDATE</text>
+<text x="1135" y="649" text-anchor="end" class="small">1200 × 675</text>
+</svg>
