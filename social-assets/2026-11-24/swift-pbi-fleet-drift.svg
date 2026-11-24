@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">Template consistency without erasing client differences</title><desc id="desc">Drift is classified before any remediation is applied.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F7F9FC"/><stop offset="1" stop-color="#EEF2F7"/></linearGradient>
+  <style>
+    .h{font:700 42px Inter,Arial,sans-serif;fill:#152238}
+    .sub{font:400 23px Inter,Arial,sans-serif;fill:#536176}
+    .k{font:700 17px Inter,Arial,sans-serif;letter-spacing:2px;fill:#60718A}
+    .label{font:700 24px Inter,Arial,sans-serif;fill:#17263C}
+    .body{font:400 20px Inter,Arial,sans-serif;fill:#4D5C70}
+    .small{font:400 16px Inter,Arial,sans-serif;fill:#65758B}
+    .mono{font:600 18px ui-monospace,Menlo,Consolas,monospace;fill:#24364E}
+  </style>
+</defs>
+<rect width="1200" height="675" fill="url(#bg)"/>
+<rect x="48" y="42" width="8" height="86" rx="4" fill="#2C7A78"/>
+<text x="82" y="83" class="h">Template consistency without erasing client differences</text>
+<text x="82" y="122" class="sub">Drift is classified before any remediation is applied.</text>
+
+ <rect x="64" y="208" width="220" height="210" rx="18" fill="#FFFFFF" stroke="#C9D5E3" stroke-width="2"/>
+ <text x="94" y="252" class="k">TEMPLATE</text><text x="94" y="310" class="label">Shared</text><text x="94" y="344" class="label">semantic model</text>
+ <path d="M298 310 H352" stroke="#7E91A8" stroke-width="4"/><path d="M340 298 L354 310 L340 322" stroke="#7E91A8" stroke-width="4" fill="none"/>
+ <rect x="362" y="208" width="250" height="210" rx="18" fill="#EEF4FF" stroke="#9DB8F2" stroke-width="2"/>
+ <text x="392" y="252" class="k">DETECT</text><text x="392" y="310" class="label">Typed drift</text><text x="392" y="350" class="body">Read-only comparison</text>
+ <path d="M626 310 H676" stroke="#7E91A8" stroke-width="4"/><path d="M664 298 L678 310 L664 322" stroke="#7E91A8" stroke-width="4" fill="none"/>
+ <rect x="686" y="208" width="450" height="210" rx="18" fill="#FFFFFF" stroke="#C9D5E3" stroke-width="2"/>
+ <text x="716" y="252" class="k">CLASSIFY WITH THE OWNER</text>
+ <rect x="716" y="280" width="118" height="76" rx="12" fill="#FDECEC" stroke="#EBA3A3"/><text x="775" y="325" text-anchor="middle" class="label">Accident</text>
+ <rect x="850" y="280" width="128" height="76" rx="12" fill="#E7F6F1" stroke="#8BCBBA"/><text x="914" y="325" text-anchor="middle" class="label">Intended</text>
+ <rect x="994" y="280" width="112" height="76" rx="12" fill="#FFF6E0" stroke="#E8C36A"/><text x="1050" y="325" text-anchor="middle" class="label">Unsure</text>
+ <rect x="64" y="462" width="1072" height="86" rx="16" fill="#FFF6E0" stroke="#E8C36A" stroke-width="2"/>
+ <text x="96" y="498" class="label">Deletion gate</text><text x="96" y="529" class="body">Allowlist entry + --sync + second explicit yes</text>
+ 
+<line x1="64" y1="615" x2="1136" y2="615" stroke="#D7DFE9" stroke-width="2"/>
+<text x="66" y="649" class="k">SWIFT-PBI · FLEET DRIFT WORKFLOW</text>
+<text x="1135" y="649" text-anchor="end" class="small">1200 × 675</text>
+</svg>
