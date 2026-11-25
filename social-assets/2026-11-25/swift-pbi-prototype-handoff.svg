@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">A BI prototype is a hand-off, not a guess</title>
+<desc id="desc">swift-pbi · prototype-model workflow Ask the expert Questions, grain, dates,|entities and metric|definitions.. Build the spec Star schema, PBIP and|fictional sample rows.|Run two validation gates.. Leave open questions Source of truth, refresh,|history, volumes and|row-level security. The tools validate files; opening the PBIP in Desktop remains manual.</desc>
+<rect width="1200" height="675" fill="#0b1220"/>
+<rect x="60" y="48" width="7" height="145" rx="3" fill="#72d7c8"/>
+<text x="88" y="73" fill="#8ea4ba" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">FIELD NOTE · 25 NOV 2026</text>
+<text x="88" y="132" fill="#f5f7fb" font-family="Inter,Arial,sans-serif" font-size="43" font-weight="700"><tspan x="88" dy="0">A BI prototype is a hand-off, not a guess</tspan></text>
+<text x="88" y="190" fill="#b8c6d8" font-family="Inter,Arial,sans-serif" font-size="21" font-weight="400"><tspan x="88" dy="0">swift-pbi · prototype-model workflow</tspan></text>
+<g>
+      <rect x="60" y="252" width="335" height="245" rx="18" fill="#172337" stroke="#344861" stroke-width="2"/>
+      <circle cx="95" cy="292" r="18" fill="#214d59"/>
+      <text x="95" y="299" text-anchor="middle" fill="#a9f0e5" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">01</text>
+      <text x="88" y="346" fill="#f3f6fb" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700"><tspan x="88" dy="0">Ask the expert</tspan></text>
+      <text x="88" y="408" fill="#c0ccda" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400"><tspan x="88" dy="0">Questions, grain, dates,</tspan><tspan x="88" dy="28">entities and metric</tspan><tspan x="88" dy="28">definitions.</tspan></text>
+    </g><g>
+      <rect x="425" y="252" width="335" height="245" rx="18" fill="#172337" stroke="#344861" stroke-width="2"/>
+      <circle cx="460" cy="292" r="18" fill="#214d59"/>
+      <text x="460" y="299" text-anchor="middle" fill="#a9f0e5" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">02</text>
+      <text x="453" y="346" fill="#f3f6fb" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700"><tspan x="453" dy="0">Build the spec</tspan></text>
+      <text x="453" y="408" fill="#c0ccda" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400"><tspan x="453" dy="0">Star schema, PBIP and</tspan><tspan x="453" dy="28">fictional sample rows.</tspan><tspan x="453" dy="28">Run two validation gates.</tspan></text>
+    </g><g>
+      <rect x="790" y="252" width="335" height="245" rx="18" fill="#172337" stroke="#344861" stroke-width="2"/>
+      <circle cx="825" cy="292" r="18" fill="#214d59"/>
+      <text x="825" y="299" text-anchor="middle" fill="#a9f0e5" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">03</text>
+      <text x="818" y="346" fill="#f3f6fb" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700"><tspan x="818" dy="0">Leave open questions</tspan></text>
+      <text x="818" y="408" fill="#c0ccda" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400"><tspan x="818" dy="0">Source of truth, refresh,</tspan><tspan x="818" dy="28">history, volumes and</tspan><tspan x="818" dy="28">row-level security.</tspan></text>
+    </g>
+<rect x="60" y="535" width="1080" height="82" rx="16" fill="#163a42" stroke="#2b6670" stroke-width="2"/>
+<text x="88" y="585" fill="#d8f5f0" font-family="Inter,Arial,sans-serif" font-size="22" font-weight="700"><tspan x="88" dy="0">The tools validate files; opening the PBIP in Desktop remains manual.</tspan></text>
+<text x="60" y="650" fill="#71859a" font-family="Inter,Arial,sans-serif" font-size="14">Independent editorial explainer · source and scope are stated in the accompanying post</text>
+</svg>
