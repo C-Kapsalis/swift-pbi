@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <rect width="1200" height="675" fill="#F8FAFC"/>
+  <rect x="64" y="42" width="10" height="22" rx="5" fill="#0F766E"/>
+  <text x="88" y="60" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="700" letter-spacing="3" fill="#0F766E">SWIFT-PBI / AGENCY WORKFLOW</text>
+  <text x="64" y="124" font-family="Inter,Arial,sans-serif" font-size="42" font-weight="750" fill="#0F172A">One template. Separate client work.</text>
+  <text x="64" y="166" font-family="Inter,Arial,sans-serif" font-size="20" fill="#475569">The workflow keeps client changes reviewable instead of sharing one mutable model.</text>
+  <rect x="64" y="238" width="341.3333333333333" height="280" rx="22" fill="#FFFFFF" stroke="#D8E1EA" stroke-width="2"/>
+      <text x="88" y="280" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2" fill="#0F766E">1 / MASTER</text>
+      <text x="88" y="322" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="700" fill="#0F172A">Template model</text>
+      <text x="88" y="370" font-family="Inter,Arial,sans-serif" font-size="19" fill="#475569">One source template</text><text x="88" y="398" font-family="Inter,Arial,sans-serif" font-size="19" fill="#475569">Shared naming rules</text><rect x="429.3333333333333" y="238" width="341.3333333333333" height="280" rx="22" fill="#FFFFFF" stroke="#D8E1EA" stroke-width="2"/>
+      <text x="453.3333333333333" y="280" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2" fill="#0F766E">2 / SPINOUTS</text>
+      <text x="453.3333333333333" y="322" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="700" fill="#0F172A">Client branches</text>
+      <text x="453.3333333333333" y="370" font-family="Inter,Arial,sans-serif" font-size="19" fill="#475569">One branch per client</text><text x="453.3333333333333" y="398" font-family="Inter,Arial,sans-serif" font-size="19" fill="#475569">No cross-client edits</text><rect x="794.6666666666666" y="238" width="341.3333333333333" height="280" rx="22" fill="#FFFFFF" stroke="#D8E1EA" stroke-width="2"/>
+      <text x="818.6666666666666" y="280" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="2" fill="#0F766E">3 / GATE</text>
+      <text x="818.6666666666666" y="322" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="700" fill="#0F172A">Reviewed delivery</text>
+      <text x="818.6666666666666" y="370" font-family="Inter,Arial,sans-serif" font-size="19" fill="#475569">Model → drift → canvas</text><text x="818.6666666666666" y="398" font-family="Inter,Arial,sans-serif" font-size="19" fill="#475569">Preflight before commit</text>
+  <line x1="64" y1="565" x2="1136" y2="565" stroke="#CBD5E1" stroke-width="2"/>
+  <text x="64" y="608" font-family="Inter,Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="1.6" fill="#64748B">WORKFLOW DESCRIBED BY THE REPOSITORY SKILL · TOOLS NOT EXECUTED</text>
+  <text x="1136" y="608" text-anchor="end" font-family="Inter,Arial,sans-serif" font-size="15" fill="#94A3B8">26 NOV 2026</text>
+  </svg>
